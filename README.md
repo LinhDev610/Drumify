@@ -1,4 +1,4 @@
-# 🥁 Drumify - Music & Entertainment Platform
+# 🥁 Drumify - E-commerce Store for Drums & Musical Instruments
 
 <p align="center">
   <img src="https://img.shields.io/badge/Java-21-orange.svg" alt="Java">
@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/badge/MySQL-Database-blue.svg" alt="MySQL">
 </p>
 
-**Drumify** là một nền tảng dịch vụ âm nhạc hiện đại, được xây dựng trên kiến trúc hướng dịch vụ (Service-Oriented Architecture) mạnh mẽ, bảo mật cao và dễ dàng mở rộng. Dự án tích hợp các công nghệ tiên tiến nhất để mang lại trải nghiệm người dùng tối ưu.
+**Drumify** là một nền tảng thương mại điện tử chuyên cung cấp các thiết bị, nhạc cụ chính hãng. Sản phẩm chủ đạo của Drumify là **trống**, bên cạnh đó còn cung cấp đa dạng các loại nhạc cụ và phụ kiện âm nhạc khác như **guitar, phụ kiện trống, và các loại đàn khác**. Hệ thống được xây dựng theo mô hình kiến trúc **Layered Architecture** mạnh mẽ, đảm bảo tính phân lớp rõ ràng, bảo mật cao và dễ dàng bảo trì, mang lại trải nghiệm mua sắm tối ưu cho khách hàng.
 
 ---
 
@@ -23,7 +23,7 @@
 
 ## 🚀 Tính năng nổi bật
 - **Bảo mật toàn diện**: Xác thực và phân quyền mạnh mẽ thông qua Keycloak OAuth2/OpenID Connect.
-- **Microservices-Ready**: Kiến trúc cho phép tích hợp và mở rộng dễ dàng với Spring Cloud.
+- **Layered Architecture**: Sử dụng kiến trúc phân lớp chuẩn mực với Controller, Service, Repository, tối ưu việc mở rộng cấu trúc dự án.
 - **Chuẩn hóa API**: Sử dụng `ApiResponse` và xử lý lỗi đồng nhất qua danh sách `ErrorCode`.
 - **Tối ưu hiệu suất**: Sử dụng MapStruct và Lombok để giảm thiểu boilerplate code, tăng tốc độ phát triển.
 - **Code Quality**: Tích hợp Spotless để đảm bảo quy chuẩn viết code sạch và nhất quán.
