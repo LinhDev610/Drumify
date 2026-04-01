@@ -1,6 +1,8 @@
-# Hướng dẫn Cài đặt & Cấu hình Keycloak
+# 🔐 Hướng dẫn Cài đặt & Cấu hình Keycloak
 
-Tài liệu này cung cấp các bước chi tiết để thiết lập Keycloak cho dự án **Drumify**. Cấu hình này được tối ưu hóa cho môi trường phát triển (Local) và có thể mở rộng sang các môi trường khác (Staging/Production).
+Tài liệu này cung cấp các bước chi tiết để thiết lập Keycloak cho dự án **Drumify**. Cấu hình này được tối ưu hóa cho môi trường phát triển (Local) và có thể mở rộng linh hoạt sang các môi trường khác (Staging/Production).
+
+---
 
 ## 1. Yêu cầu hệ thống
 - **Docker**: Đã được cài đặt và đang chạy.
@@ -9,13 +11,13 @@ Tài liệu này cung cấp các bước chi tiết để thiết lập Keycloak
 ## 2. Các bước thiết lập
 
 ### Bước 1: Tải Keycloak Docker image
-Sử dụng phiên bản Keycloak 26.5.6 (ổn định nhất cho dự án):
+Sử dụng phiên bản Keycloak **26.5.6** (ổn định nhất cho dự án):
 ```bash
 docker pull quay.io/keycloak/keycloak:26.5.6
 ```
 
 ### Bước 2: Chạy Keycloak Container
-Chạy lệnh sau để khởi tạo Keycloak với các cấu hình mặc định cho môi trường phát triển:
+Chạy lệnh sau trong Terminal để khởi tạo Keycloak với các cấu hình mặc định ở chế độ phát triển:
 
 ```bash
 docker run -d \
@@ -38,15 +40,16 @@ docker run -d \
 - `start-dev`: Chạy ở chế độ phát triển (bỏ qua các bước kiểm tra HTTPS nghiêm ngặt).
 
 ## 3. Thông tin truy cập
-- **Admin Console**: [http://localhost:8280/admin](http://localhost:8280/admin)
-- **Tài khoản mặc định**: `admin` / `admin`
-- **Realm dự kiến**: `Drumify` (Cần tạo thủ công hoặc import nếu có file JSON).
+
+- 🔗 **Admin Console**: [http://localhost:8280/admin](http://localhost:8280/admin)
+- 👤 **Tài khoản mặc định**: `admin` / `admin`
+- 🛡️ **Realm dự kiến**: `Drumify` *(Bạn cần tạo Realm thủ công thông qua giao diện Admin hoặc import từ file JSON được cung cấp).*
 
 ---
 
-## 4. Lưu ý khi triển khai thực tế (Production)
-Khi chuyển sang môi trường Production, bạn CẦN thay đổi các tham số sau:
-1. `KC_HOSTNAME_STRICT=true`: Chỉ cho phép domain chính thức.
-2. `KC_HTTP_ENABLED=false`: Luôn sử dụng HTTPS.
-3. Sử dụng Database vật lý (PostgreSQL/MySQL) thay vì H2 nhúng định sẵn trong container.
-4. Bảo mật lại Password admin thông qua Docker Secrets hoặc Environment Variables bảo mật hơn.
+## 4. ⚠️ Lưu ý khi triển khai thực tế (Production)
+Khi chuyển ứng dụng sang môi trường Production, bạn CẦN bắt buộc thay đổi các tham số sau:
+1. Đặt `KC_HOSTNAME_STRICT=true` để chỉ cho phép domain chính thức.
+2. Đặt `KC_HTTP_ENABLED=false` để luôn sử dụng HTTPS.
+3. Sử dụng Database vật lý (PostgreSQL / MySQL / MariaDB) thay vì H2 nhúng định sẵn trong container.
+4. Bảo mật lại Password Admin thông qua *Docker Secrets* hoặc *Environment Variables* an toàn hơn.
