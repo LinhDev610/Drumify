@@ -22,11 +22,11 @@
 ---
 
 ## 🚀 Tính năng nổi bật
-- **Bảo mật toàn diện**: Xác thực và phân quyền mạnh mẽ thông qua Keycloak OAuth2/OpenID Connect.
-- **Layered Architecture**: Sử dụng kiến trúc phân lớp chuẩn mực với Controller, Service, Repository, tối ưu việc mở rộng cấu trúc dự án.
-- **Chuẩn hóa API**: Sử dụng `ApiResponse` và xử lý lỗi đồng nhất qua danh sách `ErrorCode`.
-- **Tối ưu hiệu suất**: Sử dụng MapStruct và Lombok để giảm thiểu boilerplate code, tăng tốc độ phát triển.
-- **Code Quality**: Tích hợp Spotless để đảm bảo quy chuẩn viết code sạch và nhất quán.
+- **Bảo mật & Định danh**: Tích hợp toàn diện với **Keycloak** (OAuth2/OpenID Connect). Dữ liệu tài khoản được quản lý ở Identity Provider (Keycloak), trong khi hồ sơ người dùng (Profile) được đồng bộ và lưu trữ hoàn toàn độc lập tại cơ sở dữ liệu nội bộ.
+- **Giao tiếp Dịch vụ (Service-to-Service)**: Sử dụng **Spring Cloud OpenFeign** để gọi trực tiếp các Admin REST API của Keycloak (Exchange Token, Tạo lập tài khoản) một cách liền mạch.
+- **Layered Architecture**: Tuân thủ kiến trúc phân lớp chuẩn mực (Controller, Service, Repository) nhằm tách biệt Business Logic với thao tác truy vết DB.
+- **Chuẩn hóa API**: Xử lý lỗi đồng nhất và gọn gàng thông qua `ErrorCode` và custom Exception.
+- **Tối ưu code**: Tận dụng `MapStruct` (cho DTO mapping) và `Lombok` để loại bỏ mã thừa, kết hợp với Spotless linter định dạng code tự động.
 
 ---
 
