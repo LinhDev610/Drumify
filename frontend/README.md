@@ -1,74 +1,55 @@
-# Can cai thu vien:
-keycloak-js: npm install keycloak-js
-Material UI: npm install @mui/material @emotion/react @emotion/styled
+# Drumify Frontend
 
-# Getting Started with Create React App
+Chào mừng đến với mã nguồn Frontend của **Drumify** - Ứng dụng thương mại điện tử chuyên cung cấp các mặt hàng nhạc cụ đa dạng như trống, guitar, phụ kiện và nhiều thiết bị âm nhạc khác.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 🚀 Công nghệ sử dụng (Tech Stack)
 
-## Available Scripts
+Dự án được xây dựng với các công nghệ và thư viện hiện đại để đảm bảo hiệu năng và trải nghiệm người dùng tối ưu:
 
-In the project directory, you can run:
+- **Framework**: [ReactJS](https://reactjs.org/) (Khởi tạo qua Create React App)
+- **Giao diện (UI)**: [Material UI (MUI)](https://mui.com/) - Cung cấp kho component đa dạng, thiết kế theo chuẩn Material Design.
+- **Xác thực (Authentication)**: [Keycloak](https://www.keycloak.org/) kết hợp `keycloak-js` để xử lý đăng nhập, bảo mật ứng dụng và bảo vệ các routes.
 
-### `npm start`
+## 🛠️ Hướng dẫn cài đặt và chạy dự án
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Yêu cầu hệ thống
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Hãy chắc chắn rằng bạn đã cài đặt [Node.js](https://nodejs.org/) (khuyến nghị bản LTS) trên máy.
 
-### `npm test`
+### Các bước cài đặt
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. **Clone dự án & truy cập vào thư mục frontend:**
+   ```bash
+   # Nếu bạn đang ở thư mục gốc của project
+   cd frontend
+   ```
 
-### `npm run build`
+2. **Cài đặt các thư viện phụ thuộc (Dependencies):**
+   ```bash
+   npm install
+   ```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Chạy ứng dụng trong môi trường phát triển (Development)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Để khởi động ứng dụng, bạn chạy lệnh sau:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+npm start
+```
+Ứng dụng sẽ chạy tại địa chỉ: [http://localhost:3000](http://localhost:3000).
+Trang web sẽ tự động reload lại nếu bạn thực hiện thay đổi vào mã nguồn.
 
-### `npm run eject`
+### Đóng gói ứng dụng để đưa lên Production
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Khi muốn triển khai thực tế, bạn có thể build dự án với lệnh:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+npm run build
+```
+Quá trình này sẽ đóng gói ứng dụng một cách tối ưu cùng file tĩnh nhúng trong thư mục `build`, sẵn sàng để deploy.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 🔑 Cấu hình Keycloak
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Do ứng dụng có sử dụng **Keycloak** để quản lý danh tính (IAM), hãy đảm bảo rằng:
+1. Server Keycloak của dự án đang chạy phía nền (trên backend hoặc qua Docker).
+2. Các thông số cấu hình về `realm`, `clientId`, và `url` của Keycloak đã được trỏ đúng ở trong dự án React để người dùng có thể thực hiện đăng nhập và đăng xuất thành công.
