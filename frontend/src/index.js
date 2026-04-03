@@ -1,17 +1,46 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
+import keycloak from "./keycloak"
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import { Box, CircularProgress } from "@mui/material";
+
+
+const Main = () => {
+  const [keycloakInitialized, setKeycloakInitialized] = useState(false);
+
+  useEffect(() => {
+    keycloak
+      .init({
+        onLoad: "check-sso", // Check user đăng nhập ở đâu khác chưa
+      })
+      .then((authenticated) => { // authenticated: giá trị Boolean được Keycloak trả về sau khi quá trình khởi tạo hoàn tất.
+        setKeycloakInitialized(true)
+      })
+      .catch((err) => {
+        console.error("Authenticated Failed", err);
+      });
+  }, []);
+
+  if (!keycloakInitialized) {
+    return (
+      <>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+          }}
+        >
+          <CircularProgress></CircularProgress>
+        </Box>
+      </>
+    )
+  }
+
+  return <App />;
+}
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+root.render(<Main />);
