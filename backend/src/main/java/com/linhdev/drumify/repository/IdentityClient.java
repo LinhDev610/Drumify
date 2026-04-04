@@ -16,7 +16,7 @@ import feign.QueryMap;
 @FeignClient(name = "identity-client", url = "${idp.url}")
 public interface IdentityClient {
     @PostMapping(
-            value = "/realms/drumify-dev/protocal/openid-connect/token",
+            value = "/realms/drumify-dev/protocol/openid-connect/token",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     TokenExchangeResponse exchangeToken(@QueryMap TokenExchangeParam param);
 

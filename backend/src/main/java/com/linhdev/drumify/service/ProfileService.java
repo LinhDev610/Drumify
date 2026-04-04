@@ -73,7 +73,7 @@ public class ProfileService {
             var profile = profileMapper.toProfile(request);
             profile.setUserId(userId);
             profile.setDob(request.getDob());
-            profile.setSex(request.isSex());
+            profile.setSex(request.getSex());
 
             profile = profileRepository.save(profile);
 

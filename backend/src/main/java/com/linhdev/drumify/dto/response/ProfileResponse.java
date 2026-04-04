@@ -23,5 +23,5 @@ public class ProfileResponse {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     LocalDate dob;
 
-    boolean sex;
+    Boolean sex;
 }

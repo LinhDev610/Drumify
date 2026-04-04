@@ -21,6 +21,7 @@ public class Profile {
 
     // ID from MySQL, show with user
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     String profileId;
 
     @Column(unique = true, nullable = false)
@@ -33,5 +34,5 @@ public class Profile {
     String lastName;
 
     LocalDate dob;
-    boolean sex;
+    Boolean sex;
 }

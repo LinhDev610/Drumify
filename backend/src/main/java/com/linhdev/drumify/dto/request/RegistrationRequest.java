@@ -28,5 +28,5 @@ public class RegistrationRequest {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     LocalDate dob;
 
-    boolean sex;
+    Boolean sex;
 }

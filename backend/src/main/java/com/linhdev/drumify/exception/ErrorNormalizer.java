@@ -33,7 +33,7 @@ public class ErrorNormalizer {
             log.warn("Cannot complete request");
             var response = objectMapper.readValue(e.contentUTF8(), KeycloakError.class);
 
-            String errorMessage = response.getErrorMessage();
+            String errorMessage = response.getError();
             if (Objects.nonNull(errorMessage) && Objects.nonNull(errorCodeMap.get(errorMessage))) {
                 return new AppException(errorCodeMap.get(errorMessage));
             }
