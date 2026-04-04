@@ -2,8 +2,12 @@ package com.linhdev.drumify.service;
 
 import java.util.List;
 
+import com.linhdev.drumify.exception.AppException;
+import com.linhdev.drumify.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.linhdev.drumify.dto.identity.Credential;
@@ -81,6 +85,21 @@ public class ProfileService {
         } catch (FeignException e) {
             throw errorNormalizer.handleKeycloakException(e);
         }
+    }
+
+    public ProfileResponse getMyProfile() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userID = authentication.getName();
+
+        var profile = profileRepository.findByUserId(userID).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        return profileMapper.toProfileResponse(profile);
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DIRECTOR')")
+    public List<ProfileResponse> getAllProfiles() {
+        var profiles = profileRepository.findAll();
+        return profiles.stream().map(profileMapper::toProfileResponse).toList();
     }
 
     private String extractUserId(ResponseEntity<?> response) {
