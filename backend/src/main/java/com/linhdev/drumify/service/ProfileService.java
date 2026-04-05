@@ -96,7 +96,11 @@ public class ProfileService {
         return profileMapper.toProfileResponse(profile);
     }
 
-    @PreAuthorize("hasRole('ADMIN') or hasRole('DIRECTOR')")
+    @PreAuthorize("""
+        hasRole('ADMIN') 
+        or hasRole('DIRECTOR') 
+        or (hasRole('STAFF') and hasAuthority('GROUP_HR'))
+    """)
     public List<ProfileResponse> getAllProfiles() {
         var profiles = profileRepository.findAll();
         return profiles.stream().map(profileMapper::toProfileResponse).toList();

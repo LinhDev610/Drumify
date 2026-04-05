@@ -1,9 +1,6 @@
 package com.linhdev.drumify.configuration;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.core.convert.converter.Converter;
@@ -15,20 +12,40 @@ public class CustomAuthoritiesConverter implements Converter<Jwt, Collection<Gra
     private final String REALM_ACCESS = "realm_access";
     private final String ROLE_PREFIX = "ROLE_";
     private final String ROLES = "roles";
+    private final String GROUP_PREFIX = "GROUP_";
+    private final String USER_GROUPS = "user_groups";
 
     @Override
-    public Collection<GrantedAuthority> convert(Jwt source) {
+    public List<GrantedAuthority> convert(Jwt source) {
+
+        List<GrantedAuthority> authorities = new ArrayList<>();
+
+        // ROLES
         Map<String, Object> realmAccessMap = source.getClaimAsMap(REALM_ACCESS);
 
-        Object roles = realmAccessMap.get(ROLES);
+        if (realmAccessMap != null) {
+            Object roles = realmAccessMap.get(ROLES);
 
-        if (roles instanceof List stringRoles) {
-            return ((List<String>) stringRoles)
-                    .stream()
-                            .map(s -> new SimpleGrantedAuthority(String.format("%s%s", ROLE_PREFIX, s)))
-                            .collect(Collectors.toList());
+            if (roles instanceof List<?> stringRoles) {
+                stringRoles.stream()
+                    .filter(String.class::isInstance)
+                    .map(String.class::cast)
+                    .map(s -> new SimpleGrantedAuthority(ROLE_PREFIX + s))
+                    .forEach(authorities::add);
+            }
         }
 
-        return Collections.emptyList();
+        // GROUPS
+        Object groups = source.getClaim(USER_GROUPS);
+
+        if (groups instanceof List<?> stringGroups) {
+            stringGroups.stream()
+                    .filter(String.class::isInstance)
+                    .map(String.class::cast)
+                    .map(s -> new SimpleGrantedAuthority(GROUP_PREFIX + s))
+                    .forEach(authorities::add);
+        }
+
+        return authorities;
     }
 }
