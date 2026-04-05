@@ -1,10 +1,11 @@
 export const CONFIG = {
-    API_GATEWAY: "http://localhost:8080/profile"
+    API_GATEWAY: "http://localhost:8080/drumify"
 }
 
 export const API = {
     REGISTRATION: "/register",
-    MY_PROFILE: "/profile",
+    MY_PROFILE: "/my-profile",
+    PROFILES: "/profiles"
 }
 
 export const KEYCLOAK_CONFIG = {
