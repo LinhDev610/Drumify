@@ -2,8 +2,6 @@ package com.linhdev.drumify.service;
 
 import java.util.List;
 
-import com.linhdev.drumify.exception.AppException;
-import com.linhdev.drumify.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,6 +13,8 @@ import com.linhdev.drumify.dto.identity.TokenExchangeParam;
 import com.linhdev.drumify.dto.identity.UserCreationParam;
 import com.linhdev.drumify.dto.request.RegistrationRequest;
 import com.linhdev.drumify.dto.response.ProfileResponse;
+import com.linhdev.drumify.exception.AppException;
+import com.linhdev.drumify.exception.ErrorCode;
 import com.linhdev.drumify.exception.ErrorNormalizer;
 import com.linhdev.drumify.mapper.ProfileMapper;
 import com.linhdev.drumify.repository.IdentityClient;
@@ -91,16 +91,18 @@ public class ProfileService {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         String userID = authentication.getName();
 
-        var profile = profileRepository.findByUserId(userID).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        var profile =
+                profileRepository.findByUserId(userID).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         return profileMapper.toProfileResponse(profile);
     }
 
-    @PreAuthorize("""
-        hasRole('ADMIN') 
-        or hasRole('DIRECTOR') 
-        or (hasRole('STAFF') and hasAuthority('GROUP_HR'))
-    """)
+    @PreAuthorize(
+            """
+		hasRole('ADMIN')
+		or hasRole('DIRECTOR')
+		or (hasRole('STAFF') and hasAuthority('GROUP_HR'))
+	""")
     public List<ProfileResponse> getAllProfiles() {
         var profiles = profileRepository.findAll();
         return profiles.stream().map(profileMapper::toProfileResponse).toList();

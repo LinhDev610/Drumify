@@ -1,7 +1,6 @@
 package com.linhdev.drumify.configuration;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
@@ -28,10 +27,10 @@ public class CustomAuthoritiesConverter implements Converter<Jwt, Collection<Gra
 
             if (roles instanceof List<?> stringRoles) {
                 stringRoles.stream()
-                    .filter(String.class::isInstance)
-                    .map(String.class::cast)
-                    .map(s -> new SimpleGrantedAuthority(ROLE_PREFIX + s))
-                    .forEach(authorities::add);
+                        .filter(String.class::isInstance)
+                        .map(String.class::cast)
+                        .map(s -> new SimpleGrantedAuthority(ROLE_PREFIX + s))
+                        .forEach(authorities::add);
             }
         }
 
