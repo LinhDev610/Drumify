@@ -1,4 +1,4 @@
-package com.linhdev.drumify.repository;
+package com.linhdev.drumify.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;

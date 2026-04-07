@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.linhdev.drumify.client.IdentityClient;
 import com.linhdev.drumify.dto.identity.Credential;
 import com.linhdev.drumify.dto.identity.TokenExchangeParam;
 import com.linhdev.drumify.dto.identity.UserCreationParam;
@@ -17,7 +18,6 @@ import com.linhdev.drumify.exception.AppException;
 import com.linhdev.drumify.exception.ErrorCode;
 import com.linhdev.drumify.exception.ErrorNormalizer;
 import com.linhdev.drumify.mapper.ProfileMapper;
-import com.linhdev.drumify.repository.IdentityClient;
 import com.linhdev.drumify.repository.ProfileRepository;
 
 import feign.FeignException;
