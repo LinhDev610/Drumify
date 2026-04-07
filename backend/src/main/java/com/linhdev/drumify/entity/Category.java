@@ -45,7 +45,10 @@ public class Category {
     List<Category> subCategories;
 
     // Products
-    @OneToMany(mappedBy = "category", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.LAZY)
+    @OneToMany(
+            mappedBy = "category",
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            fetch = FetchType.LAZY)
     List<Product> products;
 
     // Promotions/Vouchers scope

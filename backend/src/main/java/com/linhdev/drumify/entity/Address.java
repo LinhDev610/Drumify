@@ -18,7 +18,7 @@ import lombok.experimental.FieldDefaults;
 public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    String addressId;
+    String id;
 
     String recipientName;
     String recipientPhoneNumber;

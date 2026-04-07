@@ -36,7 +36,6 @@ public class Profile {
     String lastName;
 
     String phoneNumber;
-    String address;
     String avatarUrl;
 
     LocalDate dob;
@@ -47,8 +46,8 @@ public class Profile {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "user_addresses",
-            joinColumns = @JoinColumn(name = "user_id"),
+            name = "profile_addresses",
+            joinColumns = @JoinColumn(name = "profile_id"),
             inverseJoinColumns = @JoinColumn(name = "address_id"))
     Set<Address> addresses;
 
