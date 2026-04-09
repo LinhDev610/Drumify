@@ -1,87 +1,53 @@
-# 🥁 Drumify - E-commerce Store for Drums & Musical Instruments
+# 🥁 DRUMIFY - BACKEND CORE ENGINE
 
 <p align="center">
   <img src="https://img.shields.io/badge/Java-21-orange.svg" alt="Java">
   <img src="https://img.shields.io/badge/Spring%20Boot-4.0.5-brightgreen.svg" alt="Spring Boot">
-  <img src="https://img.shields.io/badge/Keycloak-26.5.6-blue.svg" alt="Keycloak">
-  <img src="https://img.shields.io/badge/MySQL-Database-blue.svg" alt="MySQL">
+  <img src="https://img.shields.io/badge/Security-Keycloak-blue.svg" alt="Keycloak">
+  <img src="https://img.shields.io/badge/Database-MySQL-blue.svg" alt="MySQL">
 </p>
 
-**Drumify** là một nền tảng thương mại điện tử chuyên cung cấp các thiết bị, nhạc cụ chính hãng. Sản phẩm chủ đạo của Drumify là **trống**, bên cạnh đó còn cung cấp đa dạng các loại nhạc cụ và phụ kiện âm nhạc khác như **guitar, phụ kiện trống, và các loại đàn khác**. Hệ thống được xây dựng theo mô hình kiến trúc **Layered Architecture** mạnh mẽ, đảm bảo tính phân lớp rõ ràng, bảo mật cao và dễ dàng bảo trì, mang lại trải nghiệm mua sắm tối ưu cho khách hàng.
+Đây là trung tâm xử lý dữ liệu của **Drumify**. Hệ thống được thiết kế để chịu tải tốt, bảo mật cao và dễ dàng mở rộng, phục vụ toàn bộ các dịch vụ cho nền tảng thương mại điện tử nhạc cụ.
 
 ---
 
-## 📑 Mục lục
-- [Tính năng nổi bật](#-tính-năng-nổi-bật)
-- [Công nghệ sử dụng](#️-công-nghệ-sử-dụng)
-- [Cấu trúc dự án](#-cấu-trúc-dự-án)
-- [Hướng dẫn cài đặt & Chạy dự án](#-hướng-dẫn-cài-đặt--chạy-dự-án)
-- [Đóng góp](#-đóng-góp)
-- [Giấy phép](#-giấy-phép)
+## 🚀 Tính năng kỹ thuật nổi bật
+
+-   **Bảo mật & Định danh (IAM)**: Tích hợp sâu với **Keycloak** (OIDC). Sử dụng `CustomAuthoritiesConverter` để ánh xạ chính xác quyền hạn (RBAC) từ JWT.
+-   **Service-to-Service Communication**: Sử dụng **OpenFeign** để tương tác mượt mà với Keycloak Admin APIs (tạo user, quản lý token).
+-   **Kiến trúc Phân lớp (Layered Architecture)**: Đảm bảo Separation of Concerns giữa Controller, Service, Mapping và Repository.
+-   **Chuẩn hóa dữ liệu & API**:
+    *   Sử dụng **MapStruct** & **Lombok** để tối ưu hóa code.
+    *   Hệ thống **Global Exception Handling** bắt trọn mọi lỗi (Auth, Validation, Business) và trả về định dạng `ApiResponse` đồng nhất.
+-   **Code Quality**: Tích hợp **Spotless** linter để tự động định dạng mã nguồn theo chuẩn.
 
 ---
 
-## 🚀 Tính năng nổi bật
-- **Bảo mật & Định danh**: Tích hợp toàn diện với **Keycloak** (OAuth2/OpenID Connect). Hồ sơ người dùng (Profile) được đồng bộ và quản lý độc lập tại CSDL nội bộ. Xác thực và phân quyền (RBAC) chặt chẽ thông qua `CustomAuthoritiesConverter` ánh xạ quyền từ `realm_access` trong JWT.
-- **Giao tiếp Dịch vụ (Service-to-Service)**: Sử dụng **Spring Cloud OpenFeign** để gọi trực tiếp các Admin REST API của Keycloak (Exchange Token, Tạo lập tài khoản) một cách liền mạch.
-- **Layered Architecture**: Tuân thủ kiến trúc phân lớp chuẩn mực (Controller, Service, Repository) nhằm tách biệt Business Logic với thao tác DB.
-- **Chuẩn hóa API & Global Exception Handling**: Xử lý lỗi tập trung và toàn diện với chuyên biệt `GlobalExceptionHandler`. Bắt trọn các ngoại lệ từ Auth (Security, AccessDenied), Validation đến các `AppException` tuỳ chỉnh. Kết hợp cùng `ErrorNormalizer` cho Feign Client để đảm bảo format JSON trả về (`ApiResponse`) luôn đồng nhất trong toàn hệ thống.
-- **Tối ưu code**: Tận dụng `MapStruct` (cho DTO mapping) và `Lombok` để loại bỏ mã thừa, kết hợp với plugin Spotless linter tự động định dạng code (auto-format) trong quá trình biên dịch (compile).
-
----
-
-## 🛠️ Công nghệ sử dụng
-
-| Phân lớp | Công nghệ |
-| :--- | :--- |
-| **Ngôn ngữ** | Java 21 (LTS) |
-| **Framework** | Spring Boot 4.0.5 |
-| **Cơ sở dữ liệu** | MySQL / MariaDB |
-| **Xác thực** | Keycloak (OAuth2 Resource Server) |
-| **Giao tiếp Dịch vụ** | Spring Cloud OpenFeign |
-| **Mapping & Tiện ích** | MapStruct, Lombok |
-| **Kiểm định** | JUnit 5, Mockito |
-
----
-
-## 📂 Cấu trúc dự án
+## 📂 Sơ đồ cấu trúc (Backend Map)
 
 ```text
 src/main/java/com/linhdev/drumify/
-├── configuration/  # Cấu hình Security, CORS, JWT...
-├── controller/     # Các RESTful API endpoints
-├── dto/            # Data Transfer Objects
-├── entity/         # Cấu trúc bảng cơ sở dữ liệu
-├── exception/      # Xử lý lỗi tập trung
-├── mapper/         # Chuyển đổi giữa Entity và DTO
-├── repository/     # Tầng truy xuất dữ liệu
-└── service/        # Logic nghiệp vụ chính
+├── configuration/  # Security, CORS, JWT, Feign Config
+├── controller/     # REST Endpoints (Sản phẩm, Đơn hàng, Profile...)
+├── dto/            # Data Transfer Objects (Request/Response)
+├── entity/         # Database Models (JPA)
+├── exception/      # Luồng xử lý lỗi tập trung
+├── mapper/         # Logic chuyển đổi Object (Entity <-> DTO)
+├── repository/     # Tầng truy xuất dữ liệu MySQL
+└── service/        # Business Logic & Keycloak Integration
 ```
 
 ---
 
-## 📖 Hướng dẫn cài đặt & Chạy dự án
+## 📖 Hướng dẫn thiết lập & Chạy dự án
 
-### 📋 Yêu cầu hệ thống
-- **Java 21** trở lên.
+### 1. Yêu cầu hệ thống
+- **Java 21 (LTS)**
 - **Maven 3.9+**
-- **Docker & Docker Compose** (để chạy Keycloak và MySQL).
+- **Docker Compose** (Dành cho CSDL & Keycloak)
 
-### ⚙️ Thiết lập bước đầu
-1. **Clone dự án**:
-```bash
-git clone https://github.com/LinhDev610/Drumify.git
-cd Drumify
-```
-
-**2. Khởi tạo & Định cấu hình Keycloak:**
-Quản lý danh tính và quyền truy cập (IAM) của ứng dụng được xử lý bởi Keycloak.
-👉 **[Xem chi tiết hướng dẫn chạy Keycloak tại đây](./KEYCLOAK.md)**.
-
-**3. Cấu hình Cơ sở dữ liệu:**
-👉 **[Xem chi tiết hướng dẫn chạy MySQL tại đây](./MYSQL.md)**.
-
-Tạo Database `drumify_db` trong MySQL và cập nhật thông tin kết nối trong `src/main/resources/application.yaml`:
+### 2. Cấu hình Cơ sở dữ liệu
+Cập nhật thông tin tại `src/main/resources/application.yaml`:
 ```yaml
 spring:
   datasource:
@@ -89,29 +55,29 @@ spring:
     username: root
     password: root
 ```
+👉 [Chi tiết cấu hình MySQL](./MYSQL.md)
 
-**4. Build và Chạy ứng dụng:**
+### 3. Cấu hình Keycloak
+Đảm bảo bạn đã Import realm cấu hình của dự án.
+👉 [Chi tiết cấu hình Keycloak](./KEYCLOAK.md)
+
+### 4. Build & Khởi động
 ```bash
-# Phân quyền thực thi cho Maven Wrapper
+# Cấp quyền cho Maven Wrapper
 chmod +x mvnw
 
-# Xóa target cũ, tải dependencies và đóng gói
+# Cài đặt và chạy
 ./mvnw clean install -DskipTests
-
-# Khởi chạy dịch vụ
 ./mvnw spring-boot:run
 ```
 
 ---
 
-## 🧑‍💻 Đóng góp
-Nếu bạn muốn đóng góp cho dự án, vui lòng tạo **Pull Request** hoặc gửi **Issue**. Mọi đóng góp đều được trân trọng!
-
-## 📜 Giấy phép
-Dự án được phát hành dưới giấy phép [MIT](https://opensource.org/licenses/MIT).
+## 🧑‍💻 Đóng góp & Bảo trì
+Dự án tuân thủ nghiêm ngặt các quy tắc về code quality. Vui lòng chạy build trước khi commit để đảm bảo Spotless format đúng chuẩn.
 
 ---
 <p align="center">
-© 2026 - <b>Drumify Dev Team</b><br>
-<i>Music meets Technology 🎶</i>
+  [Quay lại trang chủ dự án](../README.md)<br>
+  © 2026 - <b>Drumify Dev Team</b>
 </p>

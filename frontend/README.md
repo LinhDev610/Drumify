@@ -1,39 +1,62 @@
-# Drumify Frontend
+# 🥁 DRUMIFY - FRONTEND PORTAL
 
-Chào mừng đến với mã nguồn Frontend của **Drumify** - Ứng dụng thương mại điện tử chuyên cung cấp các mặt hàng nhạc cụ đa dạng như trống, guitar, phụ kiện và nhiều thiết bị âm nhạc khác.
+<p align="center">
+  <img src="https://img.shields.io/badge/React-19.2.4-61dafb.svg" alt="React">
+  <img src="https://img.shields.io/badge/Material%20UI-7.x-0081CB.svg" alt="MUI">
+  <img src="https://img.shields.io/badge/Status-Migration%20In%20Progress-orange.svg" alt="Status">
+</p>
 
-## 🚀 Công nghệ sử dụng (Tech Stack)
+## 🎯 Giới thiệu
 
-Dự án được xây dựng với các công nghệ và thư viện hiện đại để đảm bảo hiệu năng và trải nghiệm người dùng tối ưu:
+Đây là thành phần giao diện người dùng của **Drumify** - Nền tảng thương mại điện tử nhạc cụ hàng đầu. Portal được xây dựng dựa trên triết lý thiết kế hiện đại, tinh gọn (Clean Design) và kế thừa hệ thống layout tối ưu từ dự án LilaShop, chuyển đổi hoàn toàn sang hệ sinh thái nhạc cụ âm nhạc.
 
-- **Framework**: [ReactJS](https://reactjs.org/) (Khởi tạo qua Create React App)
-- **Giao diện (UI)**: [Material UI (MUI)](https://mui.com/) - Cung cấp kho component đa dạng, thiết kế theo chuẩn Material Design.
-- **Xác thực (Authentication)**: [Keycloak](https://www.keycloak.org/) kết hợp `keycloak-js` để xử lý đăng nhập, bảo mật ứng dụng và bảo vệ các routes.
+## 🚀 Tính năng vượt trội
 
-## 🛠️ Hướng dẫn cài đặt và chạy dự án
+-   ✅ **Home Page Dynamic Architecture**:
+    -   ⚡ **Flash Sale Tracker**: Theo dõi các đợt giảm giá nhạc cụ thời gian thực.
+    -   🥁 **Instrument Showcase**: Trình diễn các sản phẩm trống và percussion theo bộ sưu tập.
+    -   🛍️ **Brand Ecosystem**: Tích hợp danh mục từ các nhà sản xuất nhạc cụ uy tín (Roland, Pearl, Sabian...).
+-   ✅ **Smart Instrumentation Categories**: Phân loại thông minh (Acoustic, Electronic, Percussion, Hardware).
+-   ✅ **Enterprise Security**: Xác thực đa yếu tố và SSO thông qua Keycloak.
+-   ✅ **Ultra-Responsive**: Trải nghiệm nhất quán trên mọi kích cỡ màn hình.
 
-### Yêu cầu hệ thống
+## 🛠️ Công nghệ chủ đạo (Core Stack)
 
-Hãy chắc chắn rằng bạn đã cài đặt [Node.js](https://nodejs.org/) (khuyến nghị bản LTS) trên máy.
+### Giao diện & Trải nghiệm
+-   **Framework**: [ReactJS 19.x](https://reactjs.org/)
+-   **UI Library**: [Material UI (MUI) 7.x](https://mui.com/) - Thiết kế dựa trên chuẩn Material Design.
+-   **Animation**: [Framer Motion](https://www.framer.com/motion/) cho các hiệu ứng chuyển cảnh mượt mà.
+-   **Styling**: SCSS Modules giúp cô lập style và tránh xung đột CSS.
 
-### Các bước cài đặt
+### Xử lý logic & Bảo mật
+-   **Routing**: [React Router DOM 7.x](https://reactrouter.com/)
+-   **Security**: [Keycloak JS](https://www.keycloak.org/) cho quản lý phiên làm việc và bảo vệ routes.
+-   **API Handling**: [Axios](https://axios-http.com/) tích hợp interceptors cho JWT.
 
-1. **Clone dự án & truy cập vào thư mục frontend:**
-   ```bash
-   # Nếu bạn đang ở thư mục gốc của project
-   cd frontend
-   ```
+## 🛠️ Cấu trúc thư mục (Folder Map)
 
-2. **Cài đặt các thư viện phụ thuộc (Dependencies):**
-   ```bash
-   npm install
-   ```
+```text
+frontend/
+├── src/
+│   ├── assets/          # Đa phương tiện, icons nhạc cụ, fonts
+│   ├── components/      # Các hạt nhân UI (ProductCard, Countdown, Newsletter)
+│   ├── config/          # Cấu hình hệ thống (Endpoints, Keycloak settings)
+│   ├── layouts/         # Khung giao diện (Default, Auth, FullWidth)
+│   ├── pages/           # Các trang nghiệp vụ (Home, Shop, Blog tay trống)
+│   ├── services/        # Tầng giao tiếp dữ liệu (API definitions)
+│   └── hooks/           # Các logic tái sử dụng (Auth hooks, LocalStorage hooks)
+└── public/              # Tài sản tĩnh
+```
 
-### Chạy ứng dụng trong môi trường phát triển (Development)
+## 🚀 Hướng dẫn cài đặt
 
-Để khởi động ứng dụng, bạn chạy lệnh sau:
+### 1. Chuẩn bị
+Đảm bảo bạn đã cài đặt Node.js LTS.
 
+### 2. Cài đặt & Chạy
 ```bash
+cd frontend
+npm install
 npm start
 ```
 Ứng dụng sẽ chạy tại địa chỉ: [http://localhost:3000](http://localhost:3000).
