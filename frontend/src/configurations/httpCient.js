@@ -5,7 +5,7 @@ const httpClient = axios.create({
     baseURL: CONFIG.API_GATEWAY,
     timeout: 30000,
     headers: {
-        "Content-Type": "Application/json",
+        "Content-Type": "application/json",
     },
 });
 

@@ -1,0 +1,137 @@
+// Layout aligned with LilaShop-style home (spacing + hero container)
+
+.homeWrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100%;
+}
+
+.homeContent {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 0;
+}
+
+.heroSection {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.heroContainer {
+  width: 90%;
+  max-width: 1400px;
+  margin: 20px auto;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+  @media (max-width: 768px) {
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+  }
+}
+
+.section {
+  width: 100%;
+  padding: 8px 0;
+  background: #fff;
+
+  @media (max-width: 768px) {
+    padding: 12px 0;
+  }
+}
+
+.voucherSection {
+  composes: section;
+}
+
+.voucherTrack {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 4px 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.servicesSection {
+  composes: section;
+}
+
+.servicesGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 8px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0 16px;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.serviceItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 16px 10px;
+  border-right: 1px solid rgba(0, 0, 0, 0.06);
+
+  &:last-child {
+    border-right: none;
+  }
+
+  @media (max-width: 768px) {
+    border-right: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    padding: 20px;
+  }
+}
+
+.serviceIcon {
+  font-size: 2.5rem;
+  line-height: 1;
+  opacity: 0.9;
+}
+
+.serviceTitle {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.serviceDesc {
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.6);
+  line-height: 1.4;
+}
+
+.bannerSlide {
+  min-height: 280px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}

@@ -11,6 +11,7 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
+import { Link } from "react-router-dom";
 import { logout } from "../services/authenticationService";
 
 const Search = styled("div")(({ theme }) => ({
@@ -99,7 +100,9 @@ export default function Header() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+      <MenuItem component={Link} to="/profile" onClick={handleMenuClose}>
+        Profile
+      </MenuItem>
       <MenuItem onClick={handleMenuClose}>Settings</MenuItem>
       <MenuItem onClick={handleLogout}>Log Out</MenuItem>
     </Menu>
