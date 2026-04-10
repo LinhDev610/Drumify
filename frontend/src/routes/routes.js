@@ -7,15 +7,6 @@ import Checkout from "../pages/Checkout/Checkout";
 import Profile from "../pages/Profile";
 import ProtectedRoute from "./ProtectedRoute";
 
-/**
- * Application routes (React Router v7).
- *
- * Public: Home, Products
- * Protected (Keycloak): Cart, Checkout, Profile
- *
- * Local /login and /registration UI routes are removed; unauthenticated access to
- * protected routes triggers Keycloak login with return URL.
- */
 export default function AppRoutes() {
   return (
     <BrowserRouter>

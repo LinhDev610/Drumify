@@ -12,10 +12,7 @@ export default function ProtectedRoute() {
   const loginTriggered = useRef(false);
 
   const redirectToKeycloak = useCallback(
-    () =>
-      login({
-        redirectUri: window.location.href,
-      }),
+    () => login(),
     [login],
   );
 
@@ -38,7 +35,7 @@ export default function ProtectedRoute() {
           alignItems: "center",
           justifyContent: "center",
           gap: 2,
-          minHeight: 240,
+          minHeight: 240, 
           py: 6,
         }}
       >

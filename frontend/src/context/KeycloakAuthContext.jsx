@@ -47,8 +47,23 @@ export function KeycloakAuthProvider({ children }) {
     };
   }, []);
 
-  const login = useCallback((options) => keycloak.login(options), []);
-  const logout = useCallback((options) => keycloak.logout(options), []);
+  const login = useCallback(
+    (options) =>
+      keycloak.login({
+        redirectUri: window.location.href, // Mặc định quay lại trang đang đứng
+        ...options,
+      }),
+    [],
+  );
+
+  const logout = useCallback(
+    (options) =>
+      keycloak.logout({
+        redirectUri: window.location.origin + "/", // Mặc định về trang chủ
+        ...options,
+      }),
+    [],
+  );
 
   const value = useMemo(
     () => ({
