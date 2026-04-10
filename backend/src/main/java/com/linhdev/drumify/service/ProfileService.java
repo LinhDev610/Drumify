@@ -108,6 +108,20 @@ public class ProfileService {
         return profiles.stream().map(profileMapper::toProfileResponse).toList();
     }
 
+    public ProfileResponse syncProfile(RegistrationRequest request, String userId) {
+        var profile = profileRepository.findByUserId(userId).orElseGet(() -> profileMapper.toProfile(request));
+
+        profile.setUserId(userId);
+        profile.setFirstName(request.getFirstName());
+        profile.setLastName(request.getLastName());
+        profile.setDob(request.getDob());
+        profile.setSex(request.getSex());
+
+        profile = profileRepository.save(profile);
+
+        return profileMapper.toProfileResponse(profile);
+    }
+
     private String extractUserId(ResponseEntity<?> response) {
         String location = response.getHeaders().get("Location").getFirst();
         String[] splitStr = location.split("/");

@@ -25,3 +25,6 @@ idp:
   url: http://localhost:8280
   client-id: linhdev_drumify_app_BE
   client-secret: 9YtXpSTAfzdiJ1DQ2cQMN8sTR53IvVak
+
+app:
+  sync-secret: DrumifySyncSecret2026

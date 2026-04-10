@@ -20,7 +20,20 @@ Hệ thống được thiết kế theo mô hình **Client-Server** hiện đạ
 
 -   **Frontend**: React 19 + Material UI (MUI) 7. Thiết kế lấy cảm hứng từ sự sang trọng, tinh tế.
 -   **Backend**: Java 21 + Spring Boot 4. Kiến trúc phân lớp chặt chẽ.
--   **Security**: Keycloak (OIDC) quản lý danh tính và bảo mật đa kênh.
+- **Security**: Keycloak (OIDC) tích hợp Custom Event Listener để đồng bộ dữ liệu người dùng tự động sang Backend Database.
+
+---
+
+## 🔄 Luồng đồng bộ người dùng (Keycloak Auto-Sync)
+
+Hệ thống sử dụng cơ chế **Event-Driven Integration** để đảm bảo dữ liệu người dùng luôn nhất quán giữa Identity Provider (Keycloak) và Backend (MySQL):
+
+1. **Sự kiện**: Khi người dùng đăng ký tài khoản thành công trên Keycloak.
+2. **Trigger**: Custom Event Listener (`drumify-registration-listener`) trong Keycloak bắt được sự kiện và thu thập thông tin người dùng.
+3. **Hành động**: Gửi yêu cầu HTTPS ngầm (với mã bí mật `X-Internal-Secret`) đến API `/internal/sync` của Backend.
+4. **Kết quả**: Backend tạo bản ghi Profile trong Database, sẵn sàng cho các nghiệp vụ mua sắm.
+
+👉 [Xem chi tiết hướng dẫn cấu hình Keycloak và Event Listener tại đây](./backend/KEYCLOAK.md)
 
 ---
 

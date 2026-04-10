@@ -13,7 +13,7 @@
 
 ## 🚀 Tính năng kỹ thuật nổi bật
 
--   **Bảo mật & Định danh (IAM)**: Tích hợp sâu với **Keycloak** (OIDC). Sử dụng `CustomAuthoritiesConverter` để ánh xạ chính xác quyền hạn (RBAC) từ JWT.
+-   **Bảo mật & Định danh (IAM)**: Tích hợp sâu với **Keycloak** (OIDC). Sử dụng `CustomAuthoritiesConverter` để ánh xạ chính xác quyền hạn (RBAC) và tích hợp **Custom Event Listener** để đồng bộ hóa danh tính người dùng tự động giữa Keycloak và Database hệ thống.
 -   **Service-to-Service Communication**: Sử dụng **OpenFeign** để tương tác mượt mà với Keycloak Admin APIs (tạo user, quản lý token).
 -   **Kiến trúc Phân lớp (Layered Architecture)**: Đảm bảo Separation of Concerns giữa Controller, Service, Mapping và Repository.
 -   **Chuẩn hóa dữ liệu & API**:
