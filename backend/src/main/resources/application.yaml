@@ -32,3 +32,7 @@ ghn:
   url: https://dev-online-gateway.ghn.vn
   token-api: ad4c178c-8fc0-11f0-bdaf-ae7fa045a771
   shop-id: 199931
+cloudinary:
+  cloud-name: dmr0xjzld
+  api-key: 831846789163981
+  api-secret: 3IxUhIXRSgFkx468jahnYg7QyUQ

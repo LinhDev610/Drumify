@@ -5,6 +5,7 @@
   <img src="https://img.shields.io/badge/Spring%20Boot-4.0.5-brightgreen.svg" alt="Spring Boot">
   <img src="https://img.shields.io/badge/Security-Keycloak-blue.svg" alt="Keycloak">
   <img src="https://img.shields.io/badge/Database-MySQL-blue.svg" alt="MySQL">
+  <img src="https://img.shields.io/badge/Cloud-Cloudinary-blue.svg" alt="Cloudinary">
 </p>
 
 Đây là trung tâm xử lý dữ liệu của **Drumify**. Hệ thống được thiết kế để chịu tải tốt, bảo mật cao và dễ dàng mở rộng, phục vụ toàn bộ các dịch vụ cho nền tảng thương mại điện tử nhạc cụ.
@@ -19,6 +20,7 @@
 -   **Chuẩn hóa dữ liệu & API**:
     *   Sử dụng **MapStruct** & **Lombok** để tối ưu hóa code.
     *   Hệ thống **Global Exception Handling** bắt trọn mọi lỗi (Auth, Validation, Business) và trả về định dạng `ApiResponse` đồng nhất.
+-   **Quản lý Media & Storage**: Tích hợp **Cloudinary SDK** để xử lý upload, lưu trữ và xóa tệp tin đa phương tiện (ảnh đại diện, ảnh sản phẩm) một cách an toàn thông qua `MediaService`.
 -   **Code Quality**: Tích hợp **Spotless** linter để tự động định dạng mã nguồn theo chuẩn.
 
 ---

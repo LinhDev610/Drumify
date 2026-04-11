@@ -8,7 +8,9 @@ import com.linhdev.drumify.dto.request.RegistrationRequest;
 import com.linhdev.drumify.dto.response.ProfileResponse;
 import com.linhdev.drumify.entity.Profile;
 
-@Mapper(componentModel = "spring", uses = {AddressMapper.class})
+@Mapper(
+        componentModel = "spring",
+        uses = {AddressMapper.class})
 public interface ProfileMapper {
     Profile toProfile(RegistrationRequest request);
 

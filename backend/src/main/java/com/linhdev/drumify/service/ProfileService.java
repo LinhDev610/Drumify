@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.linhdev.drumify.client.IdentityClient;
 import com.linhdev.drumify.dto.identity.Credential;
@@ -33,7 +34,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -45,7 +45,12 @@ public class ProfileService {
     AddressRepository addressRepository;
     AddressMapper addressMapper;
     IdentityClient identityClient;
+    MediaService mediaService;
     private final ErrorNormalizer errorNormalizer;
+
+    @Value("${app.default-avatar:}")
+    @NonFinal
+    String defaultAvatarUrl;
 
     @Value("${idp.client-id}")
     @NonFinal
@@ -117,7 +122,21 @@ public class ProfileService {
         var profile =
                 profileRepository.findByUserId(userID).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
+        String oldAvatarUrl = profile.getAvatarUrl();
+        String newAvatarUrl = request.getAvatarUrl();
+
         profileMapper.updateProfile(profile, request);
+
+        if (newAvatarUrl != null && !newAvatarUrl.equals(oldAvatarUrl)) {
+            if (oldAvatarUrl != null && !oldAvatarUrl.isEmpty() && !oldAvatarUrl.equals(defaultAvatarUrl)) {
+                try {
+                    mediaService.deleteProfileMedia(oldAvatarUrl);
+                } catch (Exception e) {
+
+                }
+            }
+        }
+
         profile = profileRepository.save(profile);
 
         return profileMapper.toProfileResponse(profile);

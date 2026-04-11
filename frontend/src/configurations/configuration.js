@@ -9,7 +9,8 @@ export const API = {
     ADDRESSES: "/my-profile/addresses",
     PROVINCES: "/location/provinces",
     DISTRICTS: "/location/districts",
-    WARDS: "/location/wards"
+    WARDS: "/location/wards",
+    MEDIA_UPLOAD: "/media/upload"
 }
 
 export const KEYCLOAK_CONFIG = {

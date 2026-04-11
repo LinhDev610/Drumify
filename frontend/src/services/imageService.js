@@ -1,42 +1,34 @@
-import { CLOUDINARY_CONFIG } from "../configurations/configuration";
+import { API } from "../configurations/configuration";
+import httpClient from "../configurations/httpCient";
+import keycloak from "../keycloak";
 
-export const uploadToCloudinary = async (file, folderPath) => {
+export const uploadToCloudinary = async (file) => {
     if (!file) return null;
 
     try {
         const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", CLOUDINARY_CONFIG.UPLOAD_PRESET);
-        formData.append("folder", folderPath);
+        formData.append("files", file);
 
-        const response = await fetch(
-            `${CLOUDINARY_CONFIG.UPLOAD_URL}/${CLOUDINARY_CONFIG.CLOUD_NAME}/auto/upload`,
-            {
-                method: "POST",
-                body: formData,
-            }
-        );
+        const response = await httpClient.post(API.MEDIA_UPLOAD, formData, {
+            headers: {
+                Authorization: "Bearer " + keycloak.token,
+                "Content-Type": "multipart/form-data",
+            },
+        });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error?.message || "Cloudinary upload failed");
+        if (response.data?.result && response.data.result.length > 0) {
+            return response.data.result[0];
         }
 
-        const data = await response.json();
-        return data.secure_url;
+        throw new Error("Cloudinary upload failed: No URL returned");
     } catch (error) {
         console.error("Cloudinary Upload Error:", error);
         throw error;
     }
 };
 
-export const uploadAvatar = async (file) => {
-    return uploadToCloudinary(file, "drumify/users/avatars");
-};
-
 const imageService = {
     uploadToCloudinary,
-    uploadAvatar
 };
 
 export default imageService;

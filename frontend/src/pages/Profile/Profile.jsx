@@ -16,6 +16,7 @@ import { uploadToCloudinary } from '../../services/imageService';
 import { CLOUDINARY_FOLDERS } from '../../configurations/configuration';
 import SetAvatarDialog from '../../component/Profile/SetAvatarDialog';
 import CloudinaryImage from '../../component/Common/CloudinaryImage';
+import defaultAvatar from '../../assets/images/default-avatar.png';
 
 const Profile = () => {
     const { tokenParsed } = useKeycloakAuth();
@@ -328,10 +329,13 @@ const Profile = () => {
     const handleConfirmAvatar = async () => {
         setUploadingAvatar(true);
         try {
-            const secureUrl = await uploadToCloudinary(selectedFile, CLOUDINARY_FOLDERS.AVATARS);
+            const secureUrl = await uploadToCloudinary(selectedFile);
             if (secureUrl) {
-                setProfileData(prev => ({ ...prev, avatarUrl: secureUrl }));
+                const updatedProfile = { ...profileData, avatarUrl: secureUrl };
+                await updateMyProfile(updatedProfile);
+                setProfileData(updatedProfile);
                 setShowAvatarDialog(false);
+                alert("Ảnh đại diện đã được cập nhật!");
             }
         } catch (error) {
             alert("Upload failed: " + error.message);
@@ -404,7 +408,7 @@ const Profile = () => {
                             className={`${styles.avatarWrapper} ${isEditing ? styles.editable : ''}`}
                             onClick={handleAvatarClick}
                         >
-                            {profileData.avatarUrl ? (
+                             {profileData.avatarUrl ? (
                                 <CloudinaryImage
                                     publicId={profileData.avatarUrl}
                                     type="avatar"
@@ -413,9 +417,11 @@ const Profile = () => {
                                     className={styles.avatarImg}
                                 />
                             ) : (
-                                <div className={styles.placeholderAvatar}>
-                                    {profileData.fullName?.charAt(0) || profileData.username?.charAt(0)}
-                                </div>
+                                <img
+                                    src={defaultAvatar}
+                                    alt="Default Avatar"
+                                    className={styles.avatarImg}
+                                />
                             )}
                             {isEditing && <div className={styles.editOverlay}>Update</div>}
                         </div>

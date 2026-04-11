@@ -18,6 +18,7 @@
     -   🛍️ **Brand Ecosystem**: Tích hợp danh mục từ các nhà sản xuất nhạc cụ uy tín (Roland, Pearl, Sabian...).
 -   ✅ **Smart Instrumentation Categories**: Phân loại thông minh (Acoustic, Electronic, Percussion, Hardware).
 -   ✅ **Enterprise Security**: Xác thực đa yếu tố và SSO thông qua Keycloak.
+-   ✅ **Cloudinary Integration**: Tích hợp upload avatar và tự động tối ưu hóa hình ảnh thực tế thông qua Cloudinary SDK.
 -   ✅ **Ultra-Responsive**: Trải nghiệm nhất quán trên mọi kích cỡ màn hình.
 
 ## 🛠️ Công nghệ chủ đạo (Core Stack)
@@ -32,6 +33,7 @@
 -   **Routing**: [React Router DOM 7.x](https://reactrouter.com/)
 -   **Security**: [Keycloak JS](https://www.keycloak.org/) cho quản lý phiên làm việc và bảo vệ routes.
 -   **API Handling**: [Axios](https://axios-http.com/) tích hợp interceptors cho JWT.
+-   **Media**: [@cloudinary/url-gen](https://cloudinary.com/documentation/javascript_integration) & [@cloudinary/react](https://cloudinary.com/documentation/react_integration) để xử lý hiển thị và tối ưu hóa hình ảnh.
 
 ## 🛠️ Cấu trúc thư mục (Folder Map)
 
