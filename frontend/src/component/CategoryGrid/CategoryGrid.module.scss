@@ -1,88 +1,53 @@
-.categoryGrid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 24px;
-  padding: 10px 0;
-  background: #ffffff;
-  width: 90%;
-  max-width: 1400px;
-  margin: 0 auto;
-
-  @media (max-width: 1024px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  @media (max-width: 640px) {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 8px 15px;
-    gap: 20px;
-    width: 100%;
-  }
+.navWrapper {
+  padding: 0;
+  display: flex;
+  align-items: center;
 }
 
-.categoryCard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 24px 16px;
-  background: #f5f5f5;
-  border-radius: 16px;
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: all 0.3s ease;
+.navItem {
+  padding: 12px 20px;
   text-decoration: none;
-  color: inherit;
-  height: 100%;
+  color: #555;
+  transition: all 0.2s ease;
+  position: relative;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
 
   &:hover {
-    border-color: #1976d2;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(25, 118, 210, 0.12);
+    color: #000;
+    .navLabel {
+      font-weight: 700;
+    }
+  }
+
+  &.active {
+    color: var(--color-brand);
+    border-bottom-color: var(--color-brand);
+    .navLabel {
+      font-weight: 800;
+    }
   }
 }
 
-.categoryIcon {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #e3f2fd 0%, #1976d2 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  margin-bottom: 12px;
+.navLabel {
+  font-family: var(--font-family-body);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: all 0.2s ease;
 }
 
-.categoryName {
-  color: #1a1a1a;
-  font-weight: 500;
-  font-size: 14px;
-  text-align: center;
-}
-
-.categoryCardLoading {
-  pointer-events: none;
-  opacity: 0.6;
-
-  .categoryIcon,
-  .categoryName {
-    background: #e0e0e0;
-    animation: pulse 1.5s ease-in-out infinite;
-  }
-
-  .categoryName {
-    height: 16px;
-    width: 80%;
-    border-radius: 4px;
-  }
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
+// Special mode for sidebar if ever reused (optional)
+.sidebarMode {
+  flex-direction: column;
+  align-items: flex-start;
+  .navItem {
+    width: 100%;
+    padding: 16px 24px;
+    border-bottom: none;
+    border-left: 3px solid transparent;
+    &.active {
+      border-left-color: var(--color-brand);
+    }
   }
 }

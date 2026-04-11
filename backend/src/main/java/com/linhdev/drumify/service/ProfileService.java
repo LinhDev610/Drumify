@@ -43,6 +43,7 @@ public class ProfileService {
     @NonFinal
     String clientSecret;
 
+    // Register with custom UI Frontend (optional)
     public ProfileResponse register(RegistrationRequest request) {
         try {
             // Exchange Client Token

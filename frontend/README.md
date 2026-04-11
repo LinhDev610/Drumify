@@ -8,7 +8,7 @@
 
 ## 🎯 Giới thiệu
 
-Đây là thành phần giao diện người dùng của **Drumify** - Nền tảng thương mại điện tử nhạc cụ hàng đầu. Portal được xây dựng dựa trên triết lý thiết kế hiện đại, tinh gọn (Clean Design) và kế thừa hệ thống layout tối ưu từ dự án LilaShop, chuyển đổi hoàn toàn sang hệ sinh thái nhạc cụ âm nhạc.
+Đây là thành phần giao diện người dùng của **Drumify** - Nền tảng thương mại điện tử nhạc cụ hàng đầu. Portal được xây dựng dựa trên triết lý thiết kế hiện đại, tinh gọn (Clean Design).
 
 ## 🚀 Tính năng vượt trội
 

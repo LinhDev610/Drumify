@@ -6,20 +6,25 @@ import InputBase from "@mui/material/InputBase";
 import Badge from "@mui/material/Badge";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
+import Typography from "@mui/material/Typography";
 import SearchIcon from "@mui/icons-material/Search";
 import AccountCircle from "@mui/icons-material/AccountCircle";
-import MailIcon from "@mui/icons-material/Mail";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import MoreIcon from "@mui/icons-material/MoreVert";
-import { Link } from "react-router-dom";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
+import { Link, useLocation } from "react-router-dom";
 import { logout } from "../services/authenticationService";
+import drumifyLogo from "../assets/images/drumify.png";
+
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  borderRadius: "20px",
+  backgroundColor: alpha(theme.palette.common.white, 0.1),
   "&:hover": {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
   },
   marginRight: theme.spacing(2),
   marginLeft: 0,
@@ -44,19 +49,26 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: "inherit",
   "& .MuiInputBase-input": {
     padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create("width"),
     width: "100%",
     [theme.breakpoints.up("md")]: {
-      width: "20ch",
+      width: "25ch",
     },
   },
 }));
 
+const NAV_ITEMS = [
+  { label: "Shop All", path: "/products" },
+  { label: "Drums", path: "/category/acoustic" },
+  { label: "Brands", path: "#brands" },
+  { label: "Support", path: "#support" },
+];
+
 export default function Header() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
+  const location = useLocation();
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -78,7 +90,7 @@ export default function Header() {
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
-  const handleLogout = (event) => {
+  const handleLogout = () => {
     handleMenuClose();
     logout();
   };
@@ -87,24 +99,17 @@ export default function Header() {
   const renderMenu = (
     <Menu
       anchorEl={anchorEl}
-      anchorOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
+      anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       id={menuId}
       keepMounted
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
+      transformOrigin={{ vertical: "top", horizontal: "right" }}
       open={isMenuOpen}
       onClose={handleMenuClose}
+      sx={{ mt: 1.5 }}
     >
-      <MenuItem component={Link} to="/profile" onClick={handleMenuClose}>
-        Profile
-      </MenuItem>
+      <MenuItem component={Link} to="/profile" onClick={handleMenuClose}>Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>Settings</MenuItem>
-      <MenuItem onClick={handleLogout}>Log Out</MenuItem>
+      <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>Log Out</MenuItem>
     </Menu>
   );
 
@@ -112,47 +117,23 @@ export default function Header() {
   const renderMobileMenu = (
     <Menu
       anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
+      anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       id={mobileMenuId}
       keepMounted
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
+      transformOrigin={{ vertical: "top", horizontal: "right" }}
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
-      <MenuItem>
-        <IconButton size="large" aria-label="show 2 new mails" color="inherit">
-          <Badge badgeContent={2} color="error">
-            <MailIcon />
-          </Badge>
-        </IconButton>
-        <p>Messages</p>
-      </MenuItem>
-      <MenuItem>
-        <IconButton
-          size="large"
-          aria-label="show 4 new notifications"
-          color="inherit"
-        >
+      <MenuItem component={Link} to="/cart">
+        <IconButton size="large" color="inherit">
           <Badge badgeContent={4} color="error">
-            <NotificationsIcon />
+            <ShoppingCartIcon />
           </Badge>
         </IconButton>
-        <p>Notifications</p>
+        <p>Cart</p>
       </MenuItem>
       <MenuItem onClick={handleProfileMenuOpen}>
-        <IconButton
-          size="large"
-          aria-label="account of current user"
-          aria-controls="primary-search-account-menu"
-          aria-haspopup="true"
-          color="inherit"
-        >
+        <IconButton size="large" color="inherit">
           <AccountCircle />
         </IconButton>
         <p>Profile</p>
@@ -162,44 +143,80 @@ export default function Header() {
 
   return (
     <>
-      <IconButton
-        size="large"
-        edge="start"
-        color="inherit"
-        aria-label="open drawer"
-        sx={{ mr: 2 }}
-      >
+      <Stack direction="row" alignItems="center" spacing={2} sx={{ flexShrink: 0 }}>
         <Box
-          component={"img"}
-          style={{
-            width: "35px",
-            height: "35px",
-            borderRadius: 6,
+          component={Link}
+          to="/"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            textDecoration: "none",
+            color: "inherit",
+            mr: 2,
+            flexShrink: 0,
           }}
-          src="/logo/devteria-logo.png"
-        ></Box>
-      </IconButton>
+        >
+          <Box
+            component={"img"}
+            sx={{ width: "35px", height: "35px", borderRadius: 1, mr: 1.5 }}
+            src={drumifyLogo}
+            alt="Drumify Logo"
+          />
+          <Typography
+            variant="h6"
+            noWrap
+            sx={{
+              fontWeight: 800,
+              letterSpacing: '0.05em',
+              fontSize: '1.2rem',
+              display: { xs: 'none', md: 'block' },
+              textTransform: 'uppercase',
+            }}
+          >
+            Drumify
+          </Typography>
+        </Box>
+
+        {/* Desktop Navigation Links */}
+        <Stack direction="row" spacing={1} sx={{ display: { xs: 'none', lg: 'flex' } }}>
+          {NAV_ITEMS.map((item) => (
+            <Button
+              key={item.label}
+              component={Link}
+              to={item.path}
+              sx={{
+                color: location.pathname === item.path ? 'var(--color-accent-gold)' : 'rgba(255,255,255,0.7)',
+                textTransform: 'none',
+                fontWeight: 600,
+                fontSize: '0.95rem',
+                '&:hover': { color: '#fff' }
+              }}
+            >
+              {item.label}
+            </Button>
+          ))}
+        </Stack>
+      </Stack>
+
+      <Box sx={{ flexGrow: 1 }} />
+
       <Search>
         <SearchIconWrapper>
           <SearchIcon />
         </SearchIconWrapper>
         <StyledInputBase
-          placeholder="Search…"
+          placeholder="Search for gear..."
           inputProps={{ "aria-label": "search" }}
         />
       </Search>
-      <Box sx={{ flexGrow: 1 }} />
-      <Box sx={{ display: { xs: "none", md: "flex" } }}>
-        <IconButton size="large" aria-label="show 4 new mails" color="inherit">
+
+      <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: 'center', gap: 1 }}>
+        <IconButton component={Link} to="/cart" size="large" aria-label="cart" color="inherit">
           <Badge badgeContent={4} color="error">
-            <MailIcon />
+            <ShoppingCartIcon />
           </Badge>
         </IconButton>
-        <IconButton
-          size="large"
-          aria-label="show 17 new notifications"
-          color="inherit"
-        >
+        <IconButton size="large" aria-label="notifications" color="inherit">
           <Badge badgeContent={17} color="error">
             <NotificationsIcon />
           </Badge>
@@ -216,6 +233,7 @@ export default function Header() {
           <AccountCircle />
         </IconButton>
       </Box>
+
       <Box sx={{ display: { xs: "flex", md: "none" } }}>
         <IconButton
           size="large"

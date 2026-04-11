@@ -1,118 +1,63 @@
 import * as React from "react";
-import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
-import Drawer from "@mui/material/Drawer";
-import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
+import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import { useTheme } from "@mui/material";
+import Container from "@mui/material/Container";
+import Stack from "@mui/material/Stack";
 import Header from "../component/Header";
-import SideMenu from "../component/SideMenu"
-
-const drawerWidth = 300;
+import CategoryGrid from "../component/CategoryGrid/CategoryGrid";
 
 function Scene({ children }) {
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [isClosing, setIsClosing] = React.useState(false);
-
-  const theme = useTheme();
-
-  const handleDrawerClose = () => {
-    setIsClosing(true);
-    setMobileOpen(false);
-  };
-
-  const handleDrawerTransitionEnd = () => {
-    setIsClosing(false);
-  };
-
-  const handleDrawerToggle = () => {
-    if (!isClosing) {
-      setMobileOpen(!mobileOpen);
-    }
-  };
-
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: '100vh' }}>
+      {/* Main Header */}
       <AppBar
         position="fixed"
         sx={{
-          ml: { sm: `${drawerWidth}px` },
-          zIndex: theme.zIndex.drawer + 1,
+          zIndex: (theme) => theme.zIndex.drawer + 2,
+          bgcolor: 'rgba(26, 26, 26, 0.98)', // More solid to prevent blur bleeding
+          boxShadow: 'none',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          willChange: 'transform',
         }}
       >
         <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: "none" } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Header />
+           <Header />
         </Toolbar>
       </AppBar>
-      <Box
+
+      {/* Sub-Header: Functional Category Navigation */}
+      <AppBar
+        position="fixed"
         sx={{
-          display: "flex",
-          flexDirection: "row",
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          bgcolor: 'rgba(255, 255, 255, 0.92)', // More solid background
+          backdropFilter: 'blur(8px)', // Reduced from 20px to fix blurriness
+          top: 64, // Height of standard AppBar
+          boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
+          borderBottom: '1px solid rgba(0,0,0,0.06)',
+          color: '#333',
+          display: { xs: 'none', lg: 'block' }
         }}
       >
-        <Box
-          component="nav"
-          sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-          aria-label="mailbox folders"
-        >
-          <Drawer
-            variant="temporary"
-            open={mobileOpen}
-            onTransitionEnd={handleDrawerTransitionEnd}
-            onClose={handleDrawerClose}
-            ModalProps={{
-              keepMounted: true, // Better open performance on mobile.
-            }}
-            sx={{
-              display: { xs: "block", sm: "none" },
-              "& .MuiDrawer-paper": {
-                boxSizing: "border-box",
-                width: drawerWidth,
-              },
-            }}
-          >
-            <SideMenu />
-          </Drawer>
-          <Drawer
-            variant="permanent"
-            sx={{
-              display: { xs: "none", sm: "block" },
-              "& .MuiDrawer-paper": {
-                boxSizing: "border-box",
-                width: drawerWidth,
-              },
-            }}
-            open
-          >
-            <SideMenu />
-          </Drawer>
-        </Box>
-        <Box
-          component="main"
-          sx={{
-            flexGrow: 1,
-            p: 3,
-            width: { sm: `calc(100% - ${drawerWidth}px)` },
-          }}
-        >
-          <Toolbar />
-          {children}
-        </Box>
+        <Container maxWidth="xl">
+          <Toolbar variant="dense" sx={{ minHeight: 48, justifyContent: 'center' }}>
+             <CategoryGrid />
+          </Toolbar>
+        </Container>
+      </AppBar>
+
+      {/* Main Content Area */}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          width: '100%',
+          bgcolor: '#fafafa',
+          pt: { xs: '64px', lg: '112px' }, // Header (64) + SubHeader (48)
+        }}
+      >
+        {children}
       </Box>
     </Box>
   );
