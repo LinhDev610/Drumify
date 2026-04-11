@@ -11,7 +11,6 @@ export const uploadToCloudinary = async (file) => {
 
         const response = await httpClient.post(API.MEDIA_UPLOAD, formData, {
             headers: {
-                Authorization: "Bearer " + keycloak.token,
                 "Content-Type": "multipart/form-data",
             },
         });
