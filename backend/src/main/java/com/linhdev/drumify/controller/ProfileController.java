@@ -5,14 +5,10 @@ import java.util.List;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.linhdev.drumify.dto.ApiResponse;
+import com.linhdev.drumify.dto.request.ProfileUpdateRequest;
 import com.linhdev.drumify.dto.request.RegistrationRequest;
 import com.linhdev.drumify.dto.response.ProfileResponse;
 import com.linhdev.drumify.service.ProfileService;
@@ -60,11 +56,15 @@ public class ProfileController {
 
     @GetMapping("/my-profile")
     ApiResponse<ProfileResponse> getMyProfile() {
-        // Authentication authentication =
-        // SecurityContextHolder.getContext().getAuthentication();
-
         return ApiResponse.<ProfileResponse>builder()
                 .result(profileService.getMyProfile())
+                .build();
+    }
+
+    @PutMapping("/my-profile")
+    ApiResponse<ProfileResponse> updateMyProfile(@RequestBody @Valid ProfileUpdateRequest request) {
+        return ApiResponse.<ProfileResponse>builder()
+                .result(profileService.updateMyProfile(request))
                 .build();
     }
 

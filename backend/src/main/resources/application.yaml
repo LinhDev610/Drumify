@@ -28,3 +28,7 @@ idp:
 
 app:
   sync-secret: DrumifySyncSecret2026
+ghn:
+  url: https://dev-online-gateway.ghn.vn
+  token-api: ad4c178c-8fc0-11f0-bdaf-ae7fa045a771
+  shop-id: 199931

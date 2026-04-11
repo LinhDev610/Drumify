@@ -14,8 +14,14 @@ import MoreIcon from "@mui/icons-material/MoreVert";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
+import Avatar from "@mui/material/Avatar";
+import Divider from "@mui/material/Divider";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import PersonIcon from "@mui/icons-material/Person";
+import SettingsIcon from "@mui/icons-material/Settings";
+import LogoutIcon from "@mui/icons-material/Logout";
 import { Link, useLocation } from "react-router-dom";
-import { logout } from "../services/authenticationService";
+import { useKeycloakAuth } from "../context/KeycloakAuthContext";
 import drumifyLogo from "../assets/images/drumify.png";
 
 
@@ -69,6 +75,13 @@ export default function Header() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
   const location = useLocation();
+  const { tokenParsed, logout: keycloakLogout } = useKeycloakAuth();
+
+  const user = {
+    name: tokenParsed?.name || "Guest User",
+    email: tokenParsed?.email || "guest@drumify.com",
+    initials: tokenParsed?.name?.charAt(0) || "G"
+  };
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -92,7 +105,7 @@ export default function Header() {
 
   const handleLogout = () => {
     handleMenuClose();
-    logout();
+    keycloakLogout();
   };
 
   const menuId = "primary-search-account-menu";
@@ -105,11 +118,47 @@ export default function Header() {
       transformOrigin={{ vertical: "top", horizontal: "right" }}
       open={isMenuOpen}
       onClose={handleMenuClose}
-      sx={{ mt: 1.5 }}
+      sx={{
+        mt: 1.5,
+        '& .MuiPaper-root': {
+          width: 250,
+          borderRadius: 2,
+          boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+          backgroundColor: 'rgba(28, 28, 30, 0.95)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          color: '#fff',
+        }
+      }}
     >
-      <MenuItem component={Link} to="/profile" onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>Settings</MenuItem>
-      <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>Log Out</MenuItem>
+      <Box sx={{ px: 2, py: 1.5 }}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+          {user.name}
+        </Typography>
+        <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem' }}>
+          {user.email}
+        </Typography>
+      </Box>
+      <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
+      <MenuItem component={Link} to="/profile" onClick={handleMenuClose} sx={{ py: 1.2, gap: 1.5 }}>
+        <ListItemIcon sx={{ color: 'rgba(255,255,255,0.7)', minWidth: 'auto !important' }}>
+          <PersonIcon fontSize="small" />
+        </ListItemIcon>
+        <Typography variant="body2" sx={{ fontWeight: 500 }}>My Profile</Typography>
+      </MenuItem>
+      <MenuItem onClick={handleMenuClose} sx={{ py: 1.2, gap: 1.5 }}>
+        <ListItemIcon sx={{ color: 'rgba(255,255,255,0.7)', minWidth: 'auto !important' }}>
+          <SettingsIcon fontSize="small" />
+        </ListItemIcon>
+        <Typography variant="body2" sx={{ fontWeight: 500 }}>Settings</Typography>
+      </MenuItem>
+      <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
+      <MenuItem onClick={handleLogout} sx={{ py: 1.2, gap: 1.5, color: '#ff453a' }}>
+        <ListItemIcon sx={{ color: 'inherit', minWidth: 'auto !important' }}>
+          <LogoutIcon fontSize="small" />
+        </ListItemIcon>
+        <Typography variant="body2" sx={{ fontWeight: 600 }}>Log Out</Typography>
+      </MenuItem>
     </Menu>
   );
 
@@ -229,9 +278,33 @@ export default function Header() {
           aria-haspopup="true"
           onClick={handleProfileMenuOpen}
           color="inherit"
+          sx={{
+            ml: 1,
+            p: 0.5,
+            border: '2px solid transparent',
+            transition: 'all 0.2s',
+            '&:hover': {
+              borderColor: 'var(--color-accent-gold)',
+              backgroundColor: 'rgba(255,184,0,0.1)'
+            }
+          }}
         >
-          <AccountCircle />
+          <Avatar 
+            sx={{ 
+              width: 35, 
+              height: 35, 
+              bgcolor: 'var(--color-accent-gold)',
+              color: '#000',
+              fontWeight: 700,
+              fontSize: '0.9rem',
+              border: '2px solid #fff'
+            }}
+          >
+
+            {user.initials}
+          </Avatar>
         </IconButton>
+
       </Box>
 
       <Box sx={{ display: { xs: "flex", md: "none" } }}>

@@ -1,9 +1,6 @@
-package com.linhdev.drumify.dto.response;
+package com.linhdev.drumify.dto.request;
 
 import java.time.LocalDate;
-import java.util.Set;
-
-import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -13,20 +10,12 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ProfileResponse {
-    String profileId;
-    String userId;
-    String email;
-    String username;
+public class ProfileUpdateRequest {
     String firstName;
     String lastName;
     String fullName;
     String phoneNumber;
     String avatarUrl;
-    Set<AddressResponse> addresses;
-
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     LocalDate dob;
-
     Boolean sex;
 }

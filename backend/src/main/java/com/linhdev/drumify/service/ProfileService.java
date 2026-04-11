@@ -1,5 +1,6 @@
 package com.linhdev.drumify.service;
 
+import java.util.HashSet;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -12,12 +13,19 @@ import com.linhdev.drumify.client.IdentityClient;
 import com.linhdev.drumify.dto.identity.Credential;
 import com.linhdev.drumify.dto.identity.TokenExchangeParam;
 import com.linhdev.drumify.dto.identity.UserCreationParam;
+import com.linhdev.drumify.dto.request.AddressRequest;
+import com.linhdev.drumify.dto.request.ProfileUpdateRequest;
 import com.linhdev.drumify.dto.request.RegistrationRequest;
+import com.linhdev.drumify.dto.response.AddressResponse;
 import com.linhdev.drumify.dto.response.ProfileResponse;
+import com.linhdev.drumify.entity.Address;
+import com.linhdev.drumify.entity.Profile;
 import com.linhdev.drumify.exception.AppException;
 import com.linhdev.drumify.exception.ErrorCode;
 import com.linhdev.drumify.exception.ErrorNormalizer;
+import com.linhdev.drumify.mapper.AddressMapper;
 import com.linhdev.drumify.mapper.ProfileMapper;
+import com.linhdev.drumify.repository.AddressRepository;
 import com.linhdev.drumify.repository.ProfileRepository;
 
 import feign.FeignException;
@@ -32,6 +40,8 @@ import lombok.experimental.NonFinal;
 public class ProfileService {
     ProfileRepository profileRepository;
     ProfileMapper profileMapper;
+    AddressRepository addressRepository;
+    AddressMapper addressMapper;
     IdentityClient identityClient;
     private final ErrorNormalizer errorNormalizer;
 
@@ -98,6 +108,19 @@ public class ProfileService {
         return profileMapper.toProfileResponse(profile);
     }
 
+    public ProfileResponse updateMyProfile(ProfileUpdateRequest request) {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userID = authentication.getName();
+
+        var profile =
+                profileRepository.findByUserId(userID).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        profileMapper.updateProfile(profile, request);
+        profile = profileRepository.save(profile);
+
+        return profileMapper.toProfileResponse(profile);
+    }
+
     @PreAuthorize(
             """
 		hasRole('ADMIN')
@@ -121,6 +144,85 @@ public class ProfileService {
         profile = profileRepository.save(profile);
 
         return profileMapper.toProfileResponse(profile);
+    }
+
+    public AddressResponse addAddress(AddressRequest request) {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userID = authentication.getName();
+
+        var profile =
+                profileRepository.findByUserId(userID).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        var address = addressMapper.toAddress(request);
+        address = addressRepository.save(address);
+
+        if (profile.getAddresses() == null) {
+            profile.setAddresses(new HashSet<>());
+        }
+
+        if (profile.getAddresses().isEmpty() || request.isDefaultAddress()) {
+            handleDefaultAddress(profile, address);
+        }
+
+        profile.getAddresses().add(address);
+        profileRepository.save(profile);
+
+        return addressMapper.toAddressResponse(address);
+    }
+
+    public AddressResponse updateAddress(String addressId, AddressRequest request) {
+        var address =
+                addressRepository.findById(addressId).orElseThrow(() -> new RuntimeException("Address not found"));
+
+        addressMapper.updateAddress(address, request);
+
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userID = authentication.getName();
+        var profile =
+                profileRepository.findByUserId(userID).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        if (request.isDefaultAddress()) {
+            handleDefaultAddress(profile, address);
+        }
+
+        address = addressRepository.save(address);
+        return addressMapper.toAddressResponse(address);
+    }
+
+    public void deleteAddress(String addressId) {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userID = authentication.getName();
+        var profile =
+                profileRepository.findByUserId(userID).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        var address =
+                addressRepository.findById(addressId).orElseThrow(() -> new RuntimeException("Address not found"));
+
+        profile.getAddresses().remove(address);
+        profileRepository.save(profile);
+        addressRepository.delete(address);
+    }
+
+    public AddressResponse setDefaultAddress(String addressId) {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userID = authentication.getName();
+        var profile =
+                profileRepository.findByUserId(userID).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        var address =
+                addressRepository.findById(addressId).orElseThrow(() -> new RuntimeException("Address not found"));
+
+        handleDefaultAddress(profile, address);
+        profileRepository.save(profile);
+
+        return addressMapper.toAddressResponse(address);
+    }
+
+    private void handleDefaultAddress(Profile profile, Address defaultAddress) {
+        if (profile.getAddresses() != null) {
+            profile.getAddresses().forEach(addr -> addr.setDefaultAddress(false));
+        }
+        defaultAddress.setDefaultAddress(true);
     }
 
     private String extractUserId(ResponseEntity<?> response) {
