@@ -64,6 +64,9 @@ const Profile = () => {
         defaultAddress: false
     });
 
+    const [profileErrors, setProfileErrors] = useState({});
+    const [addressErrors, setAddressErrors] = useState({});
+
     useEffect(() => {
         const fetchInitialData = async () => {
             try {
@@ -86,11 +89,13 @@ const Profile = () => {
                     getMyProfile().then(res => {
                         if (res.data?.result) {
                             const dbData = res.data.result;
-                            setProfileData(prev => ({
-                                ...prev,
-                                ...dbData,
-                                sex: dbData.sex ?? prev.sex
-                            }));
+                            setProfileData(prev => {
+                                const merged = { ...prev, ...dbData, sex: dbData.sex ?? prev.sex };
+                                if (!merged.fullName && (merged.firstName || merged.lastName)) {
+                                    merged.fullName = `${merged.firstName || ''} ${merged.lastName || ''}`.trim();
+                                }
+                                return merged;
+                            });
                             if (dbData.addresses) setAddresses(dbData.addresses);
                         }
                     }).catch(err => console.error("Error fetching profile:", err)),
@@ -180,7 +185,27 @@ const Profile = () => {
         }));
     };
 
+    const validateAddress = () => {
+        const errors = {};
+        if (!addressForm.recipientName.trim()) errors.recipientName = 'Tên người nhận là bắt buộc';
+        else if (addressForm.recipientName.length > 50) errors.recipientName = 'Tên không quá 50 ký tự';
+
+        if (!addressForm.recipientPhoneNumber.trim()) errors.recipientPhoneNumber = 'Số điện thoại là bắt buộc';
+        else if (!/^[0-9]{10,11}$/.test(addressForm.recipientPhoneNumber)) errors.recipientPhoneNumber = 'Số điện thoại phải từ 10-11 số';
+
+        if (!addressForm.provinceID) errors.provinceID = 'Tỉnh/Thành là bắt buộc';
+        if (!addressForm.districtID) errors.districtID = 'Quận/Huyện là bắt buộc';
+        if (!addressForm.wardCode) errors.wardCode = 'Phường/Xã là bắt buộc';
+
+        if (!addressForm.address.trim()) errors.address = 'Địa chỉ cụ thể là bắt buộc';
+        else if (addressForm.address.length > 255) errors.address = 'Địa chỉ không quá 255 ký tự';
+
+        setAddressErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
     const handleSaveAddress = async () => {
+        if (!validateAddress()) return;
         try {
             setSaving(true);
             let response;
@@ -205,6 +230,7 @@ const Profile = () => {
                 }
                 setShowAddressForm(false);
                 resetAddressForm();
+                setAddressErrors({});
             }
         } catch (error) {
             alert("Lỗi khi lưu địa chỉ: " + (error.response?.data?.message || error.message));
@@ -325,14 +351,39 @@ const Profile = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setProfileData(prev => ({ ...prev, [name]: value }));
+        setProfileData(prev => {
+            const newData = { ...prev, [name]: value };
+            if (name === 'firstName' || name === 'lastName') {
+                newData.fullName = `${newData.firstName || ''} ${newData.lastName || ''}`.trim();
+            }
+            return newData;
+        });
+    };
+
+    const validateProfile = () => {
+        const errors = {};
+        if (profileData.firstName?.length > 50) errors.firstName = 'Họ không quá 50 ký tự';
+        if (profileData.lastName?.length > 50) errors.lastName = 'Tên không quá 50 ký tự';
+        if (profileData.phoneNumber && !/^[0-9]{10,11}$/.test(profileData.phoneNumber)) {
+            errors.phoneNumber = 'Số điện thoại phải từ 10-11 số';
+        }
+        if (profileData.dob) {
+            const selectedDate = new Date(profileData.dob);
+            if (selectedDate >= new Date()) {
+                errors.dob = 'Ngày sinh phải trong quá khứ';
+            }
+        }
+        setProfileErrors(errors);
+        return Object.keys(errors).length === 0;
     };
 
     const handleSave = async () => {
+        if (!validateProfile()) return;
         try {
             setSaving(true);
             await updateMyProfile(profileData);
             setIsEditing(false);
+            setProfileErrors({});
             alert("Hồ sơ đã được cập nhật!");
         } catch (error) {
             alert("Lỗi khi lưu: " + (error.response?.data?.message || error.message));
@@ -414,21 +465,25 @@ const Profile = () => {
                             <div className={styles.row}>
                                 <div className={styles.inputBox}>
                                     <label>First Name</label>
-                                    <input name="firstName" value={profileData.firstName || ''} onChange={handleChange} disabled={!isEditing} placeholder="First Name" />
+                                    <input name="firstName" value={profileData.firstName || ''} onChange={handleChange} disabled={!isEditing} placeholder="First Name" maxLength={50} />
+                                    {isEditing && profileErrors.firstName && <span className={styles.error}>{profileErrors.firstName}</span>}
                                 </div>
                                 <div className={styles.inputBox}>
                                     <label>Last Name</label>
-                                    <input name="lastName" value={profileData.lastName || ''} onChange={handleChange} disabled={!isEditing} placeholder="Last Name" />
+                                    <input name="lastName" value={profileData.lastName || ''} onChange={handleChange} disabled={!isEditing} placeholder="Last Name" maxLength={50} />
+                                    {isEditing && profileErrors.lastName && <span className={styles.error}>{profileErrors.lastName}</span>}
                                 </div>
-                            </div>
-                            <div className={styles.inputBox}>
-                                <label>Full Name</label>
-                                <input name="fullName" value={profileData.fullName || ''} onChange={handleChange} disabled={!isEditing} placeholder="Your Full Name" />
                             </div>
                             <div className={styles.row}>
                                 <div className={styles.inputBox}>
+                                    <label>Phone Number</label>
+                                    <input name="phoneNumber" value={profileData.phoneNumber || ''} onChange={handleChange} disabled={!isEditing} placeholder="0123456789" maxLength={11} />
+                                    {isEditing && profileErrors.phoneNumber && <span className={styles.error}>{profileErrors.phoneNumber}</span>}
+                                </div>
+                                <div className={styles.inputBox}>
                                     <label>Date of Birth</label>
                                     <input type="date" name="dob" value={profileData.dob || ''} onChange={handleChange} disabled={!isEditing} />
+                                    {isEditing && profileErrors.dob && <span className={styles.error}>{profileErrors.dob}</span>}
                                 </div>
                                 <div className={styles.inputBox}>
                                     <label>Gender</label>
@@ -466,7 +521,9 @@ const Profile = () => {
                                                 value={addressForm.recipientName}
                                                 onChange={handleAddressInputChange}
                                                 placeholder="e.g. John Doe"
+                                                maxLength={50}
                                             />
+                                            {addressErrors.recipientName && <span className={styles.error}>{addressErrors.recipientName}</span>}
                                         </div>
                                         <div className={styles.inputBox}>
                                             <label>Phone Number</label>
@@ -475,7 +532,9 @@ const Profile = () => {
                                                 value={addressForm.recipientPhoneNumber}
                                                 onChange={handleAddressInputChange}
                                                 placeholder="e.g. 0912345678"
+                                                maxLength={11}
                                             />
+                                            {addressErrors.recipientPhoneNumber && <span className={styles.error}>{addressErrors.recipientPhoneNumber}</span>}
                                         </div>
 
                                         <div className={styles.selectRow}>
@@ -487,6 +546,7 @@ const Profile = () => {
                                                         <option key={p.ProvinceID} value={p.ProvinceID}>{p.ProvinceName}</option>
                                                     ))}
                                                 </select>
+                                                {addressErrors.provinceID && <span className={styles.error}>{addressErrors.provinceID}</span>}
                                             </div>
                                             <div className={styles.inputBox}>
                                                 <label>District</label>
@@ -496,6 +556,7 @@ const Profile = () => {
                                                         <option key={d.DistrictID} value={d.DistrictID}>{d.DistrictName}</option>
                                                     ))}
                                                 </select>
+                                                {addressErrors.districtID && <span className={styles.error}>{addressErrors.districtID}</span>}
                                             </div>
                                             <div className={styles.inputBox}>
                                                 <label>Ward</label>
@@ -505,6 +566,7 @@ const Profile = () => {
                                                         <option key={w.WardCode} value={w.WardCode}>{w.WardName}</option>
                                                     ))}
                                                 </select>
+                                                {addressErrors.wardCode && <span className={styles.error}>{addressErrors.wardCode}</span>}
                                             </div>
                                         </div>
 
@@ -516,7 +578,9 @@ const Profile = () => {
                                                 onChange={handleAddressInputChange}
                                                 placeholder="House number, Street name..."
                                                 rows={2}
+                                                maxLength={255}
                                             />
+                                            {addressErrors.address && <span className={styles.error}>{addressErrors.address}</span>}
                                         </div>
 
                                         <div className={styles.checkboxBox}>
