@@ -22,8 +22,9 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Link, useLocation } from "react-router-dom";
 import { useKeycloakAuth } from "../context/KeycloakAuthContext";
+import { useProfile } from "../context/ProfileContext";
+import CloudinaryImage from "../component/Common/CloudinaryImage";
 import drumifyLogo from "../assets/images/drumify.png";
-
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -76,11 +77,13 @@ export default function Header() {
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
   const location = useLocation();
   const { tokenParsed, logout: keycloakLogout } = useKeycloakAuth();
+  const { profile } = useProfile();
 
   const user = {
-    name: tokenParsed?.name || "Guest User",
-    email: tokenParsed?.email || "guest@drumify.com",
-    initials: tokenParsed?.name?.charAt(0) || "G"
+    name: profile?.fullName || tokenParsed?.name || "Guest User",
+    email: profile?.email || tokenParsed?.email || "guest@drumify.com",
+    initials: (profile?.fullName || tokenParsed?.name)?.charAt(0) || "G",
+    avatarUrl: profile?.avatarUrl
   };
 
   const isMenuOpen = Boolean(anchorEl);
@@ -289,19 +292,26 @@ export default function Header() {
             }
           }}
         >
-          <Avatar 
-            sx={{ 
-              width: 35, 
-              height: 35, 
+          <Avatar
+            sx={{
+              width: 35,
+              height: 35,
               bgcolor: 'var(--color-accent-gold)',
               color: '#000',
               fontWeight: 700,
               fontSize: '0.9rem',
-              border: '2px solid #fff'
+              border: '2px solid #fff',
+              overflow: 'hidden' // Ensure CloudinaryImage doesn't overflow
             }}
           >
-
-            {user.initials}
+            {user.avatarUrl ? (
+              <CloudinaryImage
+                publicId={user.avatarUrl}
+                type="avatar"
+                width={70}
+                height={70}
+              />
+            ) : user.initials}
           </Avatar>
         </IconButton>
 

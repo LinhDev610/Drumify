@@ -12,14 +12,15 @@ import {
     deleteAddress,
     setDefaultAddress
 } from '../../services/userService';
+import { useProfile } from '../../context/ProfileContext';
 import { uploadToCloudinary } from '../../services/imageService';
-import { CLOUDINARY_FOLDERS } from '../../configurations/configuration';
 import SetAvatarDialog from '../../component/Profile/SetAvatarDialog';
 import CloudinaryImage from '../../component/Common/CloudinaryImage';
 import defaultAvatar from '../../assets/images/default-avatar.png';
 
 const Profile = () => {
     const { tokenParsed } = useKeycloakAuth();
+    const { refreshProfile } = useProfile();
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -334,6 +335,7 @@ const Profile = () => {
                 const updatedProfile = { ...profileData, avatarUrl: secureUrl };
                 await updateMyProfile(updatedProfile);
                 setProfileData(updatedProfile);
+                await refreshProfile();
                 setShowAvatarDialog(false);
                 alert("Ảnh đại diện đã được cập nhật!");
             }
@@ -387,6 +389,7 @@ const Profile = () => {
             setSaving(true);
             await updateMyProfile(profileData);
             setIsEditing(false);
+            await refreshProfile();
             setProfileErrors({});
             alert("Hồ sơ đã được cập nhật!");
         } catch (error) {

@@ -1,6 +1,5 @@
 import { API } from "../configurations/configuration";
 import httpClient from "../configurations/httpCient";
-import keycloak from "../keycloak";
 
 export const uploadToCloudinary = async (file) => {
     if (!file) return null;
