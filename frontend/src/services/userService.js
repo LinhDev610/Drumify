@@ -17,6 +17,10 @@ export const updateMyProfile = async (data) => {
     return await httpClient.put(API.MY_PROFILE, data);
 }
 
+export const changePassword = async (data) => {
+    return await httpClient.put(API.CHANGE_PASSWORD, data);
+}
+
 // Address Management
 export const addAddress = async (data) => {
     return await httpClient.post(API.ADDRESSES, data);

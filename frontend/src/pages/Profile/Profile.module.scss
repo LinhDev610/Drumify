@@ -1,7 +1,7 @@
 @import "../Home/variables.scss";
 
 .profilePage {
-    padding: 100px 20px 60px;
+    padding: 80px 20px 60px;
     min-height: 100vh;
     background: #0a0a0b; // Deep dark background
     color: #ffffff;
@@ -9,8 +9,218 @@
 }
 
 .container {
-    max-width: 1000px;
+    max-width: 1200px; // Increased for sidebar layout
     margin: 0 auto;
+}
+
+// 1. Sidebar Layout
+.layout {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+
+    @media (max-width: 900px) {
+        flex-direction: column;
+    }
+}
+
+.sidebar {
+    width: 300px;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 32px;
+    padding: 20px;
+
+    @media (max-width: 900px) {
+        width: 100%;
+    }
+}
+
+.sidebarHeader {
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+.userBrief {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.briefAvatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #1c1c1e;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.briefInfo {
+    .briefUsername {
+        font-weight: 700;
+        margin: 0;
+        font-size: 0.95rem;
+        color: #fff;
+    }
+    .briefEdit {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.5);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin: 2px 0 0;
+        
+        &:hover {
+            color: $accent-gold;
+        }
+    }
+}
+
+.sidebarNav {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    border-radius: 40px; // Pill shape
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: rgba(255, 255, 255, 0.6);
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        transform: translateX(5px);
+    }
+
+    &.active {
+        background: $accent-gold;
+        color: #000;
+        box-shadow: 0 10px 20px rgba($accent-gold, 0.2);
+        .navIcon { color: #000; }
+        .navLabel { font-weight: 700; }
+    }
+}
+
+.navIcon {
+    display: flex;
+    align-items: center;
+    color: inherit;
+    font-size: 1.2rem;
+}
+
+.navLabel {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+// 2. Main Content Area
+.content {
+    flex: 1;
+    min-width: 0; // Prevent flex item from overflowing
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 32px;
+    min-height: 600px;
+}
+
+.tabContent {
+    padding: 16px;
+}
+
+.tabHeader {
+    margin-bottom: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 20px;
+}
+
+.tabTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.tabSubtitle {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+    margin-top: 4px;
+}
+
+// 3. Sub-tabs (Vouchers)
+.subTabs {
+    display: flex;
+    gap: 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 24px;
+}
+
+.subTab {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 12px 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+    
+    &.active {
+        color: $accent-gold;
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: $accent-gold;
+        }
+    }
+    
+    &:hover {
+        color: #fff;
+    }
+}
+
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+    color: rgba(255, 255, 255, 0.3);
+    text-align: center;
+    gap: 16px;
+    
+    p { font-size: 1rem; }
+}
+
+// 4. Security Form
+.securityForm {
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.initialsAvatar {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+    background: $accent-gold;
+    color: #000;
 }
 
 // 1. Header Card Style
@@ -18,12 +228,12 @@
     background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 24px;
-    padding: 32px;
+    border-radius: 32px;
+    padding: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 32px;
+    margin-bottom: 24px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 
     @media (max-width: 768px) {
@@ -170,8 +380,8 @@
 .infoCard {
     background: rgba(255, 255, 255, 0.08); // Increased contrast
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 24px;
-    padding: 24px;
+    border-radius: 32px;
+    padding: 16px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
@@ -180,10 +390,10 @@
 }
 
 .cardTitle {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: $accent-gold;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
@@ -191,7 +401,7 @@
 .fieldGroup {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
 }
 
 .row {
@@ -213,7 +423,7 @@
     gap: 8px;
     
     label {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         font-weight: 600;
         color: rgba(255, 255, 255, 0.5); // Clear label
         margin-left: 4px;
@@ -223,9 +433,9 @@
         background: rgba(0, 0, 0, 0.2);
         border: 1.5px solid rgba(255, 255, 255, 0.2); // Stronger border
         border-radius: 12px;
-        padding: 14px;
+        padding: 12px;
         color: #ffffff;
-        font-size: 0.95rem;
+        font-size: 1rem;
         font-weight: 500;
         transition: all 0.2s;
         width: 100%;

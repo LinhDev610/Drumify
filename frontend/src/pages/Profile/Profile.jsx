@@ -10,17 +10,33 @@ import {
     addAddress,
     updateAddress,
     deleteAddress,
-    setDefaultAddress
+    setDefaultAddress,
+    changePassword
 } from '../../services/userService';
 import { useProfile } from '../../context/ProfileContext';
 import { uploadToCloudinary } from '../../services/imageService';
 import SetAvatarDialog from '../../component/Profile/SetAvatarDialog';
 import CloudinaryImage from '../../component/Common/CloudinaryImage';
-import defaultAvatar from '../../assets/images/default-avatar.png';
+import { useSearchParams } from 'react-router-dom';
+import PersonIcon from '@mui/icons-material/Person';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
+import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
+import LockIcon from '@mui/icons-material/Lock';
+
+import ProfileTab from './components/ProfileTab';
+import AddressManager from './components/AddressManager';
+import OrdersTab from './components/OrdersTab';
+import VoucherTab from './components/VoucherTab';
+import SecurityTab from './components/SecurityTab';
 
 const Profile = () => {
     const { tokenParsed } = useKeycloakAuth();
     const { refreshProfile } = useProfile();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const activeTab = searchParams.get('tab') || 'profile';
+    const [voucherTab, setVoucherTab] = useState('vouchers');
+    const [orderTab, setOrderTab] = useState('all');
+
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -31,6 +47,15 @@ const Profile = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
     const fileInputRef = useRef(null);
+
+    // Password states
+    const [passwordForm, setPasswordForm] = useState({
+        oldPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+    });
+    const [passwordError, setPasswordError] = useState('');
+    const [changingPassword, setChangingPassword] = useState(false);
 
     const [profileData, setProfileData] = useState({
         username: '',
@@ -73,7 +98,6 @@ const Profile = () => {
         const fetchInitialData = async () => {
             try {
                 setLoading(true);
-
                 let baseData = {};
                 if (tokenParsed) {
                     baseData = {
@@ -86,7 +110,6 @@ const Profile = () => {
                     setProfileData(prev => ({ ...prev, ...baseData }));
                 }
 
-                // Fetch Profile and Provinces independently
                 await Promise.allSettled([
                     getMyProfile().then(res => {
                         if (res.data?.result) {
@@ -128,24 +151,14 @@ const Profile = () => {
         const provinceId = e.target.value;
         const provinceName = provinces.find(p => String(p.ProvinceID) === String(provinceId))?.ProvinceName || '';
 
-        setAddressForm(prev => ({
-            ...prev,
-            provinceID: provinceId,
-            provinceName: provinceName,
-            districtID: '',
-            districtName: '',
-            wardCode: '',
-            wardName: ''
-        }));
+        setAddressForm(prev => ({ ...prev, provinceID: provinceId, provinceName, districtID: '', districtName: '', wardCode: '', wardName: '' }));
 
         if (provinceId) {
             try {
                 const response = await getDistricts(provinceId);
                 setDistricts(response.data.result || []);
                 setWards([]);
-            } catch (error) {
-                console.error("Error fetching districts:", error);
-            }
+            } catch (error) { console.error("Error fetching districts:", error); }
         } else {
             setDistricts([]);
             setWards([]);
@@ -156,52 +169,31 @@ const Profile = () => {
         const districtId = e.target.value;
         const districtName = districts.find(d => String(d.DistrictID) === String(districtId))?.DistrictName || '';
 
-        setAddressForm(prev => ({
-            ...prev,
-            districtID: districtId,
-            districtName: districtName,
-            wardCode: '',
-            wardName: ''
-        }));
+        setAddressForm(prev => ({ ...prev, districtID: districtId, districtName, wardCode: '', wardName: '' }));
 
         if (districtId) {
             try {
                 const response = await getWards(districtId);
                 setWards(response.data.result || []);
-            } catch (error) {
-                console.error("Error fetching wards:", error);
-            }
-        } else {
-            setWards([]);
-        }
+            } catch (error) { console.error("Error fetching wards:", error); }
+        } else { setWards([]); }
     };
 
     const handleWardChange = (e) => {
         const wardCode = e.target.value;
         const wardName = wards.find(w => w.WardCode === wardCode)?.WardName || '';
-
-        setAddressForm(prev => ({
-            ...prev,
-            wardCode: wardCode,
-            wardName: wardName
-        }));
+        setAddressForm(prev => ({ ...prev, wardCode, wardName }));
     };
 
     const validateAddress = () => {
         const errors = {};
         if (!addressForm.recipientName.trim()) errors.recipientName = 'Tên người nhận là bắt buộc';
-        else if (addressForm.recipientName.length > 50) errors.recipientName = 'Tên không quá 50 ký tự';
-
         if (!addressForm.recipientPhoneNumber.trim()) errors.recipientPhoneNumber = 'Số điện thoại là bắt buộc';
         else if (!/^[0-9]{10,11}$/.test(addressForm.recipientPhoneNumber)) errors.recipientPhoneNumber = 'Số điện thoại phải từ 10-11 số';
-
         if (!addressForm.provinceID) errors.provinceID = 'Tỉnh/Thành là bắt buộc';
         if (!addressForm.districtID) errors.districtID = 'Quận/Huyện là bắt buộc';
         if (!addressForm.wardCode) errors.wardCode = 'Phường/Xã là bắt buộc';
-
         if (!addressForm.address.trim()) errors.address = 'Địa chỉ cụ thể là bắt buộc';
-        else if (addressForm.address.length > 255) errors.address = 'Địa chỉ không quá 255 ký tự';
-
         setAddressErrors(errors);
         return Object.keys(errors).length === 0;
     };
@@ -210,120 +202,56 @@ const Profile = () => {
         if (!validateAddress()) return;
         try {
             setSaving(true);
-            let response;
-            if (editingAddressId) {
-                response = await updateAddress(editingAddressId, addressForm);
-            } else {
-                response = await addAddress(addressForm);
-            }
-
+            let response = editingAddressId ? await updateAddress(editingAddressId, addressForm) : await addAddress(addressForm);
             if (response.data?.result) {
-                const updatedAddress = response.data.result;
-                if (editingAddressId) {
-                    setAddresses(prev => prev.map(a => a.id === editingAddressId ? updatedAddress : (updatedAddress.defaultAddress ? { ...a, defaultAddress: false } : a)));
-                } else {
-                    setAddresses(prev => {
-                        let newList = [...prev];
-                        if (updatedAddress.defaultAddress) {
-                            newList = newList.map(a => ({ ...a, defaultAddress: false }));
-                        }
-                        return [...newList, updatedAddress];
-                    });
-                }
+                const updated = response.data.result;
+                setAddresses(prev => {
+                    const filtered = updated.defaultAddress ? prev.map(a => ({ ...a, defaultAddress: false })) : prev;
+                    return editingAddressId ? filtered.map(a => a.id === editingAddressId ? updated : a) : [...filtered, updated];
+                });
                 setShowAddressForm(false);
                 resetAddressForm();
                 setAddressErrors({});
             }
-        } catch (error) {
-            alert("Lỗi khi lưu địa chỉ: " + (error.response?.data?.message || error.message));
-        } finally {
-            setSaving(false);
-        }
+        } catch (error) { alert("Lỗi: " + (error.response?.data?.message || error.message)); }
+        finally { setSaving(false); }
     };
 
     const resetAddressForm = () => {
-        setAddressForm({
-            recipientName: '',
-            recipientPhoneNumber: '',
-            provinceID: '',
-            provinceName: '',
-            districtID: '',
-            districtName: '',
-            wardCode: '',
-            wardName: '',
-            address: '',
-            defaultAddress: false
-        });
-        setEditingAddressId(null);
-        setDistricts([]);
-        setWards([]);
+        setAddressForm({ recipientName: '', recipientPhoneNumber: '', provinceID: '', provinceName: '', districtID: '', districtName: '', wardCode: '', wardName: '', address: '', defaultAddress: false });
+        setEditingAddressId(null); setDistricts([]); setWards([]);
     };
 
     const handleEditAddress = async (addr) => {
         setEditingAddressId(addr.id);
-        setAddressForm({
-            recipientName: addr.recipientName,
-            recipientPhoneNumber: addr.recipientPhoneNumber,
-            provinceID: addr.provinceID,
-            provinceName: addr.provinceName,
-            districtID: addr.districtID,
-            districtName: addr.districtName,
-            wardCode: addr.wardCode,
-            wardName: addr.wardName,
-            address: addr.address,
-            defaultAddress: addr.defaultAddress
-        });
-
+        setAddressForm({ ...addr });
         try {
-            // Pre-fetch districts and wards for editing
-            const [distRes, wardRes] = await Promise.all([
-                getDistricts(addr.provinceID),
-                getWards(addr.districtID)
-            ]);
-            setDistricts(distRes.data.result || []);
-            setWards(wardRes.data.result || []);
+            const [distRes, wardRes] = await Promise.all([getDistricts(addr.provinceID), getWards(addr.districtID)]);
+            setDistricts(distRes.data.result || []); setWards(wardRes.data.result || []);
             setShowAddressForm(true);
-        } catch (error) {
-            console.error("Error fetching location data for edit:", error);
-            setShowAddressForm(true);
-        }
+        } catch (error) { setShowAddressForm(true); }
     };
 
     const handleDeleteAddress = async (id) => {
-        if (!window.confirm("Bạn có chắc muốn xóa địa chỉ này?")) return;
-        try {
-            await deleteAddress(id);
-            setAddresses(prev => prev.filter(a => a.id !== id));
-        } catch (error) {
-            alert("Lỗi khi xóa: " + error.message);
-        }
+        if (!window.confirm("Xóa địa chỉ này?")) return;
+        try { await deleteAddress(id); setAddresses(prev => prev.filter(a => a.id !== id)); }
+        catch (error) { alert("Lỗi khi xóa: " + error.message); }
     };
 
     const handleSetDefault = async (id) => {
         try {
-            const response = await setDefaultAddress(id);
-            if (response.data?.result) {
-                setAddresses(prev => prev.map(a => ({
-                    ...a,
-                    defaultAddress: a.id === id
-                })));
-            }
-        } catch (error) {
-            alert("Lỗi: " + error.message);
-        }
+            const res = await setDefaultAddress(id);
+            if (res.data?.result) setAddresses(prev => prev.map(a => ({ ...a, defaultAddress: a.id === id })));
+        } catch (error) { alert("Lỗi: " + error.message); }
     };
 
-    const handleAvatarClick = () => {
-        if (!isEditing) return;
-        fileInputRef.current?.click();
-    };
+    const handleAvatarClick = () => { if (isEditing) fileInputRef.current?.click(); };
 
     const handleFileChange = (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
         setAvatarPreview(URL.createObjectURL(file));
-        setSelectedFile(file);
-        setShowAvatarDialog(true);
+        setSelectedFile(file); setShowAvatarDialog(true);
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
@@ -332,324 +260,148 @@ const Profile = () => {
         try {
             const secureUrl = await uploadToCloudinary(selectedFile);
             if (secureUrl) {
-                const updatedProfile = { ...profileData, avatarUrl: secureUrl };
-                await updateMyProfile(updatedProfile);
-                setProfileData(updatedProfile);
-                await refreshProfile();
-                setShowAvatarDialog(false);
-                alert("Ảnh đại diện đã được cập nhật!");
+                const updated = { ...profileData, avatarUrl: secureUrl };
+                await updateMyProfile(updated); setProfileData(updated);
+                await refreshProfile(); setShowAvatarDialog(false);
+                alert("Đã cập nhật ảnh!");
             }
-        } catch (error) {
-            alert("Upload failed: " + error.message);
-        } finally {
-            setUploadingAvatar(false);
-        }
+        } catch (error) { alert("Thất bại: " + error.message); }
+        finally { setUploadingAvatar(false); }
     };
 
     const handleCancelAvatar = () => {
         setShowAvatarDialog(false);
-        if (avatarPreview) {
-            URL.revokeObjectURL(avatarPreview);
-            setAvatarPreview(null);
-        }
-        setSelectedFile(null);
+        if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+        setAvatarPreview(null); setSelectedFile(null);
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setProfileData(prev => {
             const newData = { ...prev, [name]: value };
-            if (name === 'firstName' || name === 'lastName') {
-                newData.fullName = `${newData.firstName || ''} ${newData.lastName || ''}`.trim();
-            }
+            if (name === 'firstName' || name === 'lastName') newData.fullName = `${newData.firstName || ''} ${newData.lastName || ''}`.trim();
             return newData;
         });
     };
 
     const validateProfile = () => {
-        const errors = {};
-        if (profileData.firstName?.length > 50) errors.firstName = 'Họ không quá 50 ký tự';
-        if (profileData.lastName?.length > 50) errors.lastName = 'Tên không quá 50 ký tự';
-        if (profileData.phoneNumber && !/^[0-9]{10,11}$/.test(profileData.phoneNumber)) {
-            errors.phoneNumber = 'Số điện thoại phải từ 10-11 số';
-        }
-        if (profileData.dob) {
-            const selectedDate = new Date(profileData.dob);
-            if (selectedDate >= new Date()) {
-                errors.dob = 'Ngày sinh phải trong quá khứ';
-            }
-        }
-        setProfileErrors(errors);
-        return Object.keys(errors).length === 0;
+        const errs = {};
+        if (profileData.phoneNumber && !/^[0-9]{10,11}$/.test(profileData.phoneNumber)) errs.phoneNumber = 'SĐT 10-11 số';
+        setProfileErrors(errs); return Object.keys(errs).length === 0;
     };
 
     const handleSave = async () => {
         if (!validateProfile()) return;
         try {
-            setSaving(true);
-            await updateMyProfile(profileData);
-            setIsEditing(false);
-            await refreshProfile();
-            setProfileErrors({});
-            alert("Hồ sơ đã được cập nhật!");
-        } catch (error) {
-            alert("Lỗi khi lưu: " + (error.response?.data?.message || error.message));
-        } finally {
-            setSaving(false);
-        }
+            setSaving(true); await updateMyProfile(profileData);
+            setIsEditing(false); await refreshProfile(); setProfileErrors({});
+            alert("Đã cập nhật!");
+        } catch (error) { alert("Lỗi: " + (error.response?.data?.message || error.message)); }
+        finally { setSaving(false); }
     };
 
+    const handleTabChange = (tabId) => setSearchParams({ tab: tabId });
+
+    const handlePasswordInputChange = (e) => {
+        const { name, value } = e.target;
+        setPasswordForm(prev => ({ ...prev, [name]: value }));
+        if (passwordError) setPasswordError('');
+    };
+
+    const submitPasswordChange = async () => {
+        setPasswordError('');
+        if (!passwordForm.oldPassword) return setPasswordError('Nhập mật khẩu cũ');
+        if (passwordForm.newPassword.length < 6) return setPasswordError('Mật khẩu mới ít nhất 6 ký tự');
+        if (passwordForm.newPassword !== passwordForm.confirmPassword) return setPasswordError('Mật khẩu không khớp');
+
+        try {
+            setChangingPassword(true); await changePassword(passwordForm);
+            alert('Đổi mật khẩu thành công!');
+            setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
+        } catch (error) { setPasswordError(error.response?.data?.message || 'Lỗi khi đổi mật khẩu'); }
+        finally { setChangingPassword(false); }
+    };
+
+    const TABS = [
+        { id: 'profile', label: 'Hồ sơ của tôi', icon: <PersonIcon fontSize="small" /> },
+        { id: 'orders', label: 'Đơn hàng của tôi', icon: <ShoppingBagIcon fontSize="small" /> },
+        { id: 'vouchers', label: 'Wallet Voucher', icon: <ConfirmationNumberIcon fontSize="small" /> },
+        { id: 'security', label: 'Đổi mật khẩu', icon: <LockIcon fontSize="small" /> },
+    ];
+
     if (loading) return <div className={styles.loading}>Initializing Profile...</div>;
+
+    const renderTabContent = () => {
+        switch (activeTab) {
+            case 'profile':
+                return (
+                    <>
+                        <ProfileTab 
+                            profileData={profileData} isEditing={isEditing} setIsEditing={setIsEditing}
+                            handleSave={handleSave} saving={saving} handleChange={handleChange}
+                            profileErrors={profileErrors} handleAvatarClick={handleAvatarClick}
+                        />
+                        <AddressManager 
+                            addresses={addresses} showAddressForm={showAddressForm} setShowAddressForm={setShowAddressForm}
+                            resetAddressForm={resetAddressForm} editingAddressId={editingAddressId} addressForm={addressForm}
+                            handleAddressInputChange={handleAddressInputChange} handleProvinceChange={handleProvinceChange}
+                            handleDistrictChange={handleDistrictChange} handleWardChange={handleWardChange}
+                            setAddressForm={setAddressForm} handleSaveAddress={handleSaveAddress}
+                            handleEditAddress={handleEditAddress} handleDeleteAddress={handleDeleteAddress}
+                            handleSetDefault={handleSetDefault} saving={saving} addressErrors={addressErrors}
+                            provinces={provinces} districts={districts} wards={wards}
+                        />
+                    </>
+                );
+            case 'orders': return <OrdersTab orderTab={orderTab} setOrderTab={setOrderTab} />;
+            case 'vouchers': return <VoucherTab voucherTab={voucherTab} setVoucherTab={setVoucherTab} />;
+            case 'security': 
+                return (
+                    <SecurityTab 
+                        passwordForm={passwordForm} handlePasswordInputChange={handlePasswordInputChange}
+                        submitPasswordChange={submitPasswordChange} passwordError={passwordError}
+                        changingPassword={changingPassword} username={profileData.username}
+                    />
+                );
+            default: return null;
+        }
+    };
 
     return (
         <div className={styles.profilePage}>
             <div className={styles.container}>
-                {/* 1. Header Card - Visual Identity */}
-                <div className={styles.headerCard}>
-                    <div className={styles.headerContent}>
-                        <div
-                            className={`${styles.avatarWrapper} ${isEditing ? styles.editable : ''}`}
-                            onClick={handleAvatarClick}
-                        >
-                             {profileData.avatarUrl ? (
-                                <CloudinaryImage
-                                    publicId={profileData.avatarUrl}
-                                    type="avatar"
-                                    width={140}
-                                    height={140}
-                                    className={styles.avatarImg}
-                                />
-                            ) : (
-                                <img
-                                    src={defaultAvatar}
-                                    alt="Default Avatar"
-                                    className={styles.avatarImg}
-                                />
-                            )}
-                            {isEditing && <div className={styles.editOverlay}>Update</div>}
-                        </div>
-                        <div className={styles.nameSection}>
-                            <h1 className={styles.fullName}>{profileData.fullName || 'Drumify User'}</h1>
-                            <p className={styles.emailText}>{profileData.email}</p>
-                            <span className={styles.badge}>Member Since 2026</span>
-                        </div>
-                    </div>
-                    <div className={styles.headerActions}>
-                        {!isEditing ? (
-                            <button className={styles.mainActionBtn} onClick={() => setIsEditing(true)}>
-                                Edit Profile
-                            </button>
-                        ) : (
-                            <div className={styles.btnGroup}>
-                                <button className={styles.cancelBtn} onClick={() => setIsEditing(false)}>Cancel</button>
-                                <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
-                                    {saving ? 'Saving...' : 'Save Changes'}
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* 2. Form Grid - Organized Data */}
-                <div className={styles.mainGrid}>
-                    {/* Account Stats / Basic Info */}
-                    <div className={styles.infoCard}>
-                        <h2 className={styles.cardTitle}>Account Identity</h2>
-                        <div className={styles.fieldGroup}>
-                            <div className={styles.inputBox}>
-                                <label>Username</label>
-                                <input value={profileData.username} disabled className={styles.disabledInput} />
-                            </div>
-                            <div className={styles.inputBox}>
-                                <label>Registered Email</label>
-                                <input value={profileData.email} disabled className={styles.disabledInput} />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Personal Details */}
-                    <div className={styles.infoCard}>
-                        <h2 className={styles.cardTitle}>Personal Details</h2>
-                        <div className={styles.fieldGroup}>
-                            <div className={styles.row}>
-                                <div className={styles.inputBox}>
-                                    <label>First Name</label>
-                                    <input name="firstName" value={profileData.firstName || ''} onChange={handleChange} disabled={!isEditing} placeholder="First Name" maxLength={50} />
-                                    {isEditing && profileErrors.firstName && <span className={styles.error}>{profileErrors.firstName}</span>}
+                <div className={styles.layout}>
+                    <aside className={styles.sidebar}>
+                        <div className={styles.sidebarHeader}>
+                            <div className={styles.userBrief}>
+                                <div className={styles.briefAvatar}>
+                                    {profileData.avatarUrl ? (
+                                        <CloudinaryImage publicId={profileData.avatarUrl} type="avatar" width={50} height={50} />
+                                    ) : (
+                                        <div className={styles.initialsAvatar}>{(profileData.fullName || 'U').charAt(0)}</div>
+                                    )}
                                 </div>
-                                <div className={styles.inputBox}>
-                                    <label>Last Name</label>
-                                    <input name="lastName" value={profileData.lastName || ''} onChange={handleChange} disabled={!isEditing} placeholder="Last Name" maxLength={50} />
-                                    {isEditing && profileErrors.lastName && <span className={styles.error}>{profileErrors.lastName}</span>}
-                                </div>
-                            </div>
-                            <div className={styles.row}>
-                                <div className={styles.inputBox}>
-                                    <label>Phone Number</label>
-                                    <input name="phoneNumber" value={profileData.phoneNumber || ''} onChange={handleChange} disabled={!isEditing} placeholder="0123456789" maxLength={11} />
-                                    {isEditing && profileErrors.phoneNumber && <span className={styles.error}>{profileErrors.phoneNumber}</span>}
-                                </div>
-                                <div className={styles.inputBox}>
-                                    <label>Date of Birth</label>
-                                    <input type="date" name="dob" value={profileData.dob || ''} onChange={handleChange} disabled={!isEditing} />
-                                    {isEditing && profileErrors.dob && <span className={styles.error}>{profileErrors.dob}</span>}
-                                </div>
-                                <div className={styles.inputBox}>
-                                    <label>Gender</label>
-                                    <select name="sex" value={profileData.sex ?? true} onChange={e => handleChange({ target: { name: 'sex', value: e.target.value === 'true' } })} disabled={!isEditing}>
-                                        <option value="true">Male</option>
-                                        <option value="false">Female</option>
-                                    </select>
+                                <div className={styles.briefInfo}>
+                                    <p className={styles.briefUsername}>{profileData.fullName || 'User'}</p>
+                                    <p className={styles.briefEdit} onClick={() => handleTabChange('profile')}>Sửa hồ sơ</p>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div className={`${styles.infoCard} ${styles.fullRow}`}>
-                        <div className={styles.cardHeaderWithAction}>
-                            <h2 className={styles.cardTitle}>Address Management</h2>
-                            <button
-                                className={styles.addAddressBtn}
-                                onClick={() => {
-                                    resetAddressForm();
-                                    setShowAddressForm(true);
-                                }}
-                            >
-                                + Add New Address
-                            </button>
-                        </div>
-
-                        {showAddressForm && (
-                            <div className={styles.addressFormOverlay}>
-                                <div className={styles.addressFormCard}>
-                                    <h3>{editingAddressId ? 'Edit Address' : 'New Address'}</h3>
-                                    <div className={styles.addressGrid}>
-                                        <div className={styles.inputBox}>
-                                            <label>Recipient Name</label>
-                                            <input
-                                                name="recipientName"
-                                                value={addressForm.recipientName}
-                                                onChange={handleAddressInputChange}
-                                                placeholder="e.g. John Doe"
-                                                maxLength={50}
-                                            />
-                                            {addressErrors.recipientName && <span className={styles.error}>{addressErrors.recipientName}</span>}
-                                        </div>
-                                        <div className={styles.inputBox}>
-                                            <label>Phone Number</label>
-                                            <input
-                                                name="recipientPhoneNumber"
-                                                value={addressForm.recipientPhoneNumber}
-                                                onChange={handleAddressInputChange}
-                                                placeholder="e.g. 0912345678"
-                                                maxLength={11}
-                                            />
-                                            {addressErrors.recipientPhoneNumber && <span className={styles.error}>{addressErrors.recipientPhoneNumber}</span>}
-                                        </div>
-
-                                        <div className={styles.selectRow}>
-                                            <div className={styles.inputBox}>
-                                                <label>Province/City</label>
-                                                <select value={addressForm.provinceID} onChange={handleProvinceChange}>
-                                                    <option value="">Select Province</option>
-                                                    {provinces.map(p => (
-                                                        <option key={p.ProvinceID} value={p.ProvinceID}>{p.ProvinceName}</option>
-                                                    ))}
-                                                </select>
-                                                {addressErrors.provinceID && <span className={styles.error}>{addressErrors.provinceID}</span>}
-                                            </div>
-                                            <div className={styles.inputBox}>
-                                                <label>District</label>
-                                                <select value={addressForm.districtID} onChange={handleDistrictChange} disabled={!addressForm.provinceID}>
-                                                    <option value="">Select District</option>
-                                                    {districts.map(d => (
-                                                        <option key={d.DistrictID} value={d.DistrictID}>{d.DistrictName}</option>
-                                                    ))}
-                                                </select>
-                                                {addressErrors.districtID && <span className={styles.error}>{addressErrors.districtID}</span>}
-                                            </div>
-                                            <div className={styles.inputBox}>
-                                                <label>Ward</label>
-                                                <select value={addressForm.wardCode} onChange={handleWardChange} disabled={!addressForm.districtID}>
-                                                    <option value="">Select Ward</option>
-                                                    {wards.map(w => (
-                                                        <option key={w.WardCode} value={w.WardCode}>{w.WardName}</option>
-                                                    ))}
-                                                </select>
-                                                {addressErrors.wardCode && <span className={styles.error}>{addressErrors.wardCode}</span>}
-                                            </div>
-                                        </div>
-
-                                        <div className={styles.inputBox}>
-                                            <label>Detailed Address</label>
-                                            <textarea
-                                                name="address"
-                                                value={addressForm.address}
-                                                onChange={handleAddressInputChange}
-                                                placeholder="House number, Street name..."
-                                                rows={2}
-                                                maxLength={255}
-                                            />
-                                            {addressErrors.address && <span className={styles.error}>{addressErrors.address}</span>}
-                                        </div>
-
-                                        <div className={styles.checkboxBox}>
-                                            <input
-                                                type="checkbox"
-                                                id="isDefault"
-                                                name="defaultAddress"
-                                                checked={addressForm.defaultAddress}
-                                                onChange={e => setAddressForm(prev => ({ ...prev, defaultAddress: e.target.checked }))}
-                                            />
-                                            <label htmlFor="isDefault">Set as default address</label>
-                                        </div>
-                                    </div>
-                                    <div className={styles.formActions}>
-                                        <button className={styles.cancelLink} onClick={() => setShowAddressForm(false)}>Cancel</button>
-                                        <button className={styles.saveAddressBtn} onClick={handleSaveAddress} disabled={saving}>
-                                            {saving ? 'Saving...' : 'Save Address'}
-                                        </button>
-                                    </div>
+                        <nav className={styles.sidebarNav}>
+                            {TABS.map(tab => (
+                                <div key={tab.id} className={`${styles.navItem} ${activeTab === tab.id ? styles.active : ''}`} onClick={() => handleTabChange(tab.id)}>
+                                    <span className={styles.navIcon}>{tab.icon}</span>
+                                    <span className={styles.navLabel}>{tab.label}</span>
                                 </div>
-                            </div>
-                        )}
-
-                        <div className={styles.addressList}>
-                            {addresses.length === 0 ? (
-                                <p className={styles.noAddress}>No addresses saved yet.</p>
-                            ) : (
-                                addresses.map(addr => (
-                                    <div key={addr.id} className={`${styles.addressCard} ${addr.defaultAddress ? styles.default : ''}`}>
-                                        <div className={styles.addressInfo}>
-                                            <div className={styles.recipientHeader}>
-                                                <span className={styles.rName}>{addr.recipientName}</span>
-                                                <span className={styles.rPhone}>{addr.recipientPhoneNumber}</span>
-                                                {addr.defaultAddress && <span className={styles.defaultBadge}>Default</span>}
-                                            </div>
-                                            <p className={styles.fullAddressText}>
-                                                {addr.address}, {addr.wardName}, {addr.districtName}, {addr.provinceName}
-                                            </p>
-                                        </div>
-                                        <div className={styles.addrActions}>
-                                            <button onClick={() => handleEditAddress(addr)}>Edit</button>
-                                            <button onClick={() => handleDeleteAddress(addr.id)}>Delete</button>
-                                            {!addr.defaultAddress && (
-                                                <button onClick={() => handleSetDefault(addr.id)}>Set Default</button>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                    </div>
+                            ))}
+                        </nav>
+                    </aside>
+                    <main className={styles.content}>{renderTabContent()}</main>
                 </div>
             </div>
-
-            <SetAvatarDialog
-                open={showAvatarDialog}
-                previewUrl={avatarPreview}
-                loading={uploadingAvatar}
-                onConfirm={handleConfirmAvatar}
-                onCancel={handleCancelAvatar}
+            <SetAvatarDialog 
+                open={showAvatarDialog} previewUrl={avatarPreview} loading={uploadingAvatar}
+                onConfirm={handleConfirmAvatar} onCancel={handleCancelAvatar}
             />
             <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileChange} />
         </div>

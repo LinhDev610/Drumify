@@ -10,7 +10,8 @@ export const API = {
     PROVINCES: "/location/provinces",
     DISTRICTS: "/location/districts",
     WARDS: "/location/wards",
-    MEDIA_UPLOAD: "/media/upload"
+    MEDIA_UPLOAD: "/media/upload",
+    CHANGE_PASSWORD: "/my-profile/password"
 }
 
 export const KEYCLOAK_CONFIG = {

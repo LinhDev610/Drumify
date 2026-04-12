@@ -15,6 +15,7 @@ import com.linhdev.drumify.dto.identity.Credential;
 import com.linhdev.drumify.dto.identity.TokenExchangeParam;
 import com.linhdev.drumify.dto.identity.UserCreationParam;
 import com.linhdev.drumify.dto.request.AddressRequest;
+import com.linhdev.drumify.dto.request.PasswordChangeRequest;
 import com.linhdev.drumify.dto.request.ProfileUpdateRequest;
 import com.linhdev.drumify.dto.request.RegistrationRequest;
 import com.linhdev.drumify.dto.response.AddressResponse;
@@ -35,10 +36,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Transactional
+@Slf4j
 public class ProfileService {
     ProfileRepository profileRepository;
     ProfileMapper profileMapper;
@@ -132,7 +136,7 @@ public class ProfileService {
                 try {
                     mediaService.deleteProfileMedia(oldAvatarUrl);
                 } catch (Exception e) {
-
+                    log.error("Failed to delete old avatar image: {}", oldAvatarUrl, e);
                 }
             }
         }
@@ -140,6 +144,50 @@ public class ProfileService {
         profile = profileRepository.save(profile);
 
         return profileMapper.toProfileResponse(profile);
+    }
+
+    public void changePassword(PasswordChangeRequest request) {
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new AppException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userID = authentication.getName();
+
+        var profile = profileRepository.findByUserId(userID).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        try {
+            identityClient.exchangeToken(TokenExchangeParam.builder()
+                    .grant_type("password")
+                    .client_id(clientId)
+                    .client_secret(clientSecret)
+                    .username(profile.getUsername())
+                    .password(request.getOldPassword())
+                    .scope("openid")
+                    .build());
+        } catch (FeignException e) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        try {
+            var tokenInfo = identityClient.exchangeToken(TokenExchangeParam.builder()
+                    .grant_type("client_credentials")
+                    .client_id(clientId)
+                    .client_secret(clientSecret)
+                    .scope("openid")
+                    .build());
+
+            identityClient.resetPassword(
+                    "Bearer " + tokenInfo.getAccessToken(),
+                    userID,
+                    Credential.builder()
+                            .type("password")
+                            .temporary(false)
+                            .value(request.getNewPassword())
+                            .build());
+        } catch (FeignException e) {
+            throw errorNormalizer.handleKeycloakException(e);
+        }
     }
 
     @PreAuthorize(

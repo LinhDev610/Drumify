@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import com.linhdev.drumify.dto.ApiResponse;
+import com.linhdev.drumify.dto.request.PasswordChangeRequest;
 import com.linhdev.drumify.dto.request.ProfileUpdateRequest;
 import com.linhdev.drumify.dto.request.RegistrationRequest;
 import com.linhdev.drumify.dto.response.ProfileResponse;
@@ -72,6 +73,14 @@ public class ProfileController {
     ApiResponse<List<ProfileResponse>> getAllProfiles() {
         return ApiResponse.<List<ProfileResponse>>builder()
                 .result(profileService.getAllProfiles())
+                .build();
+    }
+
+    @PutMapping("/my-profile/password")
+    ApiResponse<String> changePassword(@RequestBody @Valid PasswordChangeRequest request) {
+        profileService.changePassword(request);
+        return ApiResponse.<String>builder()
+                .result("Password changed successfully")
                 .build();
     }
 }

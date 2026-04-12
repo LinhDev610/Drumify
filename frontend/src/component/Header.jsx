@@ -18,7 +18,9 @@ import Avatar from "@mui/material/Avatar";
 import Divider from "@mui/material/Divider";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import PersonIcon from "@mui/icons-material/Person";
-import SettingsIcon from "@mui/icons-material/Settings";
+import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
+import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
+import LockResetIcon from "@mui/icons-material/LockReset";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Link, useLocation } from "react-router-dom";
 import { useKeycloakAuth } from "../context/KeycloakAuthContext";
@@ -143,17 +145,29 @@ export default function Header() {
         </Typography>
       </Box>
       <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
-      <MenuItem component={Link} to="/profile" onClick={handleMenuClose} sx={{ py: 1.2, gap: 1.5 }}>
+      <MenuItem component={Link} to="/profile?tab=profile" onClick={handleMenuClose} sx={{ py: 1.2, gap: 1.5 }}>
         <ListItemIcon sx={{ color: 'rgba(255,255,255,0.7)', minWidth: 'auto !important' }}>
           <PersonIcon fontSize="small" />
         </ListItemIcon>
         <Typography variant="body2" sx={{ fontWeight: 500 }}>My Profile</Typography>
       </MenuItem>
-      <MenuItem onClick={handleMenuClose} sx={{ py: 1.2, gap: 1.5 }}>
+      <MenuItem component={Link} to="/profile?tab=orders" onClick={handleMenuClose} sx={{ py: 1.2, gap: 1.5 }}>
         <ListItemIcon sx={{ color: 'rgba(255,255,255,0.7)', minWidth: 'auto !important' }}>
-          <SettingsIcon fontSize="small" />
+          <ShoppingBagIcon fontSize="small" />
         </ListItemIcon>
-        <Typography variant="body2" sx={{ fontWeight: 500 }}>Settings</Typography>
+        <Typography variant="body2" sx={{ fontWeight: 500 }}>Đơn hàng của tôi</Typography>
+      </MenuItem>
+      <MenuItem component={Link} to="/profile?tab=vouchers" onClick={handleMenuClose} sx={{ py: 1.2, gap: 1.5 }}>
+        <ListItemIcon sx={{ color: 'rgba(255,255,255,0.7)', minWidth: 'auto !important' }}>
+          <ConfirmationNumberIcon fontSize="small" />
+        </ListItemIcon>
+        <Typography variant="body2" sx={{ fontWeight: 500 }}>Wallet Voucher</Typography>
+      </MenuItem>
+      <MenuItem component={Link} to="/profile?tab=security" onClick={handleMenuClose} sx={{ py: 1.2, gap: 1.5 }}>
+        <ListItemIcon sx={{ color: 'rgba(255,255,255,0.7)', minWidth: 'auto !important' }}>
+          <LockResetIcon fontSize="small" />
+        </ListItemIcon>
+        <Typography variant="body2" sx={{ fontWeight: 500 }}>Đổi mật khẩu</Typography>
       </MenuItem>
       <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)' }} />
       <MenuItem onClick={handleLogout} sx={{ py: 1.2, gap: 1.5, color: '#ff453a' }}>
