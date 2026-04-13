@@ -3,9 +3,9 @@
 .profilePage {
     padding: 80px 20px 60px;
     min-height: 100vh;
-    background: #0a0a0b; // Deep dark background
-    color: #ffffff;
-    font-family: 'Inter', sans-serif;
+    background: var(--color-bg-deep); 
+    color: var(--color-text-main);
+    font-family: var(--font-family-body);
 }
 
 .container {
@@ -27,8 +27,8 @@
 .sidebar {
     width: 300px;
     flex-shrink: 0;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--color-bg-glass);
+    border: 1px solid var(--color-border-glass);
     border-radius: 32px;
     padding: 20px;
 
@@ -53,8 +53,8 @@
     height: 50px;
     border-radius: 50%;
     overflow: hidden;
-    background: #1c1c1e;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--color-bg-deep);
+    border: 1px solid var(--color-border-glass);
 }
 
 .briefInfo {
@@ -62,11 +62,11 @@
         font-weight: 700;
         margin: 0;
         font-size: 0.95rem;
-        color: #fff;
+        color: var(--color-text-main);
     }
     .briefEdit {
         font-size: 0.8rem;
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--color-text-dim);
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -93,18 +93,18 @@
     border-radius: 40px; // Pill shape
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--color-text-dim);
 
     &:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: #fff;
+        background: var(--color-bg-glass);
+        color: var(--color-text-main);
         transform: translateX(5px);
     }
 
     &.active {
-        background: $accent-gold;
+        background: var(--color-accent-gold);
         color: #000;
-        box-shadow: 0 10px 20px rgba($accent-gold, 0.2);
+        box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2);
         .navIcon { color: #000; }
         .navLabel { font-weight: 700; }
     }
@@ -115,6 +115,10 @@
     align-items: center;
     color: inherit;
     font-size: 1.2rem;
+    
+    svg {
+        color: inherit;
+    }
 }
 
 .navLabel {
@@ -126,8 +130,8 @@
 .content {
     flex: 1;
     min-width: 0; // Prevent flex item from overflowing
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--color-bg-glass);
+    border: 1px solid var(--color-border-glass);
     border-radius: 32px;
     min-height: 600px;
 }
@@ -138,7 +142,7 @@
 
 .tabHeader {
     margin-bottom: 24px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid var(--color-border-glass);
     padding-bottom: 20px;
 }
 
@@ -149,7 +153,7 @@
 }
 
 .tabSubtitle {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--color-text-dim);
     font-size: 0.9rem;
     margin-top: 4px;
 }
@@ -158,14 +162,14 @@
 .subTabs {
     display: flex;
     gap: 30px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid var(--color-border-glass);
     margin-bottom: 24px;
 }
 
 .subTab {
     background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--color-text-dim);
     padding: 12px 0;
     font-size: 0.95rem;
     font-weight: 600;
@@ -173,7 +177,7 @@
     position: relative;
     
     &.active {
-        color: $accent-gold;
+        color: var(--color-accent-gold);
         &::after {
             content: '';
             position: absolute;
@@ -181,12 +185,12 @@
             left: 0;
             width: 100%;
             height: 2px;
-            background: $accent-gold;
+            background: var(--color-accent-gold);
         }
     }
     
     &:hover {
-        color: #fff;
+        color: var(--color-text-main);
     }
 }
 
@@ -196,11 +200,11 @@
     justify-content: center;
     align-items: center;
     height: 300px;
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--color-text-dim);
     text-align: center;
     gap: 16px;
     
-    p { font-size: 1rem; }
+    p { font-size: 1rem; opacity: 0.8; }
 }
 
 // 4. Security Form
@@ -219,22 +223,22 @@
     align-items: center;
     font-size: 1.5rem;
     font-weight: 800;
-    background: $accent-gold;
+    background: var(--color-accent-gold);
     color: #000;
 }
 
 // 1. Header Card Style
 .headerCard {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--color-bg-glass);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid var(--color-border-glass);
     border-radius: 32px;
     padding: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 24px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--shadow-premium);
 
     @media (max-width: 768px) {
         flex-direction: column;
@@ -261,9 +265,9 @@
     border-radius: 50%;
     position: relative;
     overflow: hidden;
-    border: 3px solid #ffffff;
-    background: #1c1c1e;
-    box-shadow: 0 0 20px rgba(255, 184, 0, 0.2);
+    border: 3px solid var(--color-bg-card);
+    background: var(--color-bg-subtle);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
     
     &.editable {
         cursor: pointer;
@@ -309,10 +313,11 @@
         font-weight: 800;
         margin: 0;
         letter-spacing: -0.02em;
+        color: var(--color-text-main);
     }
     
     .emailText {
-        color: rgba(255, 255, 255, 0.6);
+        color: var(--color-text-dim);
         margin: 4px 0 12px;
         font-size: 1rem;
     }
@@ -320,19 +325,20 @@
 
 .badge {
     display: inline-block;
-    padding: 4px 12px;
-    background: rgba(212, 175, 55, 0.15);
-    color: $accent-gold;
-    border: 1px solid rgba(212, 175, 55, 0.3);
+    padding: 6px 14px;
+    background: var(--color-bg-glass);
+    color: var(--color-accent-gold);
+    border: 1.5px solid var(--color-accent-gold);
     border-radius: 20px;
     font-size: 0.75rem;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 // 2. Buttons
 .mainActionBtn, .saveBtn {
-    background: $accent-gold;
+    background: var(--color-accent-gold);
     color: #000;
     padding: 12px 24px;
     border-radius: 14px;
@@ -353,16 +359,16 @@
 }
 
 .cancelBtn {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
+    background: var(--color-bg-glass);
+    color: var(--color-text-main);
     padding: 12px 24px;
     border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--color-border);
     cursor: pointer;
     font-weight: 600;
     
     &:hover {
-        background: rgba(255, 255, 255, 0.2);
+        background: var(--color-bg-card);
     }
 }
 
@@ -378,8 +384,8 @@
 }
 
 .infoCard {
-    background: rgba(255, 255, 255, 0.08); // Increased contrast
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: var(--color-bg-glass); // Increased contrast
+    border: 1px solid var(--color-border-glass);
     border-radius: 32px;
     padding: 16px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
@@ -392,7 +398,7 @@
 .cardTitle {
     font-size: 1.2rem;
     font-weight: 700;
-    color: $accent-gold;
+    color: var(--color-accent-gold);
     margin-bottom: 20px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -425,16 +431,16 @@
     label {
         font-size: 0.85rem;
         font-weight: 600;
-        color: rgba(255, 255, 255, 0.5); // Clear label
+        color: var(--color-text-dim); // Clear label
         margin-left: 4px;
     }
     
     input, select, textarea {
-        background: rgba(0, 0, 0, 0.2);
-        border: 1.5px solid rgba(255, 255, 255, 0.2); // Stronger border
+        background: var(--color-bg-glass);
+        border: 1.5px solid var(--color-border-glass); // Stronger border
         border-radius: 12px;
         padding: 12px;
-        color: #ffffff;
+        color: var(--color-text-main);
         font-size: 1rem;
         font-weight: 500;
         transition: all 0.2s;
@@ -442,20 +448,21 @@
         
         &:focus {
             outline: none;
-            border-color: $accent-gold;
-            background: rgba(0, 0, 0, 0.3);
+            border-color: var(--color-accent-gold);
+            background: var(--color-bg-subtle);
             box-shadow: 0 0 10px rgba(212, 175, 55, 0.15);
         }
         
         &:disabled {
-            background: rgba(255, 255, 255, 0.03);
-            border-color: rgba(255, 255, 255, 0.05);
-            color: rgba(255, 255, 255, 0.9); // High contrast even when disabled
+            background: var(--color-bg-deep);
+            border-color: var(--color-border-glass);
+            color: var(--color-text-dim); 
             cursor: not-allowed;
+            opacity: 0.8;
         }
 
         &::placeholder {
-            color: rgba(255, 255, 255, 0.2);
+            color: var(--color-text-muted);
         }
     }
     
@@ -487,8 +494,8 @@
 
 .addAddressBtn {
     background: transparent;
-    border: 1.5px dashed rgba(212, 175, 55, 0.4);
-    color: $accent-gold;
+    border: 1.5px dashed var(--color-accent-gold-soft);
+    color: var(--color-accent-gold);
     padding: 8px 16px;
     border-radius: 12px;
     font-size: 0.85rem;
@@ -497,8 +504,8 @@
     transition: all 0.2s;
     
     &:hover {
-        background: rgba(212, 175, 55, 0.1);
-        border-color: $accent-gold;
+        background: var(--color-accent-gold-soft);
+        border-color: var(--color-accent-gold);
     }
 }
 
@@ -519,8 +526,8 @@
     transition: all 0.3s;
     
     &.default {
-        border-color: rgba(212, 175, 55, 0.4);
-        background: rgba(212, 175, 55, 0.03);
+        border-color: var(--color-accent-gold-soft);
+        background: var(--color-accent-gold-soft);
     }
     
     @media (max-width: 600px) {
@@ -544,7 +551,7 @@
     .rPhone { color: rgba(255, 255, 255, 0.5); font-size: 0.9rem; border-left: 1px solid rgba(255, 255, 255, 0.2); padding-left: 12px; }
     
     .defaultBadge {
-        background: $accent-gold;
+        background: var(--color-accent-gold);
         color: #000;
         font-size: 0.65rem;
         font-weight: 800;
@@ -599,18 +606,18 @@
 }
 
 .addressFormCard {
-    background: #1c1c1e;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
     border-radius: 24px;
     padding: 32px;
     width: 100%;
     max-width: 600px;
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+    box-shadow: var(--shadow-premium);
     
     h3 {
         margin: 0 0 24px;
         font-size: 1.4rem;
-        color: #fff;
+        color: var(--color-text-main);
     }
 }
 
@@ -668,7 +675,7 @@
 }
 
 .saveAddressBtn {
-    background: $accent-gold;
+    background: var(--color-accent-gold);
     color: #000;
     border: none;
     padding: 12px 32px;

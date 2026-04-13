@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from '../Profile.module.scss';
 
 const SecurityTab = ({ 
@@ -9,11 +10,12 @@ const SecurityTab = ({
     changingPassword,
     username
 }) => {
+    const { t } = useTranslation();
     return (
         <div className={styles.tabContent}>
             <div className={styles.tabHeader}>
-                <h2 className={styles.tabTitle}>Đổi mật khẩu</h2>
-                <p className={styles.tabSubtitle}>Để bảo mật tài khoản, vui lòng không chia sẻ mật khẩu cho người khác</p>
+                <h2 className={styles.tabTitle}>{t('profile.security.title')}</h2>
+                <p className={styles.tabSubtitle}>{t('profile.security.subtitle')}</p>
             </div>
             <form
                 className={styles.securityForm}
@@ -32,7 +34,7 @@ const SecurityTab = ({
                 />
 
                 <div className={styles.inputBox}>
-                    <label>Mật khẩu hiện tại</label>
+                    <label>{t('profile.security.current_password')}</label>
                     <input
                         type="password"
                         name="oldPassword"
@@ -43,7 +45,7 @@ const SecurityTab = ({
                     />
                 </div>
                 <div className={styles.inputBox}>
-                    <label>Mật khẩu mới</label>
+                    <label>{t('profile.security.new_password')}</label>
                     <input
                         type="password"
                         name="newPassword"
@@ -54,7 +56,7 @@ const SecurityTab = ({
                     />
                 </div>
                 <div className={styles.inputBox}>
-                    <label>Xác nhận mật khẩu mới</label>
+                    <label>{t('profile.security.confirm_new_password')}</label>
                     <input
                         type="password"
                         name="confirmPassword"
@@ -71,7 +73,7 @@ const SecurityTab = ({
                     style={{ marginTop: '20px', width: 'fit-content' }}
                     disabled={changingPassword}
                 >
-                    {changingPassword ? 'Đang xác nhận...' : 'Xác nhận'}
+                    {changingPassword ? t('profile.security.confirming') : t('profile.general.confirm')}
                 </button>
             </form>
         </div>

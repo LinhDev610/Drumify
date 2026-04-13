@@ -6,21 +6,25 @@ import Container from "@mui/material/Container";
 import Header from "../component/Header";
 import CategoryGrid from "../component/CategoryGrid/CategoryGrid";
 import { useLocation } from "react-router-dom";
+import { useThemeStatus } from "../context/ThemeContext";
 
 function Scene({ children }) {
+  const { isDarkMode } = useThemeStatus();
   const location = useLocation();
   const isHomePage = location.pathname === "/";
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", minHeight: '100vh' }}>
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: '100vh', bgcolor: 'var(--color-bg-deep)' }}>
       {/* Main Header */}
       <AppBar
         position="fixed"
         sx={{
           zIndex: (theme) => theme.zIndex.drawer + 2,
-          bgcolor: 'rgba(26, 26, 26, 0.98)', 
+          bgcolor: 'var(--color-glass)', 
+          backdropFilter: 'blur(12px)',
           boxShadow: 'none',
-          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          borderBottom: '1px solid var(--color-border)',
+          color: 'var(--color-text-main)',
           willChange: 'transform',
         }}
       >
@@ -35,12 +39,12 @@ function Scene({ children }) {
           position="fixed"
           sx={{
             zIndex: (theme) => theme.zIndex.drawer + 1,
-            bgcolor: 'rgba(255, 255, 255, 0.92)',
-            backdropFilter: 'blur(8px)',
+            bgcolor: isDarkMode ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)',
+            backdropFilter: 'blur(10px)',
             top: 64,
-            boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
-            borderBottom: '1px solid rgba(0,0,0,0.06)',
-            color: '#333',
+            boxShadow: isDarkMode ? '0 4px 30px rgba(0,0,0,0.2)' : '0 4px 20px rgba(0,0,0,0.05)',
+            borderBottom: '1px solid var(--color-border)',
+            color: 'var(--color-text-main)',
             display: { xs: 'none', lg: 'block' }
           }}
         >
@@ -58,10 +62,10 @@ function Scene({ children }) {
         sx={{
           flexGrow: 1,
           width: '100%',
-          bgcolor: '#fafafa',
+          bgcolor: 'transparent',
           pt: { 
             xs: '64px', 
-            lg: isHomePage ? '112px' : '64px' // Header (64) + SubHeader (48) if on Home
+            lg: isHomePage ? '112px' : '64px'
           }, 
         }}
       >

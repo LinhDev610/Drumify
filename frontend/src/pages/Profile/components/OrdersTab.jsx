@@ -1,21 +1,23 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from '../Profile.module.scss';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 
 const OrdersTab = ({ orderTab, setOrderTab }) => {
+    const { t } = useTranslation();
     const TABS = [
-        { id: 'all', label: 'Tất cả' },
-        { id: 'pending', label: 'Chờ xác nhận' },
-        { id: 'confirmed', label: 'Chờ lấy hàng' },
-        { id: 'shipping', label: 'Đang giao' },
-        { id: 'delivered', label: 'Đã giao' },
-        { id: 'cancelled', label: 'Đã hủy' },
+        { id: 'all', label: t('profile.orders.tab_all') },
+        { id: 'pending', label: t('profile.orders.tab_pending') },
+        { id: 'confirmed', label: t('profile.orders.tab_confirmed') },
+        { id: 'shipping', label: t('profile.orders.tab_shipping') },
+        { id: 'delivered', label: t('profile.orders.tab_delivered') },
+        { id: 'cancelled', label: t('profile.orders.tab_cancelled') },
     ];
 
     return (
         <div className={styles.tabContent}>
             <div className={styles.tabHeader}>
-                <h2 className={styles.tabTitle}>Đơn hàng của tôi</h2>
+                <h2 className={styles.tabTitle}>{t('profile.orders.title')}</h2>
             </div>
             <div className={styles.subTabs}>
                 {TABS.map(tab => (
@@ -31,7 +33,7 @@ const OrdersTab = ({ orderTab, setOrderTab }) => {
             <div className={styles.subTabContent}>
                 <div className={styles.emptyState}>
                     <ShoppingBagIcon sx={{ fontSize: 60, opacity: 0.2 }} />
-                    <p>Chưa có đơn hàng nào trong mục này</p>
+                    <p>{t('profile.orders.empty')}</p>
                 </div>
             </div>
         </div>

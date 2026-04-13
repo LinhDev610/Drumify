@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from '../Profile.module.scss';
 
 const AddressManager = ({
@@ -23,10 +24,11 @@ const AddressManager = ({
     districts,
     wards
 }) => {
+    const { t } = useTranslation();
     return (
         <div className={`${styles.infoCard} ${styles.fullRow}`}>
             <div className={styles.cardHeaderWithAction}>
-                <h2 className={styles.cardTitle}>Quản lý địa chỉ</h2>
+                <h2 className={styles.cardTitle}>{t('profile.address.title')}</h2>
                 <button
                     className={styles.addAddressBtn}
                     onClick={() => {
@@ -34,17 +36,17 @@ const AddressManager = ({
                         setShowAddressForm(true);
                     }}
                 >
-                    + Thêm địa chỉ mới
+                    {t('profile.address.add_new')}
                 </button>
             </div>
 
             {showAddressForm && (
                 <div className={styles.addressFormOverlay}>
                     <div className={styles.addressFormCard}>
-                        <h3>{editingAddressId ? 'Sửa địa chỉ' : 'Địa chỉ mới'}</h3>
+                        <h3>{editingAddressId ? t('profile.address.edit_title') : t('profile.address.new_title')}</h3>
                         <div className={styles.addressGrid}>
                             <div className={styles.inputBox}>
-                                <label>Tên người nhận</label>
+                                <label>{t('profile.address.recipient_name')}</label>
                                 <input
                                     name="recipientName"
                                     value={addressForm.recipientName}
@@ -54,7 +56,7 @@ const AddressManager = ({
                                 {addressErrors.recipientName && <span className={styles.error}>{addressErrors.recipientName}</span>}
                             </div>
                             <div className={styles.inputBox}>
-                                <label>Số điện thoại</label>
+                                <label>{t('profile.address.recipient_phone')}</label>
                                 <input
                                     name="recipientPhoneNumber"
                                     value={addressForm.recipientPhoneNumber}
@@ -66,9 +68,9 @@ const AddressManager = ({
 
                             <div className={styles.selectRow}>
                                 <div className={styles.inputBox}>
-                                    <label>Tỉnh/Thành</label>
+                                    <label>{t('profile.address.province')}</label>
                                     <select value={addressForm.provinceID} onChange={handleProvinceChange}>
-                                        <option value="">Chọn Tỉnh/Thành</option>
+                                        <option value="">{t('profile.address.select_province')}</option>
                                         {provinces.map(p => (
                                             <option key={p.ProvinceID} value={p.ProvinceID}>{p.ProvinceName}</option>
                                         ))}
@@ -76,9 +78,9 @@ const AddressManager = ({
                                     {addressErrors.provinceID && <span className={styles.error}>{addressErrors.provinceID}</span>}
                                 </div>
                                 <div className={styles.inputBox}>
-                                    <label>Quận/Huyện</label>
+                                    <label>{t('profile.address.district')}</label>
                                     <select value={addressForm.districtID} onChange={handleDistrictChange} disabled={!addressForm.provinceID}>
-                                        <option value="">Chọn Quận/Huyện</option>
+                                        <option value="">{t('profile.address.select_district')}</option>
                                         {districts.map(d => (
                                             <option key={d.DistrictID} value={d.DistrictID}>{d.DistrictName}</option>
                                         ))}
@@ -86,9 +88,9 @@ const AddressManager = ({
                                     {addressErrors.districtID && <span className={styles.error}>{addressErrors.districtID}</span>}
                                 </div>
                                 <div className={styles.inputBox}>
-                                    <label>Phường/Xã</label>
+                                    <label>{t('profile.address.ward')}</label>
                                     <select value={addressForm.wardCode} onChange={handleWardChange} disabled={!addressForm.districtID}>
-                                        <option value="">Chọn Phường/Xã</option>
+                                        <option value="">{t('profile.address.select_ward')}</option>
                                         {wards.map(w => (
                                             <option key={w.WardCode} value={w.WardCode}>{w.WardName}</option>
                                         ))}
@@ -98,7 +100,7 @@ const AddressManager = ({
                             </div>
 
                             <div className={styles.inputBox}>
-                                <label>Địa chỉ cụ thể</label>
+                                <label>{t('profile.address.specific')}</label>
                                 <textarea
                                     name="address"
                                     value={addressForm.address}
@@ -117,13 +119,13 @@ const AddressManager = ({
                                     checked={addressForm.defaultAddress}
                                     onChange={e => setAddressForm(prev => ({ ...prev, defaultAddress: e.target.checked }))}
                                 />
-                                <label htmlFor="isDefault">Đặt làm địa chỉ mặc định</label>
+                                <label htmlFor="isDefault">{t('profile.address.set_default')}</label>
                             </div>
                         </div>
                         <div className={styles.formActions}>
-                            <button className={styles.cancelLink} onClick={() => setShowAddressForm(false)}>Hủy</button>
+                            <button className={styles.cancelLink} onClick={() => setShowAddressForm(false)}>{t('profile.general.cancel')}</button>
                             <button className={styles.saveAddressBtn} onClick={handleSaveAddress} disabled={saving}>
-                                {saving ? 'Đang lưu...' : 'Lưu địa chỉ'}
+                                {saving ? t('profile.general.saving') : t('profile.address.save_address')}
                             </button>
                         </div>
                     </div>
@@ -132,7 +134,7 @@ const AddressManager = ({
 
             <div className={styles.addressList}>
                 {addresses.length === 0 ? (
-                    <p className={styles.noAddress}>Chưa có địa chỉ nào được lưu.</p>
+                    <p className={styles.noAddress}>{t('profile.address.empty')}</p>
                 ) : (
                     addresses.map(addr => (
                         <div key={addr.id} className={`${styles.addressCard} ${addr.defaultAddress ? styles.default : ''}`}>
@@ -140,17 +142,17 @@ const AddressManager = ({
                                 <div className={styles.recipientHeader}>
                                     <span className={styles.rName}>{addr.recipientName}</span>
                                     <span className={styles.rPhone}>{addr.recipientPhoneNumber}</span>
-                                    {addr.defaultAddress && <span className={styles.defaultBadge}>Mặc định</span>}
+                                    {addr.defaultAddress && <span className={styles.defaultBadge}>{t('profile.address.default_badge')}</span>}
                                 </div>
                                 <p className={styles.fullAddressText}>
                                     {addr.address}, {addr.wardName}, {addr.districtName}, {addr.provinceName}
                                 </p>
                             </div>
                             <div className={styles.addrActions}>
-                                <button onClick={() => handleEditAddress(addr)}>Sửa</button>
-                                <button onClick={() => handleDeleteAddress(addr.id)}>Xóa</button>
+                                <button onClick={() => handleEditAddress(addr)}>{t('profile.general.edit')}</button>
+                                <button onClick={() => handleDeleteAddress(addr.id)}>{t('profile.general.delete')}</button>
                                 {!addr.defaultAddress && (
-                                    <button onClick={() => handleSetDefault(addr.id)}>Đặt làm mặc định</button>
+                                    <button onClick={() => handleSetDefault(addr.id)}>{t('profile.address.set_default')}</button>
                                 )}
                             </div>
                         </div>

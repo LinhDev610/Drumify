@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, memo } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import classNames from "classnames/bind";
 import Box from "@mui/material/Box";
@@ -21,6 +22,7 @@ import Security from "@mui/icons-material/Security";
 import SupportAgent from "@mui/icons-material/SupportAgent";
 import Autorenew from "@mui/icons-material/Autorenew";
 import Payment from "@mui/icons-material/Payment";
+import { useThemeStatus } from "../../context/ThemeContext";
 import styles from "./Home.module.scss";
 
 const cx = classNames.bind(styles);
@@ -153,41 +155,81 @@ function formatPrice(value) {
 }
 
 const ProductMiniCard = memo(({ product }) => {
+  const { isDarkMode } = useThemeStatus();
   const hasDiscount = product.discountPercent > 0 && product.originalPrice > product.price;
   return (
-    <motion.div whileHover={{ y: -10 }}>
-      <Card className={cx("premiumCard")} sx={{ width: 260, flexShrink: 0, height: '100%' }}>
+    <motion.div whileHover={{ y: -10, scale: 1.02 }} transition={{ type: "spring", stiffness: 300 }}>
+      <Card 
+        className={cx("premiumCard")} 
+        sx={{ 
+          width: 280, 
+          flexShrink: 0, 
+          height: '100%',
+          bgcolor: 'var(--color-bg-glass)',
+          border: '1px solid var(--color-border-glass)',
+          borderRadius: '24px',
+          overflow: 'hidden',
+          transition: 'all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)',
+          backdropFilter: 'blur(10px)',
+          boxShadow: 'var(--shadow-soft)',
+          '&:hover': {
+            borderColor: 'var(--color-accent-gold)',
+            bgcolor: 'var(--color-bg-card)',
+            boxShadow: 'var(--shadow-premium)',
+          }
+        }}
+      >
         <CardMedia
           component="div"
-          sx={{ height: 200, bgcolor: "white", display: "flex", alignItems: "center", justifyContent: "center", position: 'relative' }}
+          sx={{ 
+            height: 220, 
+            bgcolor: 'var(--color-bg-glass)', 
+            display: "flex", 
+            alignItems: "center", 
+            justifyContent: "center", 
+            position: 'relative',
+            borderBottom: '1px solid var(--color-border-glass)',
+            overflow: 'hidden'
+          }}
         >
           {hasDiscount && (
             <Chip 
               label={`-${product.discountPercent}%`} 
               size="small" 
-              color="error" 
-              sx={{ position: 'absolute', top: 12, left: 12, fontWeight: 900, borderRadius: '6px' }}
+              sx={{ 
+                position: 'absolute', 
+                top: 12, 
+                left: 12, 
+                fontWeight: 900, 
+                borderRadius: '8px',
+                bgcolor: 'var(--color-brand)',
+                color: '#fff',
+                fontSize: '0.7rem'
+              }}
             />
           )}
-          <Typography variant="caption" sx={{ opacity: 0.05, fontWeight: 900, fontSize: '1.5rem', transform: 'rotate(-10deg)' }}>
+          <Typography variant="caption" sx={{ opacity: isDarkMode ? 0.1 : 0.4, fontWeight: 900, fontSize: '1.2rem', color: 'var(--color-text-main)' }}>
             {product.brand}
           </Typography>
         </CardMedia>
         <CardContent sx={{ pt: 3, px: 3, pb: 2 }}>
-          <Typography variant="subtitle1" fontWeight={800} noWrap gutterBottom sx={{ fontSize: '1.1rem' }}>
+          <Typography variant="subtitle1" fontWeight={700} noWrap gutterBottom sx={{ fontSize: '1.05rem', color: 'var(--color-text-main)' }}>
             {product.name}
           </Typography>
-          <Stack direction="row" alignItems="center" spacing={1} mb={2}>
-            <Typography variant="h6" fontWeight={900} color="var(--color-brand)">
+          <Stack direction="row" alignItems="center" spacing={1.5} mb={2}>
+            <Typography variant="h6" fontWeight={800} sx={{ color: 'var(--color-accent-gold)', fontSize: '1.25rem' }}>
               {formatPrice(product.price)}
             </Typography>
             {hasDiscount && (
-              <Typography variant="caption" component="span" sx={{ textDecoration: 'line-through', opacity: 0.5 }}>
+              <Typography variant="caption" component="span" sx={{ textDecoration: 'line-through', color: 'var(--color-text-muted)' }}>
                  {formatPrice(product.originalPrice)}
               </Typography>
             )}
           </Stack>
-          <Typography variant="caption" sx={{ fontWeight: 700, opacity: 0.6 }}>★ {product.rating} · {product.sold} sold</Typography>
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Typography variant="caption" sx={{ fontWeight: 600, color: 'var(--color-text-dim)' }}>★ {product.rating}</Typography>
+            <Typography variant="caption" sx={{ fontWeight: 600, color: 'var(--color-text-muted)' }}>{product.sold} sold</Typography>
+          </Stack>
         </CardContent>
       </Card>
     </motion.div>
@@ -195,38 +237,77 @@ const ProductMiniCard = memo(({ product }) => {
 });
 
 function HeroBanner() {
+  const { t } = useTranslation();
   const [index, setIndex] = useState(0);
   useEffect(() => {
-    const t = setInterval(() => setIndex((i) => (i + 1) % HERO_SLIDES.length), 6000);
+    const t = setInterval(() => setIndex((i) => (i + 1) % HERO_SLIDES.length), 8000);
     return () => clearInterval(t);
   }, []);
   const slide = HERO_SLIDES[index];
   return (
-    <Box className={styles.heroContainer}>
+    <Box className={styles.heroContainer} sx={{ position: 'relative', overflow: 'hidden' }}>
       <AnimatePresence mode="wait">
         <motion.div
            key={index}
-           initial={{ opacity: 0, scale: 1.02 }}
-           animate={{ opacity: 1, scale: 1 }}
-           exit={{ opacity: 0, scale: 0.98 }}
-           transition={{ duration: 0.6 }}
-           style={{ minHeight: 480, background: slide.gradient, color: "#fff", display: "flex", alignItems: "center", padding: "60px", position: 'relative' }}
+           initial={{ opacity: 0 }}
+           animate={{ opacity: 1 }}
+           exit={{ opacity: 0 }}
+           transition={{ duration: 1.2, ease: "easeInOut" }}
+           style={{ 
+             minHeight: 600, 
+             background: slide.gradient, 
+             color: "var(--color-text-static-light)", 
+             display: "flex", 
+             alignItems: "center", 
+             padding: "80px 0",
+             position: 'relative' 
+           }}
         >
            <Container maxWidth="xl">
-             <Stack spacing={3} maxWidth="lg">
-               <Typography variant="overline" sx={{ letterSpacing: 4, fontWeight: 800, opacity: 0.6 }}>THE DRUMMER'S CHOICE</Typography>
-               <Typography variant="h1" fontWeight={900} sx={{ fontSize: { xs: '3rem', md: '5.2rem' }, lineHeight: 1 }}>{slide.title}</Typography>
-               <Typography variant="h5" sx={{ opacity: 0.8, maxWidth: 700, fontWeight: 300, lineHeight: 1.5 }}>{slide.subtitle}</Typography>
-               <Stack direction="row" spacing={3} sx={{ mt: 2 }}>
-                  <Button variant="contained" size="large" sx={{ bgcolor: 'var(--color-accent-gold)', color: '#000', fontWeight: 900, px: 6, py: 1.5, borderRadius: 3 }}>Shop Collections</Button>
-                  <Button variant="outlined" size="large" sx={{ color: '#fff', borderColor: 'rgba(255,255,255,0.4)', px: 6, py: 1.5, borderRadius: 3 }}>View Gear</Button>
-               </Stack>
+             <Stack spacing={4} maxWidth="md">
+               <motion.div
+                 initial={{ y: 30, opacity: 0 }}
+                 animate={{ y: 0, opacity: 1 }}
+                 transition={{ delay: 0.3, duration: 0.8 }}
+               >
+                 <Typography variant="overline" sx={{ letterSpacing: 6, fontWeight: 800, color: 'var(--color-accent-gold)' }}>
+                   {t("home.hero_overline")}
+                 </Typography>
+               </motion.div>
+               <motion.div
+                 initial={{ y: 30, opacity: 0 }}
+                 animate={{ y: 0, opacity: 1 }}
+                 transition={{ delay: 0.5, duration: 0.8 }}
+               >
+                 <Typography variant="h1" fontWeight={900} sx={{ fontSize: { xs: '3.5rem', md: '5.5rem' }, lineHeight: 0.9, letterSpacing: '-0.03em', color: 'var(--color-text-static-light)' }}>
+                   {slide.title}
+                 </Typography>
+               </motion.div>
+               <motion.div
+                 initial={{ y: 30, opacity: 0 }}
+                 animate={{ y: 0, opacity: 1 }}
+                 transition={{ delay: 0.7, duration: 0.8 }}
+               >
+                 <Typography variant="h5" sx={{ opacity: 0.8, maxWidth: 600, fontWeight: 300, lineHeight: 1.6, color: 'var(--color-text-static-light)' }}>
+                   {slide.subtitle}
+                 </Typography>
+               </motion.div>
+               <motion.div
+                 initial={{ y: 30, opacity: 0 }}
+                 animate={{ y: 0, opacity: 1 }}
+                 transition={{ delay: 0.9, duration: 0.8 }}
+               >
+                 <Stack direction="row" spacing={3} sx={{ mt: 2 }}>
+                    <Button variant="contained" size="large" sx={{ bgcolor: 'var(--color-accent-gold)', color: '#000', fontWeight: 900, px: 6, py: 2, borderRadius: 4, transform: 'scale(1.1)', '&:hover': { bgcolor: '#fff' } }}>{t("home.hero_btn_shop")}</Button>
+                    <Button variant="outlined" size="large" sx={{ color: 'var(--color-text-static-light)', borderColor: 'rgba(255,255,255,0.3)', px: 6, py: 2, borderRadius: 4, '&:hover': { borderColor: '#fff', bgcolor: 'rgba(255,255,255,0.1)' } }}>{t("home.hero_btn_custom")}</Button>
+                 </Stack>
+               </motion.div>
              </Stack>
            </Container>
 
-           <Stack direction="row" spacing={2} sx={{ position: 'absolute', bottom: 40, right: 60 }}>
-              <IconButton onClick={() => setIndex((i) => (i - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)} sx={{ color: "#fff", border: '1px solid rgba(255,255,255,0.2)' }}><ChevronLeft /></IconButton>
-              <IconButton onClick={() => setIndex((i) => (i + 1) % HERO_SLIDES.length)} sx={{ color: "#fff", border: '1px solid rgba(255,255,255,0.2)' }}><ChevronRight /></IconButton>
+           <Stack direction="row" spacing={2} sx={{ position: 'absolute', bottom: 60, right: 80 }}>
+              <IconButton onClick={() => setIndex((i) => (i - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)} sx={{ color: "var(--color-text-static-light)", bgcolor: 'rgba(255,255,255,0.05)', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }}><ChevronLeft /></IconButton>
+              <IconButton onClick={() => setIndex((i) => (i + 1) % HERO_SLIDES.length)} sx={{ color: "var(--color-text-static-light)", bgcolor: 'rgba(255,255,255,0.05)', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }}><ChevronRight /></IconButton>
            </Stack>
         </motion.div>
       </AnimatePresence>
@@ -236,34 +317,36 @@ function HeroBanner() {
 
 function SectionHeader({ title, subtitle }) {
   return (
-    <Box sx={{ mb: 4 }}>
-       <Typography sx={{ color: 'var(--color-brand)', fontWeight: 900, fontSize: '0.85rem', letterSpacing: 2, textTransform: 'uppercase', mb: 1 }}>Recommended</Typography>
-       <Typography variant="h3" fontWeight={900} sx={{ mb: 1, fontSize: '2.4rem' }}>{title}</Typography>
-       {subtitle && <Typography variant="h6" sx={{ opacity: 0.5, fontWeight: 400 }}>{subtitle}</Typography>}
+    <Box sx={{ mb: 6 }}>
+       <Typography sx={{ color: 'var(--color-accent-gold)', fontWeight: 900, fontSize: '0.9rem', letterSpacing: 4, textTransform: 'uppercase', mb: 1.5 }}>Recommended</Typography>
+       <Typography variant="h2" fontWeight={900} sx={{ mb: 1, fontSize: '3rem', color: 'var(--color-text-main)', letterSpacing: '-0.02em' }}>{title}</Typography>
+       {subtitle && <Typography variant="h6" sx={{ color: 'var(--color-text-dim)', fontWeight: 400 }}>{subtitle}</Typography>}
     </Box>
   );
 }
 
 export default function Home() {
+  const { isDarkMode } = useThemeStatus();
+  const { t } = useTranslation();
   const products = MOCK_PRODUCTS;
   const [tab, setTab] = useState(0);
   const onSale = useMemo(() => products.filter((p) => p.discountPercent > 0), [products]);
 
   return (
-    <motion.div className={cx("homeWrapper")} initial="hidden" animate="visible" variants={containerVariants}>
-      <motion.div className={cx("bgDecoration", "blob1")} variants={blobVariants} animate="animate" />
-      <motion.div className={cx("bgDecoration", "blob3")} variants={blobVariants} animate="animate" style={{ bottom: '10%', right: '20%', background: 'var(--color-brand)', opacity: 0.05 }} />
-
-      <Box component="main" className={cx("homeContent")}>
+    <motion.div className={cx("homeWrapper")} initial="hidden" animate="visible" variants={containerVariants} style={{ background: 'var(--color-bg-deep)' }}>
+      {/* Mesh Background */}
+      <Box sx={{ position: 'fixed', inset: 0, background: 'var(--gradient-mesh)', zIndex: 0, opacity: 0.5 }} />
+      
+      <Box component="main" className={cx("homeContent")} sx={{ position: 'relative', zIndex: 1 }}>
         <Box component="section" className={cx("heroSection")}><HeroBanner /></Box>
 
         <motion.section className={cx("section")} variants={sectionVariants}>
           <Container maxWidth="xl">
-            <Stack direction="row" justifyContent="space-between" alignItems="flex-end" mb={4}>
-               <SectionHeader title="Flash Sales" subtitle="Premium gear at insider prices." />
-               <Button variant="text" sx={{ fontWeight: 900, mb: 1, color: 'var(--color-brand)' }}>Show All →</Button>
+            <Stack direction="row" justifyContent="space-between" alignItems="flex-end" mb={6}>
+               <SectionHeader title={t("home.flash_sales")} subtitle="Premium gear at insider prices." />
+               <Button variant="text" sx={{ fontWeight: 800, mb: 1, color: 'var(--color-accent-gold)', letterSpacing: 1 }}>Show All →</Button>
             </Stack>
-            <Stack direction="row" gap={4} sx={{ overflowX: "auto", pb: 4, px: 1 }}>
+            <Stack direction="row" gap={4} sx={{ overflowX: "auto", pb: 6, px: 2, '&::-webkit-scrollbar': { display: 'none' } }}>
               {onSale.map((p) => <ProductMiniCard key={p.id} product={p} />)}
             </Stack>
           </Container>
@@ -271,21 +354,21 @@ export default function Home() {
 
         <motion.section className={cx("section")} variants={sectionVariants}>
           <Container maxWidth="xl">
-            <SectionHeader title="Featured Gear" />
+            <SectionHeader title={t("home.featured_gear")} />
             <Tabs 
                value={tab} 
                onChange={(_, v) => setTab(v)} 
                sx={{ 
                  mb: 6,
-                 '& .MuiTabs-indicator': { bgcolor: 'var(--color-brand)', height: 4, borderRadius: 2 },
-                 '& .MuiTab-root': { fontWeight: 800, textTransform: 'none', fontSize: '1.2rem', color: 'rgba(0,0,0,0.5)', px: 4 },
-                 '& .MuiTab-root.Mui-selected': { color: 'var(--color-brand)' }
-               }}
+                  '& .MuiTabs-indicator': { bgcolor: 'var(--color-accent-gold)', height: 3, borderRadius: 2 },
+                  '& .MuiTab-root': { fontWeight: 700, textTransform: 'none', fontSize: '1.3rem', color: 'var(--color-text-muted)', px: 4 },
+                  '& .MuiTab-root.Mui-selected': { color: 'var(--color-text-main)' }
+                }}
             >
                <Tab label="Top Rated" />
                <Tab label="Best Sellers" />
             </Tabs>
-            <Stack direction="row" gap={4} sx={{ overflowX: "auto", pb: 4, px: 1 }}>
+            <Stack direction="row" gap={4} sx={{ overflowX: "auto", pb: 6, px: 2, '&::-webkit-scrollbar': { display: 'none' } }}>
               {products.map((p) => <ProductMiniCard key={p.id} product={p} />)}
             </Stack>
           </Container>
@@ -293,15 +376,36 @@ export default function Home() {
 
         <motion.section className={cx("section")} variants={sectionVariants}>
            <Container maxWidth="xl">
-             <SectionHeader title="Rhythm Academy" subtitle="Pro tips for your next session." />
+             <SectionHeader title={t("home.academy")} subtitle="Pro tips for your next session." />
              <Grid container spacing={4} sx={{ mt: 2 }}>
                 {MOCK_TIPS.map((tip) => (
                   <Grid item xs={12} md={4} key={tip.id}>
-                    <motion.div whileHover={{ y: -8 }}>
-                      <Card className={cx("premiumCard")} sx={{ height: '100%', p: 4 }}>
-                         <Chip label={tip.tag} size="small" sx={{ mb: 2, fontWeight: 800 }} />
-                         <Typography variant="h5" fontWeight={900} gutterBottom>{tip.title}</Typography>
-                         <Typography variant="body2" sx={{ opacity: 0.6, lineHeight: 1.8 }}>{tip.desc}</Typography>
+                    <motion.div whileHover={{ y: -10, scale: 1.01 }}>
+                      <Card 
+                        sx={{ 
+                          height: '100%', 
+                          p: 5, 
+                          bgcolor: 'var(--color-bg-glass)', 
+                          border: '1px solid var(--color-border-glass)',
+                          borderRadius: '32px',
+                          color: 'var(--color-text-main)',
+                          backdropFilter: 'blur(10px)',
+                          boxShadow: 'var(--shadow-soft)'
+                        }}
+                      >
+                         <Chip 
+                           label={tip.tag} 
+                           size="small" 
+                           sx={{ 
+                             mb: 3, 
+                             fontWeight: 800, 
+                             bgcolor: 'var(--color-accent-gold-soft)', 
+                             color: 'var(--color-accent-gold)',
+                             border: '1px solid var(--color-accent-gold-soft)'
+                           }} 
+                         />
+                         <Typography variant="h4" fontWeight={900} gutterBottom sx={{ color: 'var(--color-text-main)', fontSize: '1.8rem' }}>{tip.title}</Typography>
+                         <Typography variant="body1" sx={{ lineHeight: 1.8, fontWeight: isDarkMode ? 300 : 450, color: 'var(--color-text-dim)' }}>{tip.desc}</Typography>
                       </Card>
                     </motion.div>
                   </Grid>
@@ -311,26 +415,46 @@ export default function Home() {
         </motion.section>
 
         <motion.section className={cx("section")} variants={sectionVariants}>
-          <Box className={cx("servicesGrid")}>
+          <Box className={cx("servicesGrid")} sx={{ background: 'var(--color-bg-glass)', borderColor: 'var(--color-border-glass)', backdropFilter: 'blur(10px)', borderRadius: '32px', mx: 2 }}>
             {SERVICE_ITEMS.map(({ icon: Icon, title, desc }) => (
-              <Box key={title} className={cx("serviceItem")}>
-                <Icon sx={{ color: 'var(--color-brand)', mb: 2, fontSize: '2.5rem' }} />
-                <Typography variant="h6" fontWeight={800}>{title}</Typography>
-                <Typography variant="body2" sx={{ opacity: 0.6 }}>{desc}</Typography>
+              <Box key={title} className={cx("serviceItem")} sx={{ borderRightColor: 'var(--color-border-glass)' }}>
+                <Icon sx={{ color: 'var(--color-accent-gold)', mb: 2, fontSize: '3rem' }} />
+                <Typography variant="h6" fontWeight={800} sx={{ color: 'var(--color-text-main)' }}>{title}</Typography>
+                <Typography variant="body2" sx={{ color: 'var(--color-text-dim)' }}>{desc}</Typography>
               </Box>
             ))}
           </Box>
         </motion.section>
 
-        <motion.section className={cx("section")} variants={sectionVariants} style={{ padding: '60px 0' }}>
+        <motion.section className={cx("section")} variants={sectionVariants} style={{ padding: '80px 0' }}>
           <Container maxWidth="xl">
-            <Card sx={{ p: { xs: 6, md: 10 }, borderRadius: 8, textAlign: 'center', bgcolor: '#1a1a1a', color: '#fff', position: 'relative', overflow: 'hidden' }}>
-                <Box sx={{ position: 'absolute', top: -100, left: -100, width: 300, height: 300, bgcolor: 'var(--color-brand)', opacity: 0.1, borderRadius: '50%' }} />
-                <Typography variant="h2" fontWeight={900} gutterBottom sx={{ fontSize: { xs: '2.5rem', md: '4rem' } }}>The Drumify Newsletter</Typography>
-                <Typography variant="h6" sx={{ opacity: 0.6, mb: 6 }}>Join 50k+ drummers for exclusive deals and setup tips.</Typography>
+            <Card sx={{ p: { xs: 8, md: 12 }, borderRadius: 12, textAlign: 'center', bgcolor: 'var(--color-brand-soft)', border: '1px solid var(--color-border)', color: 'var(--color-text-main)', position: 'relative', overflow: 'hidden', backdropFilter: 'blur(20px)', boxShadow: 'var(--shadow-premium)' }}>
+                <Box sx={{ position: 'absolute', top: -100, left: -100, width: 400, height: 400, bgcolor: 'var(--color-accent-gold)', opacity: 0.05, borderRadius: '50%' }} />
+                <Typography variant="h2" fontWeight={900} gutterBottom sx={{ fontSize: { xs: '3rem', md: '4.5rem' }, letterSpacing: '-0.04em', color: 'var(--color-text-main)' }}>{t("home.newsletter_title")}</Typography>
+                <Typography variant="h6" sx={{ mb: 8, fontWeight: 300, color: 'var(--color-text-dim)' }}>Join 50k+ drummers for exclusive deals and setup tips.</Typography>
                 <Stack direction={{ xs: "column", sm: "row" }} spacing={2} justifyContent="center" maxWidth="sm" sx={{ margin: '0 auto' }}>
-                  <TextField fullWidth placeholder="Enter your email" sx={{ bgcolor: '#fff', borderRadius: 2 }} />
-                  <Button variant="contained" size="large" sx={{ bgcolor: 'var(--color-brand)', px: 6, fontWeight: 900 }}>Subscribe</Button>
+                  <TextField 
+                    fullWidth 
+                    variant="outlined"
+                    placeholder="Enter your email" 
+                    InputProps={{
+                      sx: { 
+                        bgcolor: 'var(--color-bg-glass)', 
+                        borderRadius: 3,
+                        color: 'var(--color-text-main)',
+                         '& fieldset': { border: '1px solid var(--color-border)' },
+                         '&:hover fieldset': { borderColor: 'var(--color-accent-gold)' },
+                         '&.Mui-focused fieldset': { borderColor: 'var(--color-accent-gold)' }
+                      }
+                    }}
+                    sx={{
+                      '& .MuiInputBase-input::placeholder': {
+                        color: 'var(--color-text-dim)',
+                        opacity: 1
+                      }
+                    }}
+                  />
+                  <Button variant="contained" size="large" sx={{ bgcolor: 'var(--color-accent-gold)', px: 8, fontWeight: 900, color: '#000', borderRadius: 3, '&:hover': { bgcolor: '#fff' } }}>{t("home.newsletter_btn")}</Button>
                 </Stack>
             </Card>
           </Container>

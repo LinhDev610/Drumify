@@ -12,14 +12,14 @@ export default function AppRoutes() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<MainLayout />}>
+          <Route index element={<Home />} />
+          <Route path="cart" element={<Cart />} />
+          <Route path="products" element={<Products />} />
+
           <Route element={<ProtectedRoute />}>
-            <Route index element={<Home />} />
-            <Route path="cart" element={<Cart />} />
             <Route path="checkout" element={<Checkout />} />
             <Route path="profile" element={<Profile />} />
           </Route>
-
-          <Route path="products" element={<Products />} />
         </Route>
       </Routes>
     </BrowserRouter>

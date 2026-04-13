@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './Profile.module.scss';
 import { useKeycloakAuth } from '../../context/KeycloakAuthContext';
 import {
@@ -30,6 +31,7 @@ import VoucherTab from './components/VoucherTab';
 import SecurityTab from './components/SecurityTab';
 
 const Profile = () => {
+    const { t } = useTranslation();
     const { tokenParsed } = useKeycloakAuth();
     const { refreshProfile } = useProfile();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -187,13 +189,13 @@ const Profile = () => {
 
     const validateAddress = () => {
         const errors = {};
-        if (!addressForm.recipientName.trim()) errors.recipientName = 'Tên người nhận là bắt buộc';
-        if (!addressForm.recipientPhoneNumber.trim()) errors.recipientPhoneNumber = 'Số điện thoại là bắt buộc';
-        else if (!/^[0-9]{10,11}$/.test(addressForm.recipientPhoneNumber)) errors.recipientPhoneNumber = 'Số điện thoại phải từ 10-11 số';
-        if (!addressForm.provinceID) errors.provinceID = 'Tỉnh/Thành là bắt buộc';
-        if (!addressForm.districtID) errors.districtID = 'Quận/Huyện là bắt buộc';
-        if (!addressForm.wardCode) errors.wardCode = 'Phường/Xã là bắt buộc';
-        if (!addressForm.address.trim()) errors.address = 'Địa chỉ cụ thể là bắt buộc';
+        if (!addressForm.recipientName.trim()) errors.recipientName = t('profile.address.recipient_error');
+        if (!addressForm.recipientPhoneNumber.trim()) errors.recipientPhoneNumber = t('profile.address.phone_error');
+        else if (!/^[0-9]{10,11}$/.test(addressForm.recipientPhoneNumber)) errors.recipientPhoneNumber = t('profile.general.error_sdt');
+        if (!addressForm.provinceID) errors.provinceID = t('profile.address.province_error');
+        if (!addressForm.districtID) errors.districtID = t('profile.address.district_error');
+        if (!addressForm.wardCode) errors.wardCode = t('profile.address.ward_error');
+        if (!addressForm.address.trim()) errors.address = t('profile.address.specific_error');
         setAddressErrors(errors);
         return Object.keys(errors).length === 0;
     };
@@ -213,7 +215,7 @@ const Profile = () => {
                 resetAddressForm();
                 setAddressErrors({});
             }
-        } catch (error) { alert("Lỗi: " + (error.response?.data?.message || error.message)); }
+        } catch (error) { alert(t('profile.general.failed') + (error.response?.data?.message || error.message)); }
         finally { setSaving(false); }
     };
 
@@ -233,16 +235,16 @@ const Profile = () => {
     };
 
     const handleDeleteAddress = async (id) => {
-        if (!window.confirm("Xóa địa chỉ này?")) return;
+        if (!window.confirm(t('profile.address.confirm_delete'))) return;
         try { await deleteAddress(id); setAddresses(prev => prev.filter(a => a.id !== id)); }
-        catch (error) { alert("Lỗi khi xóa: " + error.message); }
+        catch (error) { alert(t('profile.general.failed') + error.message); }
     };
 
     const handleSetDefault = async (id) => {
         try {
             const res = await setDefaultAddress(id);
             if (res.data?.result) setAddresses(prev => prev.map(a => ({ ...a, defaultAddress: a.id === id })));
-        } catch (error) { alert("Lỗi: " + error.message); }
+        } catch (error) { alert(t('profile.general.failed') + error.message); }
     };
 
     const handleAvatarClick = () => { if (isEditing) fileInputRef.current?.click(); };
@@ -263,9 +265,9 @@ const Profile = () => {
                 const updated = { ...profileData, avatarUrl: secureUrl };
                 await updateMyProfile(updated); setProfileData(updated);
                 await refreshProfile(); setShowAvatarDialog(false);
-                alert("Đã cập nhật ảnh!");
+                alert(t('profile.general.success_update'));
             }
-        } catch (error) { alert("Thất bại: " + error.message); }
+        } catch (error) { alert(t('profile.general.failed') + error.message); }
         finally { setUploadingAvatar(false); }
     };
 
@@ -286,7 +288,7 @@ const Profile = () => {
 
     const validateProfile = () => {
         const errs = {};
-        if (profileData.phoneNumber && !/^[0-9]{10,11}$/.test(profileData.phoneNumber)) errs.phoneNumber = 'SĐT 10-11 số';
+        if (profileData.phoneNumber && !/^[0-9]{10,11}$/.test(profileData.phoneNumber)) errs.phoneNumber = t('profile.general.error_sdt');
         setProfileErrors(errs); return Object.keys(errs).length === 0;
     };
 
@@ -295,8 +297,8 @@ const Profile = () => {
         try {
             setSaving(true); await updateMyProfile(profileData);
             setIsEditing(false); await refreshProfile(); setProfileErrors({});
-            alert("Đã cập nhật!");
-        } catch (error) { alert("Lỗi: " + (error.response?.data?.message || error.message)); }
+            alert(t('profile.general.success_update'));
+        } catch (error) { alert(t('profile.general.failed') + (error.response?.data?.message || error.message)); }
         finally { setSaving(false); }
     };
 
@@ -310,26 +312,26 @@ const Profile = () => {
 
     const submitPasswordChange = async () => {
         setPasswordError('');
-        if (!passwordForm.oldPassword) return setPasswordError('Nhập mật khẩu cũ');
-        if (passwordForm.newPassword.length < 6) return setPasswordError('Mật khẩu mới ít nhất 6 ký tự');
-        if (passwordForm.newPassword !== passwordForm.confirmPassword) return setPasswordError('Mật khẩu không khớp');
+        if (!passwordForm.oldPassword) return setPasswordError(t('profile.security.err_old'));
+        if (passwordForm.newPassword.length < 6) return setPasswordError(t('profile.security.err_min'));
+        if (passwordForm.newPassword !== passwordForm.confirmPassword) return setPasswordError(t('profile.security.err_match'));
 
         try {
             setChangingPassword(true); await changePassword(passwordForm);
-            alert('Đổi mật khẩu thành công!');
+            alert(t('profile.general.success_password'));
             setPasswordForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
-        } catch (error) { setPasswordError(error.response?.data?.message || 'Lỗi khi đổi mật khẩu'); }
+        } catch (error) { setPasswordError(error.response?.data?.message || t('profile.general.failed') + 'password'); }
         finally { setChangingPassword(false); }
     };
 
     const TABS = [
-        { id: 'profile', label: 'Hồ sơ của tôi', icon: <PersonIcon fontSize="small" /> },
-        { id: 'orders', label: 'Đơn hàng của tôi', icon: <ShoppingBagIcon fontSize="small" /> },
-        { id: 'vouchers', label: 'Wallet Voucher', icon: <ConfirmationNumberIcon fontSize="small" /> },
-        { id: 'security', label: 'Đổi mật khẩu', icon: <LockIcon fontSize="small" /> },
+        { id: 'profile', label: t('profile.tabs.profile'), icon: <PersonIcon fontSize="small" /> },
+        { id: 'orders', label: t('profile.tabs.orders'), icon: <ShoppingBagIcon fontSize="small" /> },
+        { id: 'vouchers', label: t('profile.tabs.vouchers'), icon: <ConfirmationNumberIcon fontSize="small" /> },
+        { id: 'security', label: t('profile.tabs.security'), icon: <LockIcon fontSize="small" /> },
     ];
 
-    if (loading) return <div className={styles.loading}>Initializing Profile...</div>;
+    if (loading) return <div className={styles.loading}>{t('profile.general.loading') || 'Initializing Profile...'}</div>;
 
     const renderTabContent = () => {
         switch (activeTab) {
@@ -383,7 +385,7 @@ const Profile = () => {
                                 </div>
                                 <div className={styles.briefInfo}>
                                     <p className={styles.briefUsername}>{profileData.fullName || 'User'}</p>
-                                    <p className={styles.briefEdit} onClick={() => handleTabChange('profile')}>Sửa hồ sơ</p>
+                                    <p className={styles.briefEdit} onClick={() => handleTabChange('profile')}>{t('profile.general.edit')}</p>
                                 </div>
                             </div>
                         </div>

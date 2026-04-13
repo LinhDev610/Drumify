@@ -86,11 +86,11 @@
     max-width: $container-max-width;
     margin: 40px auto;
     padding: 40px;
-    background: rgba(255, 255, 255, 0.4);
+    background: var(--color-bg-glass);
     backdrop-filter: blur(8px);
     border-radius: $radius-lg;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow: $shadow-soft;
+    border: 1px solid var(--color-border-glass);
+    box-shadow: var(--shadow-soft);
 
     @media (max-width: 1024px) { grid-template-columns: repeat(3, 1fr); }
     @media (max-width: 768px) { 
@@ -114,17 +114,17 @@
     
     &:hover {
         transform: translateY(-5px);
-        background: rgba(255, 255, 255, 0.3);
+        background: var(--color-bg-glass);
     }
 }
 
 // Premium Cards - RE-INSTATED CHARACTER
 .premiumCard {
-    background: #ffffff;
+    background: var(--color-bg-card);
     border-radius: $radius-md;
-    border: 1px solid rgba(0, 0, 0, 0.04);
+    border: 1px solid var(--color-border);
     transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    box-shadow: $shadow-soft; // Re-introduced shadows
+    box-shadow: var(--shadow-soft); // Re-introduced shadows
     will-change: transform, box-shadow;
 
     &:hover {
