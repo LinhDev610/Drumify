@@ -11,7 +11,9 @@ export const API = {
     DISTRICTS: "/location/districts",
     WARDS: "/location/wards",
     MEDIA_UPLOAD: "/media/upload",
-    CHANGE_PASSWORD: "/my-profile/password"
+    CHANGE_PASSWORD: "/my-profile/password",
+    USER_ROLES: (userId) => `/profiles/${userId}/roles`,
+    USER_GROUPS: (userId) => `/profiles/${userId}/groups`
 }
 
 export const KEYCLOAK_CONFIG = {

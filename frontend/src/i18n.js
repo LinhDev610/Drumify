@@ -116,6 +116,40 @@ i18n
               confirm_delete: "Delete this address?",
               save_address: "Save Address"
             }
+          },
+          sidebar: {
+            dashboard: "Dashboard Overview",
+            user_management: "User Accounts",
+            hr_management: "Human Resources",
+            inventory: "Warehouse Management",
+            orders: "Order Operations",
+            marketing: "Marketing & Ads",
+            customer_support: "Support Center",
+            reports: "Business Analytics",
+            finance: "Financial Statements"
+          },
+          dashboard: {
+            welcome: "Welcome back"
+          },
+          hr: {
+            title: "HR Management",
+            staff_directory: "Staff Directory",
+            permissions_manager: "Permissions Manager",
+            table: {
+              user: "Employee",
+              email: "Email",
+              roles: "Roles",
+              groups: "Groups",
+              last_login: "Last Login",
+              actions: "Actions"
+            },
+            edit_permissions: "Edit Permissions",
+            roles_title: "Assigned Roles",
+            groups_title: "Assigned Groups",
+            save_permissions: "Save Permissions",
+            assign_roles_desc: "Select roles that define the user's base level access.",
+            assign_groups_desc: "Select groups that define the user's departmental duties.",
+            success_update: "Permissions updated successfully!"
           }
         }
       },
@@ -228,6 +262,40 @@ i18n
               confirm_delete: "Xóa địa chỉ này?",
               save_address: "Lưu địa chỉ"
             }
+          },
+          sidebar: {
+            dashboard: "Tổng quan Dashboard",
+            user_management: "Quản lý người dùng",
+            hr_management: "Quản lý nhân sự",
+            inventory: "Quản lý kho",
+            orders: "Vận hành đơn hàng",
+            marketing: "Tiếp thị & Quảng cáo",
+            customer_support: "Trung tâm hỗ trợ",
+            reports: "Phân tích kinh doanh",
+            finance: "Báo cáo tài chính"
+          },
+          dashboard: {
+            welcome: "Chào mừng trở lại"
+          },
+          hr: {
+            title: "Quản lý nhân sự",
+            staff_directory: "Danh bạ nhân viên",
+            permissions_manager: "Quản lý phân quyền",
+            table: {
+              user: "Nhân viên",
+              email: "Email",
+              roles: "Vai trò",
+              groups: "Phòng ban / Nhóm",
+              last_login: "Lần cuối đăng nhập",
+              actions: "Hành động"
+            },
+            edit_permissions: "Chỉnh sửa phân quyền",
+            roles_title: "Vai trò được gán",
+            groups_title: "Phòng ban được gán",
+            save_permissions: "Lưu phân quyền",
+            assign_roles_desc: "Chọn các vai trò cơ bản (Roles) cho người dùng.",
+            assign_groups_desc: "Chọn các phòng ban hoặc nhóm chức năng (Groups).",
+            success_update: "Cập nhật phân quyền thành công!"
           }
         }
       }

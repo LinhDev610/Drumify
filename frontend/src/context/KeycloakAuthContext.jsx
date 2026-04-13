@@ -65,6 +65,17 @@ export function KeycloakAuthProvider({ children }) {
     [],
   );
 
+  const roles = useMemo(() => keycloak.tokenParsed?.realm_access?.roles || [], [ready, authenticated]);
+  const groups = useMemo(() => {
+    return keycloak.tokenParsed?.groups || keycloak.tokenParsed?.user_groups || [];
+  }, [ready, authenticated]);
+
+  const hasRole = useCallback((role) => roles.includes(role), [roles]);
+  const hasGroup = useCallback((group) => {
+    if (!groups) return false;
+    return groups.includes(group) || groups.some(g => g.includes(group));
+  }, [groups]);
+
   const value = useMemo(
     () => ({
       ready,
@@ -73,8 +84,12 @@ export function KeycloakAuthProvider({ children }) {
       logout,
       token: keycloak.token,
       tokenParsed: keycloak.tokenParsed,
+      roles,
+      groups,
+      hasRole,
+      hasGroup,
     }),
-    [ready, authenticated, login, logout],
+    [ready, authenticated, login, logout, roles, groups, hasRole, hasGroup],
   );
 
   if (!ready) {

@@ -13,6 +13,18 @@ export const getProfiles = async () => {
     return await httpClient.get(API.PROFILES);
 }
 
+export const getUsers = async () => {
+    return await httpClient.get(API.PROFILES);
+}
+
+export const assignRoles = async (userId, roles) => {
+    return await httpClient.post(API.USER_ROLES(userId), roles);
+}
+
+export const assignGroups = async (userId, groups) => {
+    return await httpClient.post(API.USER_GROUPS(userId), groups);
+}
+
 export const updateMyProfile = async (data) => {
     return await httpClient.put(API.MY_PROFILE, data);
 }
