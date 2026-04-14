@@ -25,6 +25,18 @@ export const assignGroups = async (userId, groups) => {
     return await httpClient.post(API.USER_GROUPS(userId), groups);
 }
 
+export const getRoles = async () => {
+    return await httpClient.get(API.ROLES);
+}
+
+export const getGroups = async () => {
+    return await httpClient.get(API.GROUPS);
+}
+
+export const createStaff = async (data) => {
+    return await httpClient.post(API.CREATE_STAFF, data);
+}
+
 export const updateMyProfile = async (data) => {
     return await httpClient.put(API.MY_PROFILE, data);
 }

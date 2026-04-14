@@ -12,12 +12,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.linhdev.drumify.client.IdentityClient;
 import com.linhdev.drumify.dto.identity.Credential;
+import com.linhdev.drumify.dto.identity.GroupRepresentation;
+import com.linhdev.drumify.dto.identity.RoleRepresentation;
 import com.linhdev.drumify.dto.identity.TokenExchangeParam;
 import com.linhdev.drumify.dto.identity.UserCreationParam;
 import com.linhdev.drumify.dto.request.AddressRequest;
 import com.linhdev.drumify.dto.request.PasswordChangeRequest;
 import com.linhdev.drumify.dto.request.ProfileUpdateRequest;
 import com.linhdev.drumify.dto.request.RegistrationRequest;
+import com.linhdev.drumify.dto.request.StaffCreationRequest;
 import com.linhdev.drumify.dto.response.AddressResponse;
 import com.linhdev.drumify.dto.response.ProfileResponse;
 import com.linhdev.drumify.entity.Address;
@@ -35,7 +38,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -63,6 +65,122 @@ public class ProfileService {
     @Value("${idp.client-secret}")
     @NonFinal
     String clientSecret;
+
+    private String getClientToken() {
+        var tokenInfo = identityClient.exchangeToken(TokenExchangeParam.builder()
+                .grant_type("client_credentials")
+                .client_id(clientId)
+                .client_secret(clientSecret)
+                .scope("openid")
+                .build());
+        return "Bearer " + tokenInfo.getAccessToken();
+    }
+
+    public List<RoleRepresentation> getRoles() {
+        try {
+            List<String> allowedRoles = List.of("ADMIN", "CUSTOMER", "DIRECTOR", "STAFF");
+            return identityClient.getRoles(getClientToken()).stream()
+                    .filter(r -> allowedRoles.contains(r.getName()))
+                    .toList();
+        } catch (FeignException e) {
+            throw errorNormalizer.handleKeycloakException(e);
+        }
+    }
+
+    public List<GroupRepresentation> getGroups() {
+        try {
+            return identityClient.getGroups(getClientToken());
+        } catch (FeignException e) {
+            throw errorNormalizer.handleKeycloakException(e);
+        }
+    }
+
+    public void assignRoles(String userId, List<RoleRepresentation> roles) {
+        try {
+            String token = getClientToken();
+            List<RoleRepresentation> currentRoles = identityClient.getUserRoles(token, userId);
+
+            List<RoleRepresentation> rolesToRemove = currentRoles.stream()
+                    .filter(cr -> roles.stream().noneMatch(r -> r.getId().equals(cr.getId())))
+                    .toList();
+
+            if (!rolesToRemove.isEmpty()) {
+                identityClient.removeRoles(token, userId, rolesToRemove);
+            }
+
+            List<RoleRepresentation> rolesToAdd = roles.stream()
+                    .filter(r ->
+                            currentRoles.stream().noneMatch(cr -> cr.getId().equals(r.getId())))
+                    .toList();
+
+            if (!rolesToAdd.isEmpty()) {
+                identityClient.assignRoles(token, userId, rolesToAdd);
+            }
+        } catch (FeignException e) {
+            throw errorNormalizer.handleKeycloakException(e);
+        }
+    }
+
+    public void assignGroups(String userId, List<String> groupIds) {
+        try {
+            String token = getClientToken();
+            List<GroupRepresentation> currentGroups = identityClient.getUserGroups(token, userId);
+
+            currentGroups.stream()
+                    .filter(g -> !groupIds.contains(g.getId()))
+                    .forEach(g -> identityClient.removeGroup(token, userId, g.getId()));
+
+            List<String> currentGroupIds =
+                    currentGroups.stream().map(GroupRepresentation::getId).toList();
+            groupIds.stream()
+                    .filter(id -> !currentGroupIds.contains(id))
+                    .forEach(id -> identityClient.assignGroup(token, userId, id));
+        } catch (FeignException e) {
+            throw errorNormalizer.handleKeycloakException(e);
+        }
+    }
+
+    // Create staff
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DIRECTOR') or (hasRole('STAFF') and hasAuthority('GROUP_HR'))")
+    public ProfileResponse register(StaffCreationRequest request) {
+        try {
+            String token = getClientToken();
+
+            var creationResponse = identityClient.createUser(
+                    token,
+                    UserCreationParam.builder()
+                            .username(request.getUsername())
+                            .email(request.getEmail())
+                            .firstName(request.getFirstName())
+                            .lastName(request.getLastName())
+                            .emailVerified(false)
+                            .enabled(true)
+                            .credentials(List.of(Credential.builder()
+                                    .type("password")
+                                    .temporary(false)
+                                    .value(request.getPassword())
+                                    .build()))
+                            .build());
+
+            String userId = extractUserId(creationResponse);
+
+            if (request.getGroupId() != null && !request.getGroupId().isEmpty()) {
+                identityClient.assignGroup(token, userId, request.getGroupId());
+            }
+
+            var profile = profileMapper.toProfile(request);
+            profile.setUserId(userId);
+            profile.setDob(request.getDob());
+            profile.setSex(request.getSex());
+
+            profile = profileRepository.save(profile);
+
+            return profileMapper.toProfileResponse(profile);
+
+        } catch (FeignException e) {
+            throw errorNormalizer.handleKeycloakException(e);
+        }
+    }
 
     // Register with custom UI Frontend (optional)
     public ProfileResponse register(RegistrationRequest request) {
@@ -154,7 +272,8 @@ public class ProfileService {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         String userID = authentication.getName();
 
-        var profile = profileRepository.findByUserId(userID).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        var profile =
+                profileRepository.findByUserId(userID).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         try {
             identityClient.exchangeToken(TokenExchangeParam.builder()
@@ -192,13 +311,39 @@ public class ProfileService {
 
     @PreAuthorize(
             """
-		hasRole('ADMIN')
-		or hasRole('DIRECTOR')
-		or (hasRole('STAFF') and hasAuthority('GROUP_HR'))
-	""")
+				hasRole('ADMIN')
+				or hasRole('DIRECTOR')
+				or (hasRole('STAFF') and hasAuthority('GROUP_HR'))
+			""")
     public List<ProfileResponse> getAllProfiles() {
         var profiles = profileRepository.findAll();
-        return profiles.stream().map(profileMapper::toProfileResponse).toList();
+        String token = getClientToken();
+
+        List<String> allowedRoles = List.of("ADMIN", "CUSTOMER", "DIRECTOR", "STAFF");
+
+        return profiles.stream()
+                .map(profile -> {
+                    ProfileResponse response = profileMapper.toProfileResponse(profile);
+                    if (profile.getUserId() != null) {
+                        try {
+                            List<String> userRoles =
+                                    identityClient.getUserEffectiveRoles(token, profile.getUserId()).stream()
+                                            .map(RoleRepresentation::getName)
+                                            .filter(allowedRoles::contains)
+                                            .toList();
+
+                            List<String> userGroups = identityClient.getUserGroups(token, profile.getUserId()).stream()
+                                    .map(GroupRepresentation::getName)
+                                    .toList();
+                            response.setRoles(userRoles);
+                            response.setGroups(userGroups);
+                        } catch (Exception e) {
+                            log.warn("Failed to fetch roles/groups for user {}", profile.getUserId(), e);
+                        }
+                    }
+                    return response;
+                })
+                .toList();
     }
 
     public ProfileResponse syncProfile(RegistrationRequest request, String userId) {
@@ -240,8 +385,9 @@ public class ProfileService {
     }
 
     public AddressResponse updateAddress(String addressId, AddressRequest request) {
-        var address =
-                addressRepository.findById(addressId).orElseThrow(() -> new RuntimeException("Address not found"));
+        var address = addressRepository
+                .findById(addressId)
+                .orElseThrow(() -> new AppException(ErrorCode.ADDRESS_NOT_EXISTED));
 
         addressMapper.updateAddress(address, request);
 

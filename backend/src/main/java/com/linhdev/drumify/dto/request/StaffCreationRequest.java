@@ -1,8 +1,8 @@
-package com.linhdev.drumify.dto.response;
+package com.linhdev.drumify.dto.request;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
+
+import jakarta.validation.constraints.Size;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -14,22 +14,21 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ProfileResponse {
-    String profileId;
-    String userId;
-    String email;
+public class StaffCreationRequest {
+    @Size(min = 4, message = "INVALID_USERNAME")
     String username;
+
+    @Size(min = 6, message = "INVALID_PASSWORD")
+    String password;
+
+    String email;
     String firstName;
     String lastName;
-    String fullName;
-    String phoneNumber;
-    String avatarUrl;
-    Set<AddressResponse> addresses;
-    List<String> roles;
-    List<String> groups;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     LocalDate dob;
 
     Boolean sex;
+
+    String groupId;
 }

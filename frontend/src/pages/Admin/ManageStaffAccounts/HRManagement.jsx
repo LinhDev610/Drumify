@@ -22,8 +22,10 @@ import { useTranslation } from "react-i18next";
 import EditIcon from "@mui/icons-material/Edit";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import { getUsers, assignRoles, assignGroups } from "../../../services/userService";
+import { getUsers, assignRoles, assignGroups, getRoles, getGroups, createStaff } from "../../../services/userService";
 import UserEditModal from "./components/UserEditModal";
+import UserCreationModal from "./components/UserCreationModal";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 
 export default function HRManagement() {
   const { t } = useTranslation();
@@ -32,11 +34,28 @@ export default function HRManagement() {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [editUser, setEditUser] = useState(null);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [rolesList, setRolesList] = useState([]);
+  const [groupsList, setGroupsList] = useState([]);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
   useEffect(() => {
     fetchUsers();
+    fetchRolesAndGroups();
   }, []);
+
+  const fetchRolesAndGroups = async () => {
+    try {
+      const [rolesRes, groupsRes] = await Promise.all([
+        getRoles(),
+        getGroups()
+      ]);
+      setRolesList(rolesRes.data.result || []);
+      setGroupsList(groupsRes.data.result || []);
+    } catch (err) {
+      console.error("Failed to fetch roles/groups", err);
+    }
+  };
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -61,6 +80,18 @@ export default function HRManagement() {
       fetchUsers(); // Refresh list
     } catch (err) {
       setSnackbar({ open: true, message: t('profile.general.failed'), severity: "error" });
+      throw err;
+    }
+  };
+
+  const handleCreateStaff = async (formData) => {
+    try {
+      await createStaff(formData);
+      setSnackbar({ open: true, message: "Staff account created successfully", severity: "success" });
+      setCreateModalOpen(false);
+      fetchUsers();
+    } catch (err) {
+      setSnackbar({ open: true, message: "Failed to create staff account", severity: "error" });
       throw err;
     }
   };
@@ -110,6 +141,15 @@ export default function HRManagement() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </Box>
+          <Tooltip title="Create Staff Account">
+            <IconButton 
+              color="primary"
+              onClick={() => setCreateModalOpen(true)}
+              sx={{ border: '1px solid var(--color-primary)', borderRadius: 3, bgcolor: 'rgba(212, 175, 55, 0.1)' }}
+            >
+              <PersonAddIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
           <IconButton sx={{ border: '1px solid var(--color-border)', borderRadius: 3 }}>
             <FilterListIcon fontSize="small" />
           </IconButton>
@@ -195,6 +235,15 @@ export default function HRManagement() {
         onClose={() => setEditUser(null)}
         user={editUser}
         onSave={handleSavePermissions}
+        availableRoles={rolesList}
+        availableGroups={groupsList}
+      />
+
+      <UserCreationModal 
+        open={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onSave={handleCreateStaff}
+        groups={groupsList}
       />
 
       <Snackbar 

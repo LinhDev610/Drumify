@@ -13,7 +13,10 @@ export const API = {
     MEDIA_UPLOAD: "/media/upload",
     CHANGE_PASSWORD: "/my-profile/password",
     USER_ROLES: (userId) => `/profiles/${userId}/roles`,
-    USER_GROUPS: (userId) => `/profiles/${userId}/groups`
+    USER_GROUPS: (userId) => `/profiles/${userId}/groups`,
+    CREATE_STAFF: "/profiles/staff",
+    ROLES: "/roles",
+    GROUPS: "/groups"
 }
 
 export const KEYCLOAK_CONFIG = {
