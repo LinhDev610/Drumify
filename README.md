@@ -25,6 +25,14 @@ Hệ thống được thiết kế theo mô hình **Client-Server** hiện đạ
 
 ---
 
+## 🔐 Hệ Thống Phân Quyền
+
+Drumify áp dụng mô hình kết hợp **RBAC + GBAC** với 4 Roles (CUSTOMER, STAFF, ADMIN, DIRECTOR) và 4 Groups (CS, HR, WAREHOUSE, MARKETING). Sidebar và trang quản lý được hiển thị động dựa trên vai trò người dùng.
+
+👉 **[Xem chi tiết thiết kế phân quyền, sidebar & phạm vi quản lý](./ROLES_AND_PERMISSIONS.md)**
+
+---
+
 ## 🔄 Luồng đồng bộ người dùng (Keycloak Auto-Sync)
 
 Hệ thống sử dụng cơ chế **Event-Driven Integration** để đảm bảo dữ liệu người dùng luôn nhất quán giữa Identity Provider (Keycloak) và Backend (MySQL):
@@ -67,11 +75,11 @@ Tính năng đổi mật khẩu được thiết kế an toàn tuyệt đối:
 
 ## 📂 Tổ chức mã nguồn
 
-| Thư mục | Nhiệm vụ |
+| Thư mục / Tài liệu | Nhiệm vụ |
 | :--- | :--- |
 | **[`/backend`](./backend/README.md)** | Engine xử lý nghiệp vụ, API, Security & CSDL. |
 | **[`/frontend`](./frontend/README.md)** | Portal người dùng, giao diện mua sắm & quản lý. |
-| **[`/artifacts`](../../.gemini/antigravity/brain/1dadef0a-c496-43bd-880e-24a17e7c881c/artifacts/)** | Tài liệu phân tích, mapping nội dung (LilaShop → Drumify). |
+| **[`ROLES_AND_PERMISSIONS.md`](./ROLES_AND_PERMISSIONS.md)** | Thiết kế phân quyền, sidebar & phạm vi quản lý theo Role/Group. |
 
 ---
 
@@ -105,8 +113,6 @@ Toàn bộ logic từ LilaShop đã được ánh xạ sang Drumify một cách 
 - **Cấu trúc nội dung**: Mỹ phẩm → Nhạc cụ.
 - **Thương hiệu**: L'Oréal/Maybelline → Roland/Pearl/DW.
 - **Blog**: Góc làm đẹp → Góc tay trống.
-
-👉 [Xem chi tiết bảng ánh xạ nội dung Trang Chủ tại đây](../../.gemini/antigravity/brain/1dadef0a-c496-43bd-880e-24a17e7c881c/artifacts/home_page_content_mapping.md)
 
 ---
 <p align="center">
