@@ -51,7 +51,7 @@ public class ShipmentController {
                 .build();
     }
 
-    @PostMapping("/warehouse/orders/{id}/shipments/create")
+    @PostMapping("/orders/{id}/shipments/create")
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
     ApiResponse<ShipmentResponse> createGhnShipment(@PathVariable String id) {
         return ApiResponse.<ShipmentResponse>builder()
@@ -59,7 +59,7 @@ public class ShipmentController {
                 .build();
     }
 
-    @GetMapping("/warehouse/shipments")
+    @GetMapping("/shipments")
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
     ApiResponse<List<ShipmentResponse>> showShipments() {
         return ApiResponse.<List<ShipmentResponse>>builder()
@@ -67,7 +67,23 @@ public class ShipmentController {
                 .build();
     }
 
-    @PatchMapping("/warehouse/shipments/{id}")
+    @GetMapping("/shipments/order/{orderId}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
+    ApiResponse<ShipmentResponse> getShipmentByOrderId(@PathVariable String orderId) {
+        return ApiResponse.<ShipmentResponse>builder()
+                .result(shipmentService.getShipmentByOrderId(orderId))
+                .build();
+    }
+
+    @PostMapping("/shipments/sync/{orderId}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
+    ApiResponse<ShipmentResponse> syncShipmentStatus(@PathVariable String orderId) {
+        return ApiResponse.<ShipmentResponse>builder()
+                .result(shipmentService.syncOrderStatusFromGhn(orderId))
+                .build();
+    }
+
+    @PatchMapping("/shipments/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
     ApiResponse<ShipmentResponse> updateShipment(@PathVariable String id, @RequestBody ShipmentUpdateRequest request) {
         return ApiResponse.<ShipmentResponse>builder()

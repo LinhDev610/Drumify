@@ -45,4 +45,11 @@ public class OrderController {
                 .result(orderService.confirmOrder(id))
                 .build();
     }
+
+    @PostMapping("/orders/{id}/cancel")
+    ApiResponse<OrderResponse> cancelOrder(@PathVariable String id) {
+        return ApiResponse.<OrderResponse>builder()
+                .result(orderService.cancelOrder(id))
+                .build();
+    }
 }

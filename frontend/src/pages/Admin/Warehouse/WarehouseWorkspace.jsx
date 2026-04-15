@@ -51,8 +51,10 @@ import {
   fetchMovements,
   fetchPackingOrders,
   confirmOrder,
+  cancelOrder,
   createShipmentOrder,
   fetchShipments,
+  syncShipmentByOrder,
   updateShipment,
   fetchWarehouseReport,
   deleteWarehouseProduct,
@@ -1285,6 +1287,16 @@ function OrdersTab() {
     }
   };
 
+  const cancel = async (id) => {
+    if (!window.confirm("Hủy đơn này? Chỉ áp dụng cho đơn chưa giao.")) return;
+    try {
+      await cancelOrder(id);
+      await load();
+    } catch (e) {
+      setErr(getErrorMessage(e, "Không hủy được đơn."));
+    }
+  };
+
   return (
     <Box>
       {err && (
@@ -1353,6 +1365,16 @@ function OrdersTab() {
                       onClick={() => createWaybill(o.id)}
                     >
                       {o.shipmentCreated ? "Đã có vận đơn" : "Tạo vận đơn GHN"}
+                    </Button>
+                    <Button
+                      size="small"
+                      color="error"
+                      sx={{ ml: 1 }}
+                      variant="text"
+                      disabled={["SHIPPED", "DELIVERED", "REFUNDED", "CANCELLED"].includes(o.statusCode)}
+                      onClick={() => cancel(o.id)}
+                    >
+                      Hủy
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -1441,6 +1463,15 @@ function ShippingTab() {
     }
   };
 
+  const syncByOrder = async (orderId) => {
+    try {
+      await syncShipmentByOrder(orderId);
+      await load();
+    } catch (e) {
+      setErr(getErrorMessage(e, "Không đồng bộ được trạng thái GHN."));
+    }
+  };
+
   return (
     <Box>
       {err && (
@@ -1480,6 +1511,9 @@ function ShippingTab() {
                 <TableCell align="right">
                   <Button size="small" variant="outlined" onClick={() => openEdit(s)}>
                     Cập nhật tracking
+                  </Button>
+                  <Button size="small" sx={{ ml: 1 }} onClick={() => syncByOrder(s.orderId)}>
+                    Đồng bộ GHN
                   </Button>
                 </TableCell>
               </TableRow>

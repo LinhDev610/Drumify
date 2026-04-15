@@ -3,6 +3,7 @@ import { CONFIG } from "../configurations/configuration";
 import { unwrapList, unwrapResult } from "../hooks/utils/unwrapApiResponse";
 
 const BASE = `${CONFIG.API_GATEWAY}/warehouse`;
+const LOCATION_BASE = `${CONFIG.API_GATEWAY}/location`;
 
 export async function fetchWarehouseDashboard() {
   const { data } = await httpClient.get(`${BASE}/dashboard`);
@@ -127,17 +128,27 @@ export async function confirmOrder(orderId) {
 }
 
 export async function createShipmentOrder(orderId) {
-  const { data } = await httpClient.post(`${BASE}/orders/${orderId}/shipments/create`);
+  const { data } = await httpClient.post(`${LOCATION_BASE}/orders/${orderId}/shipments/create`);
   return unwrapResult(data);
 }
 
 export async function fetchShipments() {
-  const { data } = await httpClient.get(`${BASE}/shipments`);
+  const { data } = await httpClient.get(`${LOCATION_BASE}/shipments`);
   return unwrapList(data);
 }
 
 export async function updateShipment(shipmentId, payload) {
-  const { data } = await httpClient.patch(`${BASE}/shipments/${shipmentId}`, payload);
+  const { data } = await httpClient.patch(`${LOCATION_BASE}/shipments/${shipmentId}`, payload);
+  return unwrapResult(data);
+}
+
+export async function syncShipmentByOrder(orderId) {
+  const { data } = await httpClient.post(`${LOCATION_BASE}/shipments/sync/${orderId}`);
+  return unwrapResult(data);
+}
+
+export async function cancelOrder(orderId) {
+  const { data } = await httpClient.post(`${BASE}/orders/${orderId}/cancel`);
   return unwrapResult(data);
 }
 

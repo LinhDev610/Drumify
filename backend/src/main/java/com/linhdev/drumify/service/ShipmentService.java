@@ -159,6 +159,13 @@ public class ShipmentService {
                 .collect(Collectors.toList());
     }
 
+    public ShipmentResponse getShipmentByOrderId(String orderId) {
+        Shipment shipment = shipmentRepository
+                .findByOrder_Id(orderId)
+                .orElseThrow(() -> new AppException(ErrorCode.SHIPMENT_NOT_EXISTED));
+        return shipmentMapper.toShipmentResponse(shipment);
+    }
+
     @Transactional
     public ShipmentResponse updateShipment(String shipmentId, ShipmentUpdateRequest request) {
         Shipment s = shipmentRepository
@@ -203,6 +210,52 @@ public class ShipmentService {
                 orderRepository.save(order);
             }
         }
+    }
+
+    @Transactional
+    public ShipmentResponse syncOrderStatusFromGhn(String orderId) {
+        Shipment shipment = shipmentRepository
+                .findByOrder_Id(orderId)
+                .orElseThrow(() -> new AppException(ErrorCode.SHIPMENT_NOT_EXISTED));
+        if (shipment.getOrderCode() == null || shipment.getOrderCode().isBlank()) {
+            throw new AppException(ErrorCode.BAD_REQUEST);
+        }
+        var detailResponse = shipmentClient.getOrderDetailByOrderCode(token, shopId, shipment.getOrderCode());
+        if (detailResponse == null || detailResponse.getCode() != 200 || detailResponse.getData() == null) {
+            throw new AppException(ErrorCode.EXTERNAL_SERVICE_ERROR);
+        }
+        GhnOrderDetailResponse detail = detailResponse.getData();
+        String ghnStatus = detail.getStatus();
+        if (ghnStatus == null || ghnStatus.isBlank()) {
+            throw new AppException(ErrorCode.EXTERNAL_SERVICE_ERROR);
+        }
+        ShipmentStatus mappedShipmentStatus = mapGhnToShipmentStatus(ghnStatus);
+        shipment.setStatus(mappedShipmentStatus);
+        shipment.setTrackingNote("Synced from GHN: " + ghnStatus);
+        shipment.setLastSyncAt(LocalDateTime.now());
+        if (detail.getTotalFee() != null) {
+            shipment.setTotalFee(detail.getTotalFee());
+        }
+        shipmentRepository.save(shipment);
+
+        Order order = shipment.getOrder();
+        // Cập nhật status đơn hàng nếu không phải là status trả hàng
+        if (order != null && !isReturnFlowStatus(order.getStatus())) {
+            OrderStatus mappedOrderStatus = mapGhnToOrderStatus(ghnStatus);
+            if (mappedOrderStatus != null) {
+                order.setStatus(mappedOrderStatus);
+                orderRepository.save(order);
+            }
+        }
+        return shipmentMapper.toShipmentResponse(shipment);
+    }
+
+    private boolean isReturnFlowStatus(OrderStatus status) {
+        return status == OrderStatus.RETURN_REQUESTED
+                || status == OrderStatus.RETURN_CS_CONFIRMED
+                || status == OrderStatus.RETURN_STAFF_CONFIRMED
+                || status == OrderStatus.RETURN_REJECTED
+                || status == OrderStatus.REFUNDED;
     }
 
     private GhnCreateOrderDataResponse createGhnOrderWithRetry(Order order) {

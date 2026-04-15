@@ -55,4 +55,21 @@ public class OrderService {
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_EXISTED));
         return orderMapper.toOrderResponse(refreshed);
     }
+
+    @Transactional
+    public OrderResponse cancelOrder(String orderId) {
+        Order order = orderRepository
+                .findByIdForWarehouse(orderId)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_EXISTED));
+        if (order.getStatus() == OrderStatus.SHIPPED
+                || order.getStatus() == OrderStatus.DELIVERED
+                || order.getStatus() == OrderStatus.REFUNDED) {
+            throw new AppException(ErrorCode.BAD_REQUEST);
+        }
+        if (order.getStatus() != OrderStatus.CANCELLED) {
+            order.setStatus(OrderStatus.CANCELLED);
+            orderRepository.save(order);
+        }
+        return orderMapper.toOrderResponse(order);
+    }
 }
