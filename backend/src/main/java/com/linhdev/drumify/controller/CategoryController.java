@@ -5,13 +5,7 @@ import java.util.List;
 import jakarta.validation.Valid;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.linhdev.drumify.dto.ApiResponse;
 import com.linhdev.drumify.dto.warehouse.CategoryRequest;
@@ -48,6 +42,13 @@ public class CategoryController {
     ApiResponse<CategoryResponse> updateCategory(@PathVariable String id, @RequestBody @Valid CategoryRequest request) {
         return ApiResponse.<CategoryResponse>builder()
                 .result(categoryService.updateCategory(id, request))
+                .build();
+    }
+
+    @PatchMapping("/categories/{id}/status")
+    ApiResponse<CategoryResponse> updateCategoryStatus(@PathVariable String id, @RequestParam Boolean status) {
+        return ApiResponse.<CategoryResponse>builder()
+                .result(categoryService.updateCategoryStatus(id, status))
                 .build();
     }
 }

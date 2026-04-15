@@ -84,6 +84,16 @@ public class CategoryService {
         return toCategoryResponse(categoryRepository.save(c));
     }
 
+    @Transactional
+    public CategoryResponse updateCategoryStatus(String categoryId, Boolean status) {
+        Category c = categoryRepository
+                .findById(categoryId)
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
+        c.setStatus(status);
+        c.setUpdatedAt(LocalDateTime.now());
+        return toCategoryResponse(categoryRepository.save(c));
+    }
+
     private CategoryResponse toCategoryResponse(Category c) {
         return CategoryResponse.builder()
                 .id(c.getId())

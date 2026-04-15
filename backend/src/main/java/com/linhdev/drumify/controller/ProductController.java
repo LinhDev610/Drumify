@@ -5,13 +5,7 @@ import java.util.List;
 import jakarta.validation.Valid;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.linhdev.drumify.dto.ApiResponse;
 import com.linhdev.drumify.dto.warehouse.ProductRequest;
@@ -48,6 +42,19 @@ public class ProductController {
     ApiResponse<ProductResponse> updateProduct(@PathVariable String id, @RequestBody @Valid ProductRequest request) {
         return ApiResponse.<ProductResponse>builder()
                 .result(productService.updateProduct(id, request))
+                .build();
+    }
+
+    @DeleteMapping("/products/{id}")
+    ApiResponse<String> deleteProduct(@PathVariable String id) {
+        productService.deleteProduct(id);
+        return ApiResponse.<String>builder().result("Xóa sản phẩm thành công").build();
+    }
+
+    @PatchMapping("/products/{id}/status")
+    ApiResponse<ProductResponse> updateProductStatus(@PathVariable String id, @RequestParam boolean status) {
+        return ApiResponse.<ProductResponse>builder()
+                .result(productService.updateProductStatus(id, status))
                 .build();
     }
 }

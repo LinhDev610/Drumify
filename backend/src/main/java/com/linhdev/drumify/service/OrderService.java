@@ -45,6 +45,7 @@ public class OrderService {
         return orderMapper.toOrderResponse(order);
     }
 
+    // Xác nhận đơn hàng và tạo đơn vị vận chuyển
     @Transactional
     public OrderResponse shipOrder(String orderId) {
         confirmOrder(orderId);

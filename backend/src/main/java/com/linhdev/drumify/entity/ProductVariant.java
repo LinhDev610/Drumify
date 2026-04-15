@@ -38,7 +38,7 @@ public class ProductVariant {
     Double price;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
+    @Column(name = "status", nullable = false, length = 50)
     ProductStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -54,7 +54,10 @@ import {
   createShipmentOrder,
   fetchShipments,
   updateShipment,
-  fetchWarehouseReport
+  fetchWarehouseReport,
+  deleteWarehouseProduct,
+  updateWarehouseProductStatus,
+  updateCategoryStatus
 } from "../../../services/warehouseService";
 import { getErrorMessage } from "../../../hooks/utils/unwrapApiResponse";
 import ReactQuill from "react-quill-new";
@@ -81,6 +84,31 @@ const MOVEMENT_LABELS = {
 
 const SHIPMENT_STATUS_OPTS = ["CREATED", "PICKED_UP", "IN_TRANSIT", "DELIVERED", "FAILED", "CANCELLED"];
 
+const STATUS_LABELS = {
+  PENDING: { label: "Chờ duyệt", color: "info" },
+  APPROVED: { label: "Hoạt động", color: "success" },
+  REJECTED: { label: "Từ chối", color: "error" },
+  HIDDEN: { label: "Đã ẩn", color: "warning" }
+};
+
+const STATUS_DISPLAY_TO_CODE = {
+  "Chờ duyệt": "PENDING",
+  "Đã duyệt": "APPROVED",
+  "Từ chối": "REJECTED",
+  "Vô hiệu hóa": "DISABLED",
+  "Đã ẩn": "HIDDEN"
+};
+
+function normalizeProductStatus(rawStatus) {
+  if (!rawStatus) return "PENDING";
+  const normalized = String(rawStatus).trim();
+  if (STATUS_LABELS[normalized]) return normalized;
+  if (STATUS_DISPLAY_TO_CODE[normalized]) return STATUS_DISPLAY_TO_CODE[normalized];
+  const upper = normalized.toUpperCase();
+  if (STATUS_LABELS[upper]) return upper;
+  return "PENDING";
+}
+
 function StatMini({ title, value }) {
   return (
     <Card variant="outlined" sx={{ bgcolor: "rgba(255,255,255,0.02)", borderColor: "var(--color-border)" }}>
@@ -99,6 +127,7 @@ function StatMini({ title, value }) {
 function CategoriesTab() {
   const [rows, setRows] = useState([]);
   const [err, setErr] = useState("");
+  const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({
@@ -121,6 +150,15 @@ function CategoriesTab() {
   useEffect(() => {
     load();
   }, [load]);
+
+  const filteredRows = useMemo(() => {
+    if (!search.trim()) return rows;
+    const s = search.toLowerCase();
+    return rows.filter(
+      (r) =>
+        r.name.toLowerCase().includes(s) || (r.description && r.description.toLowerCase().includes(s))
+    );
+  }, [rows, search]);
 
   const openNew = () => {
     setEditing(null);
@@ -162,6 +200,15 @@ function CategoriesTab() {
     }
   };
 
+  const handleStatusChange = async (id, status) => {
+    try {
+      await updateCategoryStatus(id, status);
+      await load();
+    } catch (e) {
+      setErr(getErrorMessage(e, "Không cập nhật được trạng thái."));
+    }
+  };
+
   return (
     <Box>
       {err && (
@@ -170,7 +217,16 @@ function CategoriesTab() {
         </Alert>
       )}
       <Paper sx={{ p: 2, mb: 2, bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
-        <Button variant="contained" onClick={openNew}>Tạo danh mục</Button>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Button variant="contained" onClick={openNew}>Tạo danh mục</Button>
+          <TextField
+            size="small"
+            placeholder="Tìm kiếm danh mục..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            sx={{ width: 300 }}
+          />
+        </Stack>
       </Paper>
       <TableContainer component={Paper} sx={{ bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
         <Table size="small">
@@ -178,28 +234,36 @@ function CategoriesTab() {
             <TableRow>
               <TableCell>Tên danh mục</TableCell>
               <TableCell>Danh mục cha</TableCell>
-              <TableCell>Mức thuế (%)</TableCell>
               <TableCell>Trạng thái</TableCell>
-              <TableCell>Mô tả</TableCell>
+              <TableCell>Mức thuế (%)</TableCell>
               <TableCell align="right">Hành động</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((r) => (
+            {filteredRows.map((r) => (
               <TableRow key={r.id} hover>
-                <TableCell>{r.name}</TableCell>
-                <TableCell>{r.parentCategoryName || "—"}</TableCell>
-                <TableCell>{r.taxRate ?? 0}%</TableCell>
                 <TableCell>
-                  <Chip size="small" color={r.status ? "success" : "default"} label={r.status ? "Active" : "Inactive"} />
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.name}</Typography>
                 </TableCell>
-                <TableCell sx={{ maxWidth: 260 }}>
-                  <Typography variant="body2" noWrap title={r.description}>
-                    {r.description || "—"}
-                  </Typography>
+                <TableCell>{r.parentCategoryName || "—"}</TableCell>
+                <TableCell>
+                  <Chip
+                    size="small"
+                    color={r.status ? "success" : "warning"}
+                    label={r.status ? "Hoạt động" : "Đã ẩn"}
+                    sx={{ fontWeight: 500 }}
+                  />
                 </TableCell>
+                <TableCell>{r.taxRate ?? 0}%</TableCell>
                 <TableCell align="right">
-                  <Button size="small" onClick={() => openEdit(r)}>Sửa</Button>
+                  <Stack direction="row" spacing={1} justifyContent="flex-end">
+                    <Button size="small" variant="outlined" onClick={() => openEdit(r)}>Sửa</Button>
+                    {r.status ? (
+                      <Button size="small" color="warning" onClick={() => handleStatusChange(r.id, false)}>Ẩn</Button>
+                    ) : (
+                      <Button size="small" color="success" onClick={() => handleStatusChange(r.id, true)}>Hiện</Button>
+                    )}
+                  </Stack>
                 </TableCell>
               </TableRow>
             ))}
@@ -278,6 +342,7 @@ function ProductsTab() {
   const [rows, setRows] = useState([]);
   const [categories, setCategories] = useState([]);
   const [err, setErr] = useState("");
+  const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({
@@ -307,6 +372,16 @@ function ProductsTab() {
   useEffect(() => {
     load();
   }, [load]);
+
+  const filteredRows = useMemo(() => {
+    if (!search.trim()) return rows;
+    const s = search.toLowerCase();
+    return rows.filter(
+      (r) =>
+        r.name.toLowerCase().includes(s) ||
+        (r.categoryName && r.categoryName.toLowerCase().includes(s))
+    );
+  }, [rows, search]);
 
   const openNew = () => {
     setEditing(null);
@@ -351,18 +426,27 @@ function ProductsTab() {
   };
 
   const save = async () => {
-    if (!form.name.trim() || !form.categoryId || form.variants.length === 0) return;
     try {
+      if (!form.name.trim()) throw new Error("Vui lòng nhập tên sản phẩm.");
+      if (!form.categoryId) throw new Error("Vui lòng chọn danh mục.");
+      if (form.variants.length === 0) throw new Error("Sản phẩm phải có ít nhất một biến thể.");
+      
+      form.variants.forEach((v, idx) => {
+        if (!v.name.trim()) throw new Error(`Tên biến thể hàng ${idx + 1} không được để trống.`);
+        if (v.purchasePrice === "" || Number(v.purchasePrice) < 0) throw new Error(`Giá nhập hàng ${idx + 1} phải >= 0.`);
+        if (v.price === "" || Number(v.price) < 0) throw new Error(`Giá bán hàng ${idx + 1} phải >= 0.`);
+      });
+
       const payload = {
         name: form.name.trim(),
         categoryId: form.categoryId,
         shortDescription: form.shortDescription || undefined,
         description: form.description || undefined,
         origin: form.origin || undefined,
-        weight: form.weight === "" ? undefined : Number(form.weight),
-        length: form.length === "" ? undefined : Number(form.length),
-        width: form.width === "" ? undefined : Number(form.width),
-        height: form.height === "" ? undefined : Number(form.height),
+        weight: form.weight === "" ? 0 : Number(form.weight),
+        length: form.length === "" ? 0 : Number(form.length),
+        width: form.width === "" ? 0 : Number(form.width),
+        height: form.height === "" ? 0 : Number(form.height),
         variants: form.variants.map((v, idx) => ({
           name: String(v.name || "").trim(),
           purchasePrice: Number(v.purchasePrice),
@@ -377,7 +461,7 @@ function ProductsTab() {
         await createWarehouseProduct(payload);
       }
       setOpen(false);
-      await load();
+      await load()
     } catch (e) {
       setErr(getErrorMessage(e, "Không lưu được sản phẩm."));
     }
@@ -404,6 +488,25 @@ function ProductsTab() {
     }));
   };
 
+  const handleDelete = async (id) => {
+    if (!window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) return;
+    try {
+      await deleteWarehouseProduct(id);
+      await load();
+    } catch (e) {
+      setErr(getErrorMessage(e, "Không xóa được sản phẩm."));
+    }
+  };
+
+  const handleStatusChange = async (id, status) => {
+    try {
+      await updateWarehouseProductStatus(id, status);
+      await load();
+    } catch (e) {
+      setErr(getErrorMessage(e, "Không cập nhật được trạng thái."));
+    }
+  };
+
   return (
     <Box>
       {err && (
@@ -412,7 +515,16 @@ function ProductsTab() {
         </Alert>
       )}
       <Paper sx={{ p: 2, mb: 2, bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
-        <Button variant="contained" onClick={openNew}>Tạo sản phẩm mới</Button>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Button variant="contained" onClick={openNew}>Tạo sản phẩm mới</Button>
+          <TextField
+            size="small"
+            placeholder="Tìm kiếm sản phẩm..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            sx={{ width: 300 }}
+          />
+        </Stack>
       </Paper>
 
       <TableContainer component={Paper} sx={{ bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
@@ -422,22 +534,43 @@ function ProductsTab() {
               <TableCell>Tên sản phẩm</TableCell>
               <TableCell>Danh mục</TableCell>
               <TableCell>Biến thể</TableCell>
+              <TableCell>Trạng thái</TableCell>
               <TableCell>Cập nhật</TableCell>
               <TableCell align="right">Hành động</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((r) => (
-              <TableRow key={r.id} hover>
-                <TableCell>{r.name}</TableCell>
-                <TableCell>{r.categoryName || "—"}</TableCell>
-                <TableCell>{r.variants?.length || 0}</TableCell>
-                <TableCell>{r.updatedAt ? String(r.updatedAt).replace("T", " ").slice(0, 19) : "—"}</TableCell>
-                <TableCell align="right">
-                  <Button size="small" onClick={() => openEdit(r)}>Sửa</Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {filteredRows.map((r) => {
+              const mainStatus = normalizeProductStatus(r.variants?.[0]?.status);
+              const isHidden = mainStatus === "HIDDEN";
+              const statusCfg = STATUS_LABELS[mainStatus] || { label: mainStatus, color: "default" };
+              return (
+                <TableRow key={r.id} hover>
+                  <TableCell>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>{r.name}</Typography>
+                  </TableCell>
+                  <TableCell>{r.categoryName || "—"}</TableCell>
+                  <TableCell>{r.variants?.length || 0}</TableCell>
+                  <TableCell>
+                    <Chip size="small" label={statusCfg.label} color={statusCfg.color} sx={{ fontWeight: 500 }} />
+                  </TableCell>
+                  <TableCell>{r.updatedAt ? String(r.updatedAt).replace("T", " ").slice(0, 16) : "—"}</TableCell>
+                  <TableCell align="right">
+                    <Stack direction="row" spacing={0.5} justifyContent="flex-end">
+                      <Button size="small" variant="outlined" onClick={() => openEdit(r)}>Sửa</Button>
+                      
+                      {isHidden ? (
+                        <Button size="small" color="success" onClick={() => handleStatusChange(r.id, true)}>Hiện</Button>
+                      ) : (
+                        <Button size="small" color="warning" onClick={() => handleStatusChange(r.id, false)}>Ẩn</Button>
+                      )}
+                      
+                      <Button size="small" color="error" onClick={() => handleDelete(r.id)}>Xóa</Button>
+                    </Stack>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>

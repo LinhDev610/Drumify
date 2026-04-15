@@ -100,6 +100,27 @@ public class ProductService {
         return toProductResponse(productRepository.save(product));
     }
 
+    @Transactional
+    public void deleteProduct(String productId) {
+        Product product = productRepository
+                .findById(productId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
+        productRepository.delete(product);
+    }
+
+    @Transactional
+    public ProductResponse updateProductStatus(String productId, boolean status) {
+        ProductStatus targetStatus = status ? ProductStatus.APPROVED : ProductStatus.HIDDEN;
+        Product product = productRepository
+                .findById(productId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
+        if (product.getVariant() != null) {
+            product.getVariant().forEach(v -> v.setStatus(targetStatus));
+        }
+        product.setUpdatedAt(LocalDateTime.now());
+        return toProductResponse(productRepository.save(product));
+    }
+
     private ProductResponse toProductResponse(Product p) {
         List<ProductVariantResponse> variants = p.getVariant() == null
                 ? List.of()

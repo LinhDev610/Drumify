@@ -41,6 +41,13 @@ export async function updateCategory(id, payload) {
   return unwrapResult(data);
 }
 
+export async function updateCategoryStatus(id, status) {
+  const { data } = await httpClient.patch(`${BASE}/categories/${id}/status`, null, {
+    params: { status }
+  });
+  return unwrapResult(data);
+}
+
 export async function fetchWarehouseProducts() {
   const { data } = await httpClient.get(`${BASE}/products`);
   return unwrapList(data);
@@ -53,6 +60,18 @@ export async function createWarehouseProduct(payload) {
 
 export async function updateWarehouseProduct(id, payload) {
   const { data } = await httpClient.put(`${BASE}/products/${id}`, payload);
+  return unwrapResult(data);
+}
+
+export async function deleteWarehouseProduct(id) {
+  const { data } = await httpClient.delete(`${BASE}/products/${id}`);
+  return unwrapResult(data);
+}
+
+export async function updateWarehouseProductStatus(id, status) {
+  const { data } = await httpClient.patch(`${BASE}/products/${id}/status`, null, {
+    params: { status }
+  });
   return unwrapResult(data);
 }
 

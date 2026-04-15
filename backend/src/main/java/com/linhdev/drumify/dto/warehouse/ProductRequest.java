@@ -3,6 +3,7 @@ package com.linhdev.drumify.dto.warehouse;
 import java.util.List;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -26,10 +27,19 @@ public class ProductRequest {
     String shortDescription;
     String description;
     String origin;
+
+    @Min(0)
     Double weight;
+
+    @Min(0)
     Double length;
+
+    @Min(0)
     Double width;
+
+    @Min(0)
     Double height;
+
     String brandId;
 
     @NotNull

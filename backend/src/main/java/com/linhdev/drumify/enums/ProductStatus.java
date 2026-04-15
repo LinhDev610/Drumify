@@ -7,7 +7,8 @@ public enum ProductStatus {
     PENDING("Chờ duyệt"),
     APPROVED("Đã duyệt"),
     REJECTED("Từ chối"),
-    DISABLED("Vô hiệu hóa");
+    DISABLED("Vô hiệu hóa"),
+    HIDDEN("Đã ẩn");
 
     private final String displayName;
 
