@@ -101,9 +101,8 @@ Drumify áp dụng mô hình phân quyền kết hợp **Role-Based Access Contr
 | 4 | 📅 Chấm công & Nghỉ phép | `/admin/hr/attendance` | Bảng chấm công, đơn xin nghỉ, duyệt phép |
 | 5 | 📄 Hợp đồng | `/admin/hr/contracts` | Quản lý hợp đồng nhân viên, gia hạn |
 | 6 | 💵 Lương & Thưởng | `/admin/hr/payroll` | Bảng lương, thưởng KPI, khấu trừ |
-| 7 | 🎓 Đào tạo | `/admin/hr/training` | Lộ trình đào tạo, tài liệu, đánh giá |
-| 8 | 📊 Báo cáo Nhân sự | `/admin/hr/reports` | Biến động nhân sự, turnover rate |
-| 9 | 👤 Hồ sơ của tôi | `/admin/profile` | Thông tin cá nhân |
+| 7 | 📊 Báo cáo Nhân sự | `/admin/hr/reports` | Biến động nhân sự, turnover rate |
+| 8 | 👤 Hồ sơ của tôi | `/admin/profile` | Thông tin cá nhân |
 
 ---
 

@@ -7,6 +7,12 @@ import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import AssessmentIcon from "@mui/icons-material/Assessment";
 import BadgeIcon from "@mui/icons-material/Badge";
 import ShoppingBasketIcon from "@mui/icons-material/ShoppingBasket";
+import WorkHistoryIcon from "@mui/icons-material/WorkHistory";
+import FactCheckIcon from "@mui/icons-material/FactCheck";
+import DescriptionIcon from "@mui/icons-material/Description";
+import PaymentsIcon from "@mui/icons-material/Payments";
+import InsightsIcon from "@mui/icons-material/Insights";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 export const adminSidebarConfig = [
   {
@@ -31,6 +37,41 @@ export const adminSidebarConfig = [
     groups: ["HR"],
   },
   {
+    title: "sidebar.hr_recruitment",
+    path: "/admin/hr/recruitment",
+    icon: WorkHistoryIcon,
+    roles: ["ADMIN"],
+    groups: ["HR"],
+  },
+  {
+    title: "sidebar.hr_attendance",
+    path: "/admin/hr/attendance",
+    icon: FactCheckIcon,
+    roles: ["ADMIN"],
+    groups: ["HR"],
+  },
+  {
+    title: "sidebar.hr_contracts",
+    path: "/admin/hr/contracts",
+    icon: DescriptionIcon,
+    roles: ["ADMIN"],
+    groups: ["HR"],
+  },
+  {
+    title: "sidebar.hr_payroll",
+    path: "/admin/hr/payroll",
+    icon: PaymentsIcon,
+    roles: ["ADMIN"],
+    groups: ["HR"],
+  },
+  {
+    title: "sidebar.hr_reports",
+    path: "/admin/hr/reports",
+    icon: InsightsIcon,
+    roles: ["ADMIN"],
+    groups: ["HR"],
+  },
+  {
     title: "sidebar.inventory",
     path: "/admin/inventory",
     icon: InventoryIcon,
@@ -41,7 +82,7 @@ export const adminSidebarConfig = [
     title: "sidebar.orders",
     path: "/admin/orders",
     icon: ShoppingBasketIcon,
-    roles: ["ADMIN", "STAFF"],
+    roles: ["ADMIN"],
     groups: ["CASHIER", "WAREHOUSE"],
   },
   {
@@ -55,7 +96,7 @@ export const adminSidebarConfig = [
     title: "sidebar.customer_support",
     path: "/admin/support",
     icon: SupportAgentIcon,
-    roles: ["ADMIN", "STAFF"],
+    roles: ["ADMIN"],
     groups: ["CS"],
   },
   {
@@ -69,5 +110,12 @@ export const adminSidebarConfig = [
     path: "/admin/finance",
     icon: ReceiptIcon,
     roles: ["ADMIN", "DIRECTOR"],
+  },
+  {
+    title: "sidebar.my_account",
+    path: "/admin/profile",
+    icon: AccountCircleIcon,
+    roles: ["ADMIN", "DIRECTOR", "STAFF"],
+    groups: ["HR", "WAREHOUSE", "CASHIER", "CS", "MARKETING"],
   },
 ];

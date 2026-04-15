@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './Profile.module.scss';
 import { useKeycloakAuth } from '../../context/KeycloakAuthContext';
@@ -32,10 +32,23 @@ import SecurityTab from './components/SecurityTab';
 
 const Profile = () => {
     const { t } = useTranslation();
-    const { tokenParsed } = useKeycloakAuth();
+    const { tokenParsed, hasRole } = useKeycloakAuth();
+    const staffAccountLimited = hasRole('STAFF') && !hasRole('ADMIN');
     const { refreshProfile } = useProfile();
     const [searchParams, setSearchParams] = useSearchParams();
     const activeTab = searchParams.get('tab') || 'profile';
+
+    useEffect(() => {
+        if (!staffAccountLimited) return;
+        if (activeTab === 'orders' || activeTab === 'vouchers') {
+            setSearchParams({ tab: 'profile' }, { replace: true });
+        }
+    }, [staffAccountLimited, activeTab, setSearchParams]);
+
+    const effectiveTab = useMemo(() => {
+        if (staffAccountLimited && (activeTab === 'orders' || activeTab === 'vouchers')) return 'profile';
+        return activeTab;
+    }, [staffAccountLimited, activeTab]);
     const [voucherTab, setVoucherTab] = useState('vouchers');
     const [orderTab, setOrderTab] = useState('all');
 
@@ -324,17 +337,24 @@ const Profile = () => {
         finally { setChangingPassword(false); }
     };
 
-    const TABS = [
-        { id: 'profile', label: t('profile.tabs.profile'), icon: <PersonIcon fontSize="small" /> },
-        { id: 'orders', label: t('profile.tabs.orders'), icon: <ShoppingBagIcon fontSize="small" /> },
-        { id: 'vouchers', label: t('profile.tabs.vouchers'), icon: <ConfirmationNumberIcon fontSize="small" /> },
-        { id: 'security', label: t('profile.tabs.security'), icon: <LockIcon fontSize="small" /> },
-    ];
+    const TABS = useMemo(() => {
+        const base = [
+            { id: 'profile', label: t('profile.tabs.profile'), icon: <PersonIcon fontSize="small" /> },
+        ];
+        if (!staffAccountLimited) {
+            base.push(
+                { id: 'orders', label: t('profile.tabs.orders'), icon: <ShoppingBagIcon fontSize="small" /> },
+                { id: 'vouchers', label: t('profile.tabs.vouchers'), icon: <ConfirmationNumberIcon fontSize="small" /> },
+            );
+        }
+        base.push({ id: 'security', label: t('profile.tabs.security'), icon: <LockIcon fontSize="small" /> });
+        return base;
+    }, [t, staffAccountLimited]);
 
     if (loading) return <div className={styles.loading}>{t('profile.general.loading') || 'Initializing Profile...'}</div>;
 
     const renderTabContent = () => {
-        switch (activeTab) {
+        switch (effectiveTab) {
             case 'profile':
                 return (
                     <>
@@ -391,7 +411,7 @@ const Profile = () => {
                         </div>
                         <nav className={styles.sidebarNav}>
                             {TABS.map(tab => (
-                                <div key={tab.id} className={`${styles.navItem} ${activeTab === tab.id ? styles.active : ''}`} onClick={() => handleTabChange(tab.id)}>
+                                <div key={tab.id} className={`${styles.navItem} ${effectiveTab === tab.id ? styles.active : ''}`} onClick={() => handleTabChange(tab.id)}>
                                     <span className={styles.navIcon}>{tab.icon}</span>
                                     <span className={styles.navLabel}>{tab.label}</span>
                                 </div>

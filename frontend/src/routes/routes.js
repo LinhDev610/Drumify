@@ -9,7 +9,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import RoleProtectedRoute from "./RoleProtectedRoute";
 import AdminLayout from "../layouts/AdminLayout/AdminLayout";
 import AdminDashboard from "../pages/Admin/Dashboard/AdminDashboard";
-import HRManagement from "../pages/Admin/ManageStaffAccounts/HRManagement";
+import HRWorkspace from "../pages/Admin/ManageStaffAccounts/HRWorkspace";
 import CustomerManagement from "../pages/Admin/ManageCustomerAccounts/CustomerManagement";
 import AuthRedirectHandler from "../components/Auth/AuthRedirectHandler";
 
@@ -43,9 +43,14 @@ export default function AppRoutes() {
           <Route element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="hr" element={<HRManagement />} />
+            <Route path="hr" element={<HRWorkspace />} />
+            <Route path="hr/recruitment" element={<HRWorkspace />} />
+            <Route path="hr/attendance" element={<HRWorkspace />} />
+            <Route path="hr/contracts" element={<HRWorkspace />} />
+            <Route path="hr/payroll" element={<HRWorkspace />} />
+            <Route path="hr/reports" element={<HRWorkspace />} />
             <Route path="users" element={<CustomerManagement />} />
-            {/* Placeholder for other admin pages */}
+            <Route path="profile" element={<Profile />} />
             <Route path="*" element={<AdminDashboard />} />
           </Route>
         </Route>
