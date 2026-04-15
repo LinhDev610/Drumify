@@ -117,6 +117,13 @@ export async function fetchPackingOrders() {
   return unwrapList(data);
 }
 
+export async function fetchWorkflowOrders(status = "ALL") {
+  const { data } = await httpClient.get(`${BASE}/orders/workflow`, {
+    params: { status }
+  });
+  return unwrapList(data);
+}
+
 export async function shipOrder(orderId) {
   const { data } = await httpClient.post(`${BASE}/orders/${orderId}/ship`);
   return unwrapResult(data);

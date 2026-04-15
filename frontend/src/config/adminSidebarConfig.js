@@ -15,8 +15,6 @@ import PaymentsIcon from "@mui/icons-material/Payments";
 import InsightsIcon from "@mui/icons-material/Insights";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import InputIcon from "@mui/icons-material/Input";
-import OutputIcon from "@mui/icons-material/Output";
-import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 
 export const adminSidebarConfig = [
@@ -105,25 +103,11 @@ export const adminSidebarConfig = [
     groups: ["WAREHOUSE"],
   },
   {
-    title: "sidebar.wh_export",
-    path: "/admin/inventory/export",
-    icon: OutputIcon,
-    roles: ["ADMIN"],
-    groups: ["WAREHOUSE"],
-  },
-  {
     title: "sidebar.orders",
     path: "/admin/orders",
     icon: ShoppingBasketIcon,
     roles: ["ADMIN"],
     groups: ["CASHIER", "WAREHOUSE"],
-  },
-  {
-    title: "sidebar.wh_shipping",
-    path: "/admin/shipping",
-    icon: LocalShippingIcon,
-    roles: ["ADMIN"],
-    groups: ["WAREHOUSE"],
   },
   {
     title: "sidebar.wh_suppliers",

@@ -136,9 +136,6 @@ export default function WarehouseDashboard() {
         <Button variant="outlined" onClick={() => navigate("/admin/orders")}>
           {t("warehouse.goto_orders", "Đơn cần xử lý")}
         </Button>
-        <Button variant="outlined" onClick={() => navigate("/admin/shipping")}>
-          {t("warehouse.goto_shipping", "Vận chuyển")}
-        </Button>
       </Box>
 
       <style dangerouslySetInnerHTML={{ __html: `

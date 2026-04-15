@@ -46,10 +46,8 @@ import {
   updateSupplier,
   deleteSupplier,
   importStock,
-  exportStock,
-  adjustStock,
   fetchMovements,
-  fetchPackingOrders,
+  fetchWorkflowOrders,
   confirmOrder,
   cancelOrder,
   createShipmentOrder,
@@ -70,9 +68,7 @@ const WH_TAB_CONFIG = [
   { label: "Danh mục", path: "/admin/categories" },
   { label: "Tồn kho", path: "/admin/inventory" },
   { label: "Nhập hàng", path: "/admin/inventory/import" },
-  { label: "Xuất / Điều chỉnh", path: "/admin/inventory/export" },
-  { label: "Đơn hàng", path: "/admin/orders" },
-  { label: "Vận chuyển", path: "/admin/shipping" },
+  { label: "Xử lý đơn hàng", path: "/admin/orders" },
   { label: "Nhà cung cấp", path: "/admin/inventory/suppliers" },
   { label: "Báo cáo kho", path: "/admin/inventory/reports" }
 ];
@@ -709,10 +705,11 @@ export default function WarehouseWorkspace() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const normalizedPath = location.pathname === "/admin/shipping" ? "/admin/orders" : location.pathname;
   const tabIndex = useMemo(() => {
-    const idx = WH_TAB_CONFIG.findIndex((tab) => tab.path === location.pathname);
+    const idx = WH_TAB_CONFIG.findIndex((tab) => tab.path === normalizedPath);
     return idx >= 0 ? idx : 0;
-  }, [location.pathname]);
+  }, [normalizedPath]);
 
   const renderContent = () => {
     const path = WH_TAB_CONFIG[tabIndex]?.path;
@@ -723,12 +720,9 @@ export default function WarehouseWorkspace() {
         return <CategoriesTab />;
       case "/admin/inventory/import":
         return <ImportTab />;
-      case "/admin/inventory/export":
-        return <ExportAdjustTab />;
       case "/admin/orders":
-        return <OrdersTab />;
       case "/admin/shipping":
-        return <ShippingTab />;
+        return <OrdersTab />;
       case "/admin/inventory/suppliers":
         return <SuppliersTab />;
       case "/admin/inventory/reports":
@@ -745,7 +739,7 @@ export default function WarehouseWorkspace() {
         {t("warehouse.workspace_title", "Kho hàng")}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        {t("warehouse.workspace_sub", "Tồn kho, nhập/xuất, đóng gói, vận chuyển và nhà cung cấp.")}
+        {t("warehouse.workspace_sub", "Tồn kho, nhập hàng, xử lý đơn, vận chuyển và nhà cung cấp.")}
       </Typography>
 
       <Paper sx={{ mb: 2.5, bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
@@ -920,9 +914,12 @@ function InventoryTab() {
 }
 
 function ImportTab() {
-  const [rows, setRows] = useState([]);
+  const [inventoryRows, setInventoryRows] = useState([]);
+  const [products, setProducts] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
+  const [search, setSearch] = useState("");
   const [form, setForm] = useState({
+    productId: "",
     productVariantId: "",
     quantity: "",
     supplierId: "",
@@ -934,9 +931,10 @@ function ImportTab() {
 
   const load = useCallback(async () => {
     try {
-      const [inv, sup] = await Promise.all([fetchInventory(), fetchSuppliers()]);
-      setRows(inv);
+      const [inv, sup, prd] = await Promise.all([fetchInventory(), fetchSuppliers(), fetchWarehouseProducts()]);
+      setInventoryRows(inv);
       setSuppliers(sup);
+      setProducts(prd);
     } catch (e) {
       setErr(getErrorMessage(e, "Không tải dữ liệu."));
     }
@@ -970,6 +968,27 @@ function ImportTab() {
     }
   };
 
+  const selectedProduct = useMemo(
+    () => products.find((p) => p.id === form.productId),
+    [products, form.productId]
+  );
+
+  const variantOptions = useMemo(
+    () => selectedProduct?.variants || [],
+    [selectedProduct]
+  );
+
+  const visibleProducts = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return products;
+    return products.filter((p) => {
+      const byName = (p.name || "").toLowerCase().includes(q);
+      const byCategory = (p.categoryName || "").toLowerCase().includes(q);
+      const byVariant = (p.variants || []).some((v) => (v.name || "").toLowerCase().includes(q));
+      return byName || byCategory || byVariant;
+    });
+  }, [products, search]);
+
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} md={7}>
@@ -989,19 +1008,51 @@ function ImportTab() {
           )}
           <Stack spacing={2}>
             <FormControl fullWidth size="small">
+              <InputLabel>Sản phẩm</InputLabel>
+              <Select
+                label="Sản phẩm"
+                value={form.productId}
+                onChange={(e) => setForm((p) => ({ ...p, productId: e.target.value, productVariantId: "" }))}
+              >
+                {products.map((p) => (
+                  <MenuItem key={p.id} value={p.id}>
+                    {p.name} ({p.variants?.length || 0} biến thể)
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth size="small">
               <InputLabel>Biến thể sản phẩm</InputLabel>
               <Select
                 label="Biến thể sản phẩm"
                 value={form.productVariantId}
                 onChange={(e) => setForm((p) => ({ ...p, productVariantId: e.target.value }))}
+                disabled={!form.productId}
               >
-                {rows.map((r) => (
-                  <MenuItem key={r.variantId} value={r.variantId}>
-                    {r.productName} — {r.variantName} (tồn: {r.stockQuantity})
-                  </MenuItem>
-                ))}
+                {variantOptions.map((v) => {
+                  const inv = inventoryRows.find((r) => r.variantId === v.id);
+                  return (
+                    <MenuItem key={v.id} value={v.id}>
+                      {v.name} (tồn: {inv?.stockQuantity ?? 0})
+                    </MenuItem>
+                  );
+                })}
               </Select>
             </FormControl>
+            {!form.productId && (
+              <Typography variant="caption" color="text.secondary">
+                Chọn sản phẩm trước khi chọn biến thể.
+              </Typography>
+            )}
+            {form.productVariantId && (
+              <Typography variant="body2" color="text.secondary">
+                Tồn hiện tại:{" "}
+                {
+                  inventoryRows.find((r) => r.variantId === form.productVariantId)?.stockQuantity ??
+                  0
+                }
+              </Typography>
+            )}
             <TextField
               size="small"
               label="Số lượng nhập"
@@ -1052,193 +1103,47 @@ function ImportTab() {
       </Grid>
       <Grid item xs={12} md={5}>
         <Paper sx={{ p: 2, bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
-          <Typography variant="subtitle2" fontWeight={700} gutterBottom>
-            Gợi ý nhanh
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Sau khi nhập, tồn kho và lịch sử biến động được cập nhật tự động. Bạn có thể xem báo cáo tại tab Báo cáo kho.
-          </Typography>
-        </Paper>
-      </Grid>
-    </Grid>
-  );
-}
-
-function ExportAdjustTab() {
-  const [rows, setRows] = useState([]);
-  const [exportForm, setExportForm] = useState({
-    productVariantId: "",
-    quantity: "",
-    reference: "",
-    note: ""
-  });
-  const [adjForm, setAdjForm] = useState({
-    productVariantId: "",
-    delta: "",
-    note: ""
-  });
-  const [err, setErr] = useState("");
-  const [msg, setMsg] = useState("");
-
-  const load = useCallback(async () => {
-    try {
-      setRows(await fetchInventory());
-    } catch (e) {
-      setErr(getErrorMessage(e, "Không tải tồn kho."));
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  const doExport = async () => {
-    setErr("");
-    setMsg("");
-    const qty = parseInt(exportForm.quantity, 10);
-    if (!exportForm.productVariantId || Number.isNaN(qty) || qty < 1) {
-      setErr("Chọn biến thể và số lượng xuất.");
-      return;
-    }
-    try {
-      await exportStock({
-        productVariantId: exportForm.productVariantId,
-        quantity: qty,
-        reference: exportForm.reference || undefined,
-        note: exportForm.note || undefined
-      });
-      setMsg("Đã ghi nhận xuất kho thủ công.");
-      setExportForm({ productVariantId: "", quantity: "", reference: "", note: "" });
-      await load();
-    } catch (e) {
-      setErr(getErrorMessage(e, "Xuất kho thất bại."));
-    }
-  };
-
-  const doAdj = async () => {
-    setErr("");
-    setMsg("");
-    const d = parseInt(adjForm.delta, 10);
-    if (!adjForm.productVariantId || Number.isNaN(d) || d === 0) {
-      setErr("Chọn biến thể và nhập chênh lệch (+/-).");
-      return;
-    }
-    try {
-      await adjustStock({
-        productVariantId: adjForm.productVariantId,
-        delta: d,
-        note: adjForm.note || undefined
-      });
-      setMsg("Đã điều chỉnh tồn kiểm kê.");
-      setAdjForm({ productVariantId: "", delta: "", note: "" });
-      await load();
-    } catch (e) {
-      setErr(getErrorMessage(e, "Điều chỉnh thất bại."));
-    }
-  };
-
-  return (
-    <Grid container spacing={2}>
-      <Grid item xs={12} md={6}>
-        <Paper sx={{ p: 2.5, bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
-          <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-            Xuất kho thủ công
-          </Typography>
-          {err && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {err}
-            </Alert>
-          )}
-          {msg && (
-            <Alert severity="success" sx={{ mb: 2 }}>
-              {msg}
-            </Alert>
-          )}
-          <Stack spacing={2}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Biến thể</InputLabel>
-              <Select
-                label="Biến thể"
-                value={exportForm.productVariantId}
-                onChange={(e) => setExportForm((p) => ({ ...p, productVariantId: e.target.value }))}
-              >
-                {rows.map((r) => (
-                  <MenuItem key={r.variantId} value={r.variantId}>
-                    {r.productName} — {r.variantName} (tồn: {r.stockQuantity})
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <TextField
-              size="small"
-              type="number"
-              label="Số lượng xuất"
-              value={exportForm.quantity}
-              onChange={(e) => setExportForm((p) => ({ ...p, quantity: e.target.value }))}
-              inputProps={{ min: 1 }}
-              fullWidth
-            />
-            <TextField
-              size="small"
-              label="Tham chiếu (phiếu xuất nội bộ)"
-              value={exportForm.reference}
-              onChange={(e) => setExportForm((p) => ({ ...p, reference: e.target.value }))}
-              fullWidth
-            />
-            <TextField
-              size="small"
-              label="Lý do / ghi chú"
-              value={exportForm.note}
-              onChange={(e) => setExportForm((p) => ({ ...p, note: e.target.value }))}
-              fullWidth
-              multiline
-              minRows={2}
-            />
-            <Button variant="contained" color="warning" onClick={doExport}>
-              Xác nhận xuất
-            </Button>
+          <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1.5 }}>
+            <Typography variant="subtitle2" fontWeight={700}>
+              Danh sách sản phẩm
+            </Typography>
+            <Chip size="small" label={`${visibleProducts.length} sản phẩm`} />
           </Stack>
-        </Paper>
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <Paper sx={{ p: 2.5, bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
-          <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-            Điều chỉnh kiểm kê (+/-)
-          </Typography>
-          <Stack spacing={2}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Biến thể</InputLabel>
-              <Select
-                label="Biến thể"
-                value={adjForm.productVariantId}
-                onChange={(e) => setAdjForm((p) => ({ ...p, productVariantId: e.target.value }))}
-              >
-                {rows.map((r) => (
-                  <MenuItem key={r.variantId} value={r.variantId}>
-                    {r.productName} — {r.variantName}
-                  </MenuItem>
+          <TextField
+            size="small"
+            placeholder="Tìm sản phẩm hoặc biến thể..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            fullWidth
+            sx={{ mb: 1.5 }}
+          />
+          <TableContainer sx={{ maxHeight: 360, border: "1px solid var(--color-border)", borderRadius: 1 }}>
+            <Table size="small" stickyHeader>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Sản phẩm</TableCell>
+                  <TableCell>Biến thể</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {visibleProducts.map((p) => (
+                  <TableRow
+                    key={p.id}
+                    hover
+                    onClick={() => setForm((prev) => ({ ...prev, productId: p.id, productVariantId: "" }))}
+                    sx={{ cursor: "pointer" }}
+                  >
+                    <TableCell>
+                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        {p.name}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>{p.variants?.map((v) => v.name).join(", ") || "—"}</TableCell>
+                  </TableRow>
                 ))}
-              </Select>
-            </FormControl>
-            <TextField
-              size="small"
-              type="number"
-              label="Chênh lệch (dương = tăng, âm = giảm)"
-              value={adjForm.delta}
-              onChange={(e) => setAdjForm((p) => ({ ...p, delta: e.target.value }))}
-              fullWidth
-            />
-            <TextField
-              size="small"
-              label="Ghi chú kiểm kê"
-              value={adjForm.note}
-              onChange={(e) => setAdjForm((p) => ({ ...p, note: e.target.value }))}
-              fullWidth
-            />
-            <Button variant="outlined" onClick={doAdj}>
-              Áp dụng điều chỉnh
-            </Button>
-          </Stack>
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Paper>
       </Grid>
     </Grid>
@@ -1247,21 +1152,36 @@ function ExportAdjustTab() {
 
 function OrdersTab() {
   const [orders, setOrders] = useState([]);
+  const [shipments, setShipments] = useState([]);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(true);
   const [detail, setDetail] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("ACTIVE");
+  const [edit, setEdit] = useState(null);
+  const [form, setForm] = useState({
+    ghnOrderCode: "",
+    status: "IN_TRANSIT",
+    trackingNote: "",
+    shippedDate: "",
+    estimatedDelivery: ""
+  });
 
   const load = useCallback(async () => {
     setLoading(true);
     setErr("");
     try {
-      setOrders(await fetchPackingOrders());
+      const [orderList, shipmentList] = await Promise.all([
+        fetchWorkflowOrders(statusFilter),
+        fetchShipments()
+      ]);
+      setOrders(orderList);
+      setShipments(shipmentList);
     } catch (e) {
       setErr(getErrorMessage(e, "Không tải đơn hàng."));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [statusFilter]);
 
   useEffect(() => {
     load();
@@ -1297,6 +1217,49 @@ function OrdersTab() {
     }
   };
 
+  const openEdit = (shipment) => {
+    setEdit(shipment);
+    setForm({
+      ghnOrderCode: shipment.ghnOrderCode || "",
+      status: shipment.status || "IN_TRANSIT",
+      trackingNote: shipment.trackingNote || "",
+      shippedDate: shipment.shippedDate || "",
+      estimatedDelivery: shipment.estimatedDelivery || ""
+    });
+  };
+
+  const saveShipment = async () => {
+    if (!edit) return;
+    try {
+      await updateShipment(edit.id, {
+        ghnOrderCode: form.ghnOrderCode || undefined,
+        status: form.status,
+        trackingNote: form.trackingNote || undefined,
+        shippedDate: form.shippedDate || undefined,
+        estimatedDelivery: form.estimatedDelivery || undefined
+      });
+      setEdit(null);
+      await load();
+    } catch (e) {
+      setErr(getErrorMessage(e, "Không lưu được trạng thái vận chuyển."));
+    }
+  };
+
+  const syncByOrder = async (orderId) => {
+    try {
+      await syncShipmentByOrder(orderId);
+      await load();
+    } catch (e) {
+      setErr(getErrorMessage(e, "Không đồng bộ được trạng thái GHN."));
+    }
+  };
+
+  const shipmentMap = useMemo(() => {
+    const map = new Map();
+    shipments.forEach((s) => map.set(s.orderId, s));
+    return map;
+  }, [shipments]);
+
   return (
     <Box>
       {err && (
@@ -1305,16 +1268,37 @@ function OrdersTab() {
         </Alert>
       )}
       <Paper sx={{ p: 2, mb: 2, bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
-        <Button variant="outlined" onClick={load} disabled={loading}>
-          Làm mới danh sách
-        </Button>
+        <Stack direction={{ xs: "column", md: "row" }} spacing={1.5} alignItems={{ md: "center" }}>
+          <FormControl size="small" sx={{ minWidth: 260 }}>
+            <InputLabel>Lọc theo luồng xử lý</InputLabel>
+            <Select
+              label="Lọc theo luồng xử lý"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <MenuItem value="ACTIVE">Đang xử lý (mới đến đang vận chuyển)</MenuItem>
+              <MenuItem value="ALL">Tất cả đơn trong workflow kho</MenuItem>
+              <MenuItem value="CREATED">Chờ xác nhận (CREATED)</MenuItem>
+              <MenuItem value="PAID">Đã thanh toán (PAID)</MenuItem>
+              <MenuItem value="CONFIRMED">Đã xác nhận, chờ tạo vận đơn</MenuItem>
+              <MenuItem value="SHIPPED">Đang vận chuyển</MenuItem>
+              <MenuItem value="DELIVERED">Giao thành công</MenuItem>
+              <MenuItem value="CANCELLED">Đã hủy</MenuItem>
+            </Select>
+          </FormControl>
+          <Button variant="outlined" onClick={load} disabled={loading}>
+            Làm mới danh sách
+          </Button>
+        </Stack>
       </Paper>
       <TableContainer component={Paper} sx={{ bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
         <Table size="small">
           <TableHead>
             <TableRow>
               <TableCell>Mã đơn</TableCell>
+              <TableCell>Thanh toán</TableCell>
               <TableCell>Trạng thái</TableCell>
+              <TableCell>Vận chuyển</TableCell>
               <TableCell>Thời điểm</TableCell>
               <TableCell>Địa chỉ giao</TableCell>
               <TableCell align="right">Thao tác</TableCell>
@@ -1323,7 +1307,7 @@ function OrdersTab() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={5}>
+                <TableCell colSpan={7}>
                   <LinearProgress />
                 </TableCell>
               </TableRow>
@@ -1332,12 +1316,18 @@ function OrdersTab() {
                 <TableRow key={o.id} hover>
                   <TableCell>{o.code}</TableCell>
                   <TableCell>
+                    <Chip size="small" label={o.paymentMethod || "—"} />
+                  </TableCell>
+                  <TableCell>
                     <Chip
                       size="small"
                       label={
                         o.status && typeof o.status === "object" ? o.status.displayName ?? o.status.name : String(o.status ?? "")
                       }
                     />
+                  </TableCell>
+                  <TableCell>
+                    <Chip size="small" color={o.shipmentCreated ? "success" : "default"} label={o.shipmentCreated ? "Đã tạo vận đơn" : "Chưa tạo vận đơn"} />
                   </TableCell>
                   <TableCell>{o.orderAt ? String(o.orderAt).replace("T", " ").slice(0, 19) : "—"}</TableCell>
                   <TableCell sx={{ maxWidth: 280 }}>
@@ -1353,7 +1343,7 @@ function OrdersTab() {
                       size="small"
                       variant="outlined"
                       sx={{ mr: 1 }}
-                      disabled={o.statusCode !== "PAID" && o.statusCode !== "CONFIRMED"}
+                      disabled={o.statusCode !== "CREATED" && o.statusCode !== "PAID" && o.statusCode !== "CONFIRMED"}
                       onClick={() => confirm(o.id)}
                     >
                       Xác nhận
@@ -1365,6 +1355,23 @@ function OrdersTab() {
                       onClick={() => createWaybill(o.id)}
                     >
                       {o.shipmentCreated ? "Đã có vận đơn" : "Tạo vận đơn GHN"}
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      sx={{ ml: 1 }}
+                      disabled={!shipmentMap.get(o.id)}
+                      onClick={() => openEdit(shipmentMap.get(o.id))}
+                    >
+                      Tracking
+                    </Button>
+                    <Button
+                      size="small"
+                      sx={{ ml: 1 }}
+                      disabled={!shipmentMap.get(o.id)}
+                      onClick={() => syncByOrder(o.id)}
+                    >
+                      Đồng bộ GHN
                     </Button>
                     <Button
                       size="small"
@@ -1406,122 +1413,6 @@ function OrdersTab() {
           <Button onClick={() => setDetail(null)}>Đóng</Button>
         </DialogActions>
       </Dialog>
-    </Box>
-  );
-}
-
-function ShippingTab() {
-  const [list, setList] = useState([]);
-  const [err, setErr] = useState("");
-  const [edit, setEdit] = useState(null);
-  const [form, setForm] = useState({
-    ghnOrderCode: "",
-    status: "IN_TRANSIT",
-    trackingNote: "",
-    shippedDate: "",
-    estimatedDelivery: ""
-  });
-
-  const load = useCallback(async () => {
-    setErr("");
-    try {
-      setList(await fetchShipments());
-    } catch (e) {
-      setErr(getErrorMessage(e, "Không tải vận chuyển."));
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  const openEdit = (row) => {
-    setEdit(row);
-    setForm({
-      ghnOrderCode: row.ghnOrderCode || "",
-      status: row.status || "IN_TRANSIT",
-      trackingNote: row.trackingNote || "",
-      shippedDate: row.shippedDate || "",
-      estimatedDelivery: row.estimatedDelivery || ""
-    });
-  };
-
-  const save = async () => {
-    if (!edit) return;
-    try {
-      await updateShipment(edit.id, {
-        ghnOrderCode: form.ghnOrderCode || undefined,
-        status: form.status,
-        trackingNote: form.trackingNote || undefined,
-        shippedDate: form.shippedDate ? form.shippedDate : undefined,
-        estimatedDelivery: form.estimatedDelivery ? form.estimatedDelivery : undefined
-      });
-      setEdit(null);
-      await load();
-    } catch (e) {
-      setErr(getErrorMessage(e, "Không lưu được."));
-    }
-  };
-
-  const syncByOrder = async (orderId) => {
-    try {
-      await syncShipmentByOrder(orderId);
-      await load();
-    } catch (e) {
-      setErr(getErrorMessage(e, "Không đồng bộ được trạng thái GHN."));
-    }
-  };
-
-  return (
-    <Box>
-      {err && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {err}
-        </Alert>
-      )}
-      <Paper sx={{ p: 2, mb: 2, bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
-        <Button variant="outlined" onClick={load}>
-          Làm mới
-        </Button>
-      </Paper>
-      <TableContainer component={Paper} sx={{ bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>Mã đơn</TableCell>
-              <TableCell>Địa chỉ</TableCell>
-              <TableCell>Mã GHN</TableCell>
-              <TableCell>Trạng thái</TableCell>
-              <TableCell align="right">Thao tác</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {list.map((s) => (
-              <TableRow key={s.id} hover>
-                <TableCell>{s.orderCode}</TableCell>
-                <TableCell sx={{ maxWidth: 220 }}>
-                  <Typography variant="body2" noWrap title={s.shippingAddress}>
-                    {s.shippingAddress}
-                  </Typography>
-                </TableCell>
-                <TableCell>{s.ghnOrderCode || "—"}</TableCell>
-                <TableCell>
-                  <Chip size="small" label={s.status} />
-                </TableCell>
-                <TableCell align="right">
-                  <Button size="small" variant="outlined" onClick={() => openEdit(s)}>
-                    Cập nhật tracking
-                  </Button>
-                  <Button size="small" sx={{ ml: 1 }} onClick={() => syncByOrder(s.orderId)}>
-                    Đồng bộ GHN
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
       <Dialog open={Boolean(edit)} onClose={() => setEdit(null)} maxWidth="sm" fullWidth>
         <DialogTitle>Cập nhật vận chuyển</DialogTitle>
         <DialogContent dividers>
@@ -1578,7 +1469,7 @@ function ShippingTab() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEdit(null)}>Hủy</Button>
-          <Button variant="contained" onClick={save}>
+          <Button variant="contained" onClick={saveShipment}>
             Lưu
           </Button>
         </DialogActions>

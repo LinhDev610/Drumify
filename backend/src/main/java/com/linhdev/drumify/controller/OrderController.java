@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.linhdev.drumify.dto.ApiResponse;
@@ -29,6 +30,13 @@ public class OrderController {
     ApiResponse<List<OrderResponse>> packingOrders() {
         return ApiResponse.<List<OrderResponse>>builder()
                 .result(orderService.listOrdersForPacking())
+                .build();
+    }
+
+    @GetMapping("/orders/workflow")
+    ApiResponse<List<OrderResponse>> workflowOrders(@RequestParam(value = "status", required = false) String status) {
+        return ApiResponse.<List<OrderResponse>>builder()
+                .result(orderService.listOrdersForWorkflow(status))
                 .build();
     }
 

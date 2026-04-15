@@ -3,6 +3,7 @@ package com.linhdev.drumify.mapper;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -25,6 +26,9 @@ public interface OrderMapper {
     @Mapping(target = "items", expression = "java(toOrderItemResponses(order.getOrderItem()))")
     @Mapping(target = "statusCode", expression = "java(order.getStatus() != null ? order.getStatus().name() : null)")
     @Mapping(
+            target = "paymentMethod",
+            expression = "java(order.getPayment() != null ? order.getPayment().getPaymentMethod() : null)")
+    @Mapping(
             target = "shipmentCreated",
             expression =
                     "java(order.getShipment() != null && order.getShipment().getOrderCode() != null && !order.getShipment().getOrderCode().isBlank())")
@@ -42,7 +46,7 @@ public interface OrderMapper {
         if (address == null) return "";
         return String.join(
                 ", ",
-                java.util.stream.Stream.of(
+                Stream.of(
                                 address.getAddress(),
                                 address.getWardName(),
                                 address.getDistrictName(),

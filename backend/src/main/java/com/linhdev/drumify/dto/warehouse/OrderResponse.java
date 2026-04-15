@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.linhdev.drumify.enums.OrderStatus;
+import com.linhdev.drumify.enums.PaymentMethod;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -26,5 +27,6 @@ public class OrderResponse {
     String shippingSummary;
     boolean shipmentCreated;
     String ghnOrderCode;
+    PaymentMethod paymentMethod;
     List<OrderItemResponse> items;
 }
