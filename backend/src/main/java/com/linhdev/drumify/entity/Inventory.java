@@ -26,6 +26,9 @@ public class Inventory {
     @Column(name = "last_updated", nullable = false)
     LocalDateTime lastUpdated;
 
+    @Column(name = "low_stock_threshold")
+    Integer lowStockThreshold; // Ngưỡng cảnh báo tồn kho
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_variant_id")
     ProductVariant productVariant;

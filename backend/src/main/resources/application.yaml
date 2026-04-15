@@ -32,6 +32,12 @@ ghn:
   url: https://dev-online-gateway.ghn.vn
   token-api: ad4c178c-8fc0-11f0-bdaf-ae7fa045a771
   shop-id: 199931
+  from-name: Drumify
+  from-phone: 01234567894
+  from-address: 173 Duong Vo Van Ngan, Thu Duc
+  from-ward-code: "20308"
+  from-district-id: 1454
+  webhook-secret: DrumifyWebhookSecret2026
 cloudinary:
   cloud-name: dmr0xjzld
   api-key: 831846789163981

@@ -72,7 +72,10 @@ export default function Sidebar() {
         <List sx={{ px: 2 }}>
           {filteredMenu.map((item) => {
             const Icon = item.icon;
-            const active = location.pathname === item.path;
+            const active =
+              item.path === "/admin"
+                ? location.pathname === "/admin" || location.pathname === "/admin/dashboard"
+                : location.pathname === item.path || location.pathname.startsWith(`${item.path}/`);
             
             return (
               <ListItem key={item.path} disablePadding sx={{ mb: 1 }}>

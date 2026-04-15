@@ -15,10 +15,11 @@ import PeopleIcon from "@mui/icons-material/People";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import { useTranslation } from "react-i18next";
 import { useKeycloakAuth } from "../../../context/KeycloakAuthContext";
+import WarehouseDashboard from "../Warehouse/WarehouseDashboard";
 
-export default function AdminDashboard() {
+function DefaultAdminDashboard() {
   const { t } = useTranslation();
-  const { tokenParsed, roles, groups } = useKeycloakAuth();
+  const { tokenParsed } = useKeycloakAuth();
 
   const stats = [
     { 
@@ -168,4 +169,15 @@ export default function AdminDashboard() {
       `}} />
     </Box>
   );
+}
+
+export default function AdminDashboard() {
+  const { roles, groups } = useKeycloakAuth();
+  if (roles.includes("ADMIN") || roles.includes("DIRECTOR")) {
+    return <DefaultAdminDashboard />;
+  }
+  if (groups.includes("WAREHOUSE")) {
+    return <WarehouseDashboard />;
+  }
+  return <DefaultAdminDashboard />;
 }

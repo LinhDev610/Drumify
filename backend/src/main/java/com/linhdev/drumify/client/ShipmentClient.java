@@ -8,7 +8,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import com.linhdev.drumify.dto.shipment.GhnApiResponse;
+import com.linhdev.drumify.dto.shipment.GhnCreateOrderDataResponse;
+import com.linhdev.drumify.dto.shipment.GhnCreateOrderRequest;
 import com.linhdev.drumify.dto.shipment.GhnDistrictResponse;
+import com.linhdev.drumify.dto.shipment.GhnOrderDetailResponse;
 import com.linhdev.drumify.dto.shipment.GhnProvinceResponse;
 import com.linhdev.drumify.dto.shipment.GhnWardResponse;
 
@@ -55,5 +58,41 @@ public class ShipmentClient {
                 .header("Token", token)
                 .retrieve()
                 .body(new ParameterizedTypeReference<GhnApiResponse<List<GhnWardResponse>>>() {});
+    }
+
+    public GhnApiResponse<GhnCreateOrderDataResponse> createOrder(
+            String token, long shopId, GhnCreateOrderRequest request) {
+        return restClient
+                .post()
+                .uri("/shiip/public-api/v2/shipping-order/create")
+                .header("Token", token)
+                .header("ShopId", String.valueOf(shopId))
+                .body(request)
+                .retrieve()
+                .body(new ParameterizedTypeReference<GhnApiResponse<GhnCreateOrderDataResponse>>() {});
+    }
+
+    public GhnApiResponse<GhnOrderDetailResponse> getOrderDetailByOrderCode(
+            String token, long shopId, String orderCode) {
+        return restClient
+                .post()
+                .uri("/shiip/public-api/v2/shipping-order/detail")
+                .header("Token", token)
+                .header("ShopId", String.valueOf(shopId))
+                .body(java.util.Map.of("order_code", orderCode))
+                .retrieve()
+                .body(new ParameterizedTypeReference<GhnApiResponse<GhnOrderDetailResponse>>() {});
+    }
+
+    public GhnApiResponse<GhnOrderDetailResponse> getOrderDetailByClientCode(
+            String token, long shopId, String clientOrderCode) {
+        return restClient
+                .post()
+                .uri("/shiip/public-api/v2/shipping-order/detail-by-client-code")
+                .header("Token", token)
+                .header("ShopId", String.valueOf(shopId))
+                .body(java.util.Map.of("client_order_code", clientOrderCode))
+                .retrieve()
+                .body(new ParameterizedTypeReference<GhnApiResponse<GhnOrderDetailResponse>>() {});
     }
 }

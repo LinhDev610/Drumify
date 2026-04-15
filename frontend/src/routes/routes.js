@@ -12,6 +12,7 @@ import AdminDashboard from "../pages/Admin/Dashboard/AdminDashboard";
 import HRWorkspace from "../pages/Admin/ManageStaffAccounts/HRWorkspace";
 import CustomerManagement from "../pages/Admin/ManageCustomerAccounts/CustomerManagement";
 import AuthRedirectHandler from "../components/Auth/AuthRedirectHandler";
+import WarehouseWorkspace from "../pages/Admin/Warehouse/WarehouseWorkspace";
 
 export default function AppRoutes() {
   return (
@@ -50,6 +51,15 @@ export default function AppRoutes() {
             <Route path="hr/payroll" element={<HRWorkspace />} />
             <Route path="hr/reports" element={<HRWorkspace />} />
             <Route path="users" element={<CustomerManagement />} />
+            <Route path="products" element={<WarehouseWorkspace />} />
+            <Route path="categories" element={<WarehouseWorkspace />} />
+            <Route path="inventory" element={<WarehouseWorkspace />} />
+            <Route path="inventory/import" element={<WarehouseWorkspace />} />
+            <Route path="inventory/export" element={<WarehouseWorkspace />} />
+            <Route path="inventory/suppliers" element={<WarehouseWorkspace />} />
+            <Route path="inventory/reports" element={<WarehouseWorkspace />} />
+            <Route path="orders" element={<WarehouseWorkspace />} />
+            <Route path="shipping" element={<WarehouseWorkspace />} />
             <Route path="profile" element={<Profile />} />
             <Route path="*" element={<AdminDashboard />} />
           </Route>

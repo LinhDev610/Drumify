@@ -29,7 +29,7 @@ Drumify áp dụng mô hình phân quyền kết hợp **Role-Based Access Contr
 | Dashboard | ✅ Full | ✅ KPI | ✅ CS | ✅ HR | ✅ Kho | ✅ Mkt |
 | Quản lý Khách hàng | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Quản lý Nhân sự | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
-| Sản phẩm / Danh mục | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Sản phẩm / Danh mục | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ |
 | Đơn hàng | ✅ | ❌ | ✅ (hỗ trợ) | ❌ | ✅ (đóng gói) | ❌ |
 | Kho hàng | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ |
 | Marketing / Voucher | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
@@ -111,14 +111,16 @@ Drumify áp dụng mô hình phân quyền kết hợp **Role-Based Access Contr
 | # | Tab | Path | Mô tả |
 |---|-----|------|-------|
 | 1 | 🏠 Dashboard Kho | `/admin` | Tồn kho, hàng sắp hết, đơn cần xử lý |
-| 2 | 📦 Tồn kho | `/admin/inventory` | Danh sách SP, tồn kho, cảnh báo mức thấp |
-| 3 | 📥 Nhập hàng | `/admin/inventory/import` | Phiếu nhập kho, nhà cung cấp |
-| 4 | 📤 Xuất hàng / Giao | `/admin/inventory/export` | Xử lý đơn xuất, xác nhận giao hàng |
-| 5 | 🛒 Đơn hàng cần xử lý | `/admin/orders` | Đơn chờ đóng gói, chuẩn bị hàng |
-| 6 | 🚚 Vận chuyển | `/admin/shipping` | Theo dõi lô hàng, đơn vị vận chuyển |
-| 7 | 🏭 Nhà cung cấp | `/admin/inventory/suppliers` | Danh sách nhà cung cấp, liên hệ |
-| 8 | 📊 Báo cáo Kho | `/admin/inventory/reports` | Báo cáo nhập/xuất/tồn theo kỳ |
-| 9 | 👤 Hồ sơ của tôi | `/admin/profile` | Thông tin cá nhân |
+| 2 | 📦 Quản lý Sản phẩm | `/admin/products` | Tạo mới/cập nhật sản phẩm, cấu hình biến thể giá |
+| 3 | 🗂️ Danh mục | `/admin/categories` | Tạo/gán cây danh mục cho sản phẩm |
+| 4 | 📦 Tồn kho | `/admin/inventory` | Danh sách SP, tồn kho, cảnh báo mức thấp |
+| 5 | 📥 Nhập hàng | `/admin/inventory/import` | Phiếu nhập kho, nhà cung cấp |
+| 6 | 📤 Xuất hàng / Giao | `/admin/inventory/export` | Xử lý đơn xuất, xác nhận giao hàng |
+| 7 | 🛒 Đơn hàng cần xử lý | `/admin/orders` | Xác nhận đơn, tạo vận đơn GHN, chuẩn bị hàng |
+| 8 | 🚚 Vận chuyển | `/admin/shipping` | Theo dõi lô hàng, đồng bộ trạng thái GHN |
+| 9 | 🏭 Nhà cung cấp | `/admin/inventory/suppliers` | Danh sách nhà cung cấp, liên hệ |
+| 10 | 📊 Báo cáo Kho | `/admin/inventory/reports` | Báo cáo nhập/xuất/tồn theo kỳ |
+| 11 | 👤 Hồ sơ của tôi | `/admin/profile` | Thông tin cá nhân |
 
 ---
 

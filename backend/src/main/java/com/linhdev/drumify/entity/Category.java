@@ -35,8 +35,8 @@ public class Category {
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+    Double taxRate;
 
-    // Categories
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     Category parentCategory;
@@ -44,14 +44,12 @@ public class Category {
     @OneToMany(mappedBy = "parentCategory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<Category> subCategories;
 
-    // Products
     @OneToMany(
             mappedBy = "category",
             cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             fetch = FetchType.LAZY)
     List<Product> products;
 
-    // Promotions/Vouchers scope
     @ManyToMany(mappedBy = "categoryApply", fetch = FetchType.LAZY)
     @Builder.Default
     Set<Promotion> promotions = new HashSet<>();

@@ -27,7 +27,8 @@ Hệ thống được thiết kế theo mô hình **Client-Server** hiện đạ
 
 ## 🔐 Hệ Thống Phân Quyền
 
-Drumify áp dụng mô hình kết hợp **RBAC + GBAC** với 4 Roles (CUSTOMER, STAFF, ADMIN, DIRECTOR) và 4 Groups (CS, HR, WAREHOUSE, MARKETING). Sidebar và trang quản lý được hiển thị động dựa trên vai trò người dùng.
+Drumify áp dụng mô hình kết hợp **RBAC + GBAC** với 4 Roles (CUSTOMER, STAFF, ADMIN, DIRECTOR) và 4 Groups (CS, HR, WAREHOUSE, MARKETING). Sidebar và trang quản lý được hiển thị động dựa trên vai trò người dùng.  
+**STAFF + WAREHOUSE** có quyền vận hành danh mục sản phẩm (`/admin/products`, `/admin/categories`) bên cạnh các nghiệp vụ kho.
 
 👉 **[Xem chi tiết thiết kế phân quyền, sidebar & phạm vi quản lý](./ROLES_AND_PERMISSIONS.md)**
 
@@ -61,6 +62,8 @@ Drumify tích hợp API của **Giao Hàng Nhanh (GHN)** để cung cấp trải
 - **Dữ liệu chuẩn**: Đồng bộ danh sách Tỉnh/Thành, Quận/Huyện, Phường/Xã trực tiếp từ hệ thống GHN.
 - **Đa địa chỉ**: Hỗ trợ lưu nhiều địa chỉ với tính năng đặt địa chỉ mặc định.
 - **Validation chặt chẽ**: Kiểm tra tính hợp lệ của số điện thoại và các trường thông tin địa lý.
+- **Kho vận 2 bước**: Staff kho xác nhận đơn (`confirm`) -> tạo vận đơn GHN thật (`create shipment`) với cơ chế retry + idempotency.
+- **Webhook GHN**: Tự động đồng bộ trạng thái vận chuyển về đơn hàng nội bộ khi có sự kiện cập nhật.
 
 ---
 

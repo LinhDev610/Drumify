@@ -16,6 +16,7 @@
 
 -   **Bảo mật & Định danh (IAM)**: Tích hợp sâu với **Keycloak** (OIDC). Sử dụng `CustomAuthoritiesConverter` để ánh xạ chính xác quyền hạn (RBAC) và tích hợp **Custom Event Listener** để đồng bộ hóa danh tính người dùng tự động giữa Keycloak và Database hệ thống.
 -   **Service-to-Service Communication**: Sử dụng **OpenFeign** để tương tác mượt mà với Keycloak Admin APIs (tạo user, quản lý token).
+-   **Warehouse + GHN Fulfillment Flow**: Hỗ trợ luồng 2 bước cho kho (`confirm order` -> `create GHN shipment`), retry/idempotency khi tạo vận đơn và webhook tự đồng bộ trạng thái GHN về đơn hàng.
 -   **Kiến trúc Phân lớp (Layered Architecture)**: Đảm bảo Separation of Concerns giữa Controller, Service, Mapping và Repository.
 -   **Chuẩn hóa dữ liệu & API**:
     *   Sử dụng **MapStruct** & **Lombok** để tối ưu hóa code.
@@ -58,6 +59,19 @@ spring:
     password: root
 ```
 👉 [Chi tiết cấu hình MySQL](./MYSQL.md)
+
+### 2.1 Cấu hình GHN cho luồng kho vận
+```yaml
+ghn:
+  token-api: <ghn-token>
+  shop-id: <ghn-shop-id>
+  from-name: Drumify Warehouse
+  from-phone: 0900000000
+  from-address: <dia-chi-kho>
+  from-ward-code: "<ward-code>"
+  from-district-id: <district-id>
+  webhook-secret: <shared-secret>
+```
 
 ### 3. Cấu hình Keycloak
 Đảm bảo bạn đã Import realm cấu hình của dự án.

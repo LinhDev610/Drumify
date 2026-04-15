@@ -1,6 +1,7 @@
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import InventoryIcon from "@mui/icons-material/Inventory";
+import CategoryIcon from "@mui/icons-material/Category";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 import CampaignIcon from "@mui/icons-material/Campaign";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
@@ -13,6 +14,10 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import PaymentsIcon from "@mui/icons-material/Payments";
 import InsightsIcon from "@mui/icons-material/Insights";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import InputIcon from "@mui/icons-material/Input";
+import OutputIcon from "@mui/icons-material/Output";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import StorefrontIcon from "@mui/icons-material/Storefront";
 
 export const adminSidebarConfig = [
   {
@@ -72,9 +77,37 @@ export const adminSidebarConfig = [
     groups: ["HR"],
   },
   {
-    title: "sidebar.inventory",
+    title: "sidebar.products",
+    path: "/admin/products",
+    icon: InventoryIcon,
+    roles: ["ADMIN"],
+    groups: ["WAREHOUSE"],
+  },
+  {
+    title: "sidebar.categories",
+    path: "/admin/categories",
+    icon: CategoryIcon,
+    roles: ["ADMIN"],
+    groups: ["WAREHOUSE"],
+  },
+  {
+    title: "sidebar.wh_stock",
     path: "/admin/inventory",
     icon: InventoryIcon,
+    roles: ["ADMIN"],
+    groups: ["WAREHOUSE"],
+  },
+  {
+    title: "sidebar.wh_import",
+    path: "/admin/inventory/import",
+    icon: InputIcon,
+    roles: ["ADMIN"],
+    groups: ["WAREHOUSE"],
+  },
+  {
+    title: "sidebar.wh_export",
+    path: "/admin/inventory/export",
+    icon: OutputIcon,
     roles: ["ADMIN"],
     groups: ["WAREHOUSE"],
   },
@@ -84,6 +117,27 @@ export const adminSidebarConfig = [
     icon: ShoppingBasketIcon,
     roles: ["ADMIN"],
     groups: ["CASHIER", "WAREHOUSE"],
+  },
+  {
+    title: "sidebar.wh_shipping",
+    path: "/admin/shipping",
+    icon: LocalShippingIcon,
+    roles: ["ADMIN"],
+    groups: ["WAREHOUSE"],
+  },
+  {
+    title: "sidebar.wh_suppliers",
+    path: "/admin/inventory/suppliers",
+    icon: StorefrontIcon,
+    roles: ["ADMIN"],
+    groups: ["WAREHOUSE"],
+  },
+  {
+    title: "sidebar.wh_reports",
+    path: "/admin/inventory/reports",
+    icon: AssessmentIcon,
+    roles: ["ADMIN"],
+    groups: ["WAREHOUSE"],
   },
   {
     title: "sidebar.marketing",

@@ -13,7 +13,9 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-    private final String[] PUBLIC_ENDPOINTS = {"/register", "/internal/sync", "/location/**"};
+    private final String[] PUBLIC_ENDPOINTS = {
+        "/register", "/internal/sync", "/location/**", "/warehouse/shipments/ghn/webhook"
+    };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
