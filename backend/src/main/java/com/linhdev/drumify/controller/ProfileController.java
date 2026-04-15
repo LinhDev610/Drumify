@@ -94,6 +94,20 @@ public class ProfileController {
                 .build();
     }
 
+    @GetMapping("/profiles/staff")
+    ApiResponse<List<ProfileResponse>> getStaffProfiles() {
+        return ApiResponse.<List<ProfileResponse>>builder()
+                .result(profileService.getStaffProfiles())
+                .build();
+    }
+
+    @GetMapping("/profiles/customers")
+    ApiResponse<List<ProfileResponse>> getCustomerProfiles() {
+        return ApiResponse.<List<ProfileResponse>>builder()
+                .result(profileService.getCustomerProfiles())
+                .build();
+    }
+
     @GetMapping("/roles")
     ApiResponse<List<RoleRepresentation>> getRoles() {
         return ApiResponse.<List<RoleRepresentation>>builder()
@@ -121,6 +135,22 @@ public class ProfileController {
         profileService.assignGroups(userId, groupIds);
         return ApiResponse.<String>builder()
                 .result("Groups assigned successfully")
+                .build();
+    }
+
+    @PatchMapping("/profiles/{userId}/lock")
+    ApiResponse<String> lockAccount(@PathVariable String userId) {
+        profileService.setAccountLocked(userId, true);
+        return ApiResponse.<String>builder()
+                .result("Account locked successfully")
+                .build();
+    }
+
+    @PatchMapping("/profiles/{userId}/unlock")
+    ApiResponse<String> unlockAccount(@PathVariable String userId) {
+        profileService.setAccountLocked(userId, false);
+        return ApiResponse.<String>builder()
+                .result("Account unlocked successfully")
                 .build();
     }
 }

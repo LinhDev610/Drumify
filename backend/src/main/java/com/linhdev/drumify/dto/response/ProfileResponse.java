@@ -24,6 +24,7 @@ public class ProfileResponse {
     String fullName;
     String phoneNumber;
     String avatarUrl;
+    Boolean accountEnabled;
     Set<AddressResponse> addresses;
     List<String> roles;
     List<String> groups;

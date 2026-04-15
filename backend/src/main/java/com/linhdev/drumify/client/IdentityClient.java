@@ -1,6 +1,7 @@
 package com.linhdev.drumify.client;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
@@ -68,4 +69,13 @@ public interface IdentityClient {
     @GetMapping(value = "/admin/realms/drumify-dev/users/{userId}/groups")
     List<GroupRepresentation> getUserGroups(
             @RequestHeader("authorization") String token, @PathVariable("userId") String userId);
+
+    @GetMapping(value = "/admin/realms/drumify-dev/users/{userId}")
+    UserRepresentation getUser(@RequestHeader("authorization") String token, @PathVariable("userId") String userId);
+
+    @PutMapping(value = "/admin/realms/drumify-dev/users/{userId}")
+    ResponseEntity<?> updateUser(
+            @RequestHeader("authorization") String token,
+            @PathVariable("userId") String userId,
+            @RequestBody Map<String, Object> payload);
 }

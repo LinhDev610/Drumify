@@ -17,12 +17,28 @@ export const getUsers = async () => {
     return await httpClient.get(API.PROFILES);
 }
 
+export const getStaff = async () => {
+    return await httpClient.get(API.STAFF_LIST);
+}
+
+export const getCustomers = async () => {
+    return await httpClient.get(API.CUSTOMER_LIST);
+}
+
 export const assignRoles = async (userId, roles) => {
     return await httpClient.post(API.USER_ROLES(userId), roles);
 }
 
 export const assignGroups = async (userId, groups) => {
     return await httpClient.post(API.USER_GROUPS(userId), groups);
+}
+
+export const lockUserAccount = async (userId) => {
+    return await httpClient.patch(API.USER_LOCK(userId));
+}
+
+export const unlockUserAccount = async (userId) => {
+    return await httpClient.patch(API.USER_UNLOCK(userId));
 }
 
 export const getRoles = async () => {

@@ -16,13 +16,20 @@ import {
   InputBase,
   CircularProgress,
   Alert,
-  Snackbar
+  Snackbar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import EditIcon from "@mui/icons-material/Edit";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import BlockIcon from "@mui/icons-material/Block";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import { getUsers, assignRoles, assignGroups, getRoles, getGroups, createStaff } from "../../../services/userService";
+import { getStaff, assignRoles, assignGroups, getRoles, getGroups, createStaff, lockUserAccount, unlockUserAccount } from "../../../services/userService";
 import UserEditModal from "./components/UserEditModal";
 import UserCreationModal from "./components/UserCreationModal";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
@@ -38,6 +45,7 @@ export default function HRManagement() {
   const [rolesList, setRolesList] = useState([]);
   const [groupsList, setGroupsList] = useState([]);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  const [viewUser, setViewUser] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -60,7 +68,7 @@ export default function HRManagement() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await getUsers();
+      const response = await getStaff();
       setUsers(response.data.result || []);
     } catch (err) {
       setError("Failed to fetch employees. Please try again later.");
@@ -93,6 +101,33 @@ export default function HRManagement() {
     } catch (err) {
       setSnackbar({ open: true, message: "Failed to create staff account", severity: "error" });
       throw err;
+    }
+  };
+
+  const handleToggleLock = async (user) => {
+    const userId = user.userId || user.id;
+    const isEnabled = user.accountEnabled !== false;
+    if (!userId) return;
+
+    try {
+      if (isEnabled) {
+        await lockUserAccount(userId);
+      } else {
+        await unlockUserAccount(userId);
+      }
+      setSnackbar({
+        open: true,
+        message: isEnabled ? "Account locked successfully" : "Account unlocked successfully",
+        severity: "success"
+      });
+      fetchUsers();
+    } catch (err) {
+      setSnackbar({
+        open: true,
+        message: "Failed to update account status",
+        severity: "error"
+      });
+      console.error(err);
     }
   };
 
@@ -171,12 +206,13 @@ export default function HRManagement() {
               <TableCell sx={{ fontWeight: 700 }}>{t('hr.table.user')}</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>{t('hr.table.roles')}</TableCell>
               <TableCell sx={{ fontWeight: 700 }}>{t('hr.table.groups')}</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>{t('customers.table.status', 'Status')}</TableCell>
               <TableCell sx={{ fontWeight: 700 }} align="right">{t('hr.table.actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {filteredUsers.map((user) => (
-              <TableRow key={user.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+              <TableRow key={user.userId || user.id || user.username || user.email} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     <Avatar src={user.avatar} sx={{ width: 40, height: 40, border: '2px solid var(--color-border)' }}>
@@ -195,33 +231,60 @@ export default function HRManagement() {
                 <TableCell>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {user.roles?.map(role => (
-                      <Chip key={role} label={role} size="small" variant="outlined" color="primary" sx={{ fontSize: '0.7rem' }} />
+                      <Chip key={`${user.userId || user.username || user.email}-role-${role}`} label={role} size="small" variant="outlined" color="primary" sx={{ fontSize: '0.7rem' }} />
                     ))}
                   </Box>
                 </TableCell>
                 <TableCell>
                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {user.groups?.map(group => (
-                      <Chip key={group} label={group} size="small" variant="outlined" sx={{ fontSize: '0.7rem' }} />
+                      <Chip key={`${user.userId || user.username || user.email}-group-${group}`} label={group} size="small" variant="outlined" sx={{ fontSize: '0.7rem' }} />
                     ))}
                   </Box>
                 </TableCell>
+                <TableCell>
+                  {user.accountEnabled === false ? (
+                    <Chip label="Locked" size="small" color="error" variant="outlined" sx={{ fontSize: '0.7rem' }} />
+                  ) : (
+                    <Chip label="Active" size="small" color="success" variant="outlined" sx={{ fontSize: '0.7rem' }} />
+                  )}
+                </TableCell>
                 <TableCell align="right">
-                  <Tooltip title={t('hr.edit_permissions')}>
-                    <IconButton 
-                      size="small" 
-                      onClick={() => setEditUser(user)}
-                      sx={{ color: 'var(--color-primary)', bgcolor: 'rgba(212, 175, 55, 0.1)', '&:hover': { bgcolor: 'rgba(212, 175, 55, 0.2)' } }}
-                    >
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                    <Tooltip title="View Profile">
+                      <IconButton 
+                        size="small"
+                        onClick={() => setViewUser(user)}
+                        sx={{ color: 'var(--color-primary)', bgcolor: 'rgba(212, 175, 55, 0.1)', '&:hover': { bgcolor: 'rgba(212, 175, 55, 0.2)' } }}
+                      >
+                        <VisibilityIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title={user.accountEnabled === false ? "Unlock Account" : "Lock Account"}>
+                      <IconButton 
+                        size="small"
+                        onClick={() => handleToggleLock(user)}
+                        sx={{ color: '#f44336', bgcolor: 'rgba(244, 67, 54, 0.1)', '&:hover': { bgcolor: 'rgba(244, 67, 54, 0.2)' } }}
+                      >
+                        <BlockIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title={t('hr.edit_permissions')}>
+                      <IconButton 
+                        size="small" 
+                        onClick={() => setEditUser(user)}
+                        sx={{ color: 'var(--color-primary)', bgcolor: 'rgba(212, 175, 55, 0.1)', '&:hover': { bgcolor: 'rgba(212, 175, 55, 0.2)' } }}
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
                 </TableCell>
               </TableRow>
             ))}
             {filteredUsers.length === 0 && (
               <TableRow>
-                <TableCell colSpan={4} align="center" sx={{ py: 8 }}>
+                <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
                   <Typography color="text.secondary">No employees found matching your search.</Typography>
                 </TableCell>
               </TableRow>
@@ -229,6 +292,32 @@ export default function HRManagement() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Dialog
+        open={Boolean(viewUser)}
+        onClose={() => setViewUser(null)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Staff Profile</DialogTitle>
+        <DialogContent dividers>
+          {viewUser && (
+            <Box sx={{ display: 'grid', gap: 1.5 }}>
+              <Typography><strong>User ID:</strong> {viewUser.userId || "-"}</Typography>
+              <Typography><strong>Username:</strong> {viewUser.username || "-"}</Typography>
+              <Typography><strong>Email:</strong> {viewUser.email || "-"}</Typography>
+              <Typography><strong>Full name:</strong> {`${viewUser.firstName || ""} ${viewUser.lastName || ""}`.trim() || "-"}</Typography>
+              <Typography><strong>Phone:</strong> {viewUser.phoneNumber || "-"}</Typography>
+              <Typography><strong>Status:</strong> {viewUser.accountEnabled === false ? "Locked" : "Active"}</Typography>
+              <Typography><strong>Groups:</strong> {(viewUser.groups || []).join(", ") || "-"}</Typography>
+              <Typography><strong>Roles:</strong> {(viewUser.roles || []).join(", ") || "-"}</Typography>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setViewUser(null)}>Close</Button>
+        </DialogActions>
+      </Dialog>
 
       <UserEditModal 
         open={Boolean(editUser)}

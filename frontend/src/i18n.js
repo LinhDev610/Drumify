@@ -150,6 +150,19 @@ i18n
             assign_roles_desc: "Select roles that define the user's base level access.",
             assign_groups_desc: "Select groups that define the user's departmental duties.",
             success_update: "Permissions updated successfully!"
+          },
+          customers: {
+            title: "Customer Management",
+            subtitle: "Manage customer accounts and viewing history",
+            table: {
+              customer: "Customer",
+              status: "Status",
+              total_orders: "Orders",
+              total_spent: "Total Spent",
+              actions: "Actions"
+            },
+            search_placeholder: "Search customers...",
+            no_customers: "No customers found."
           }
         }
       },
@@ -296,6 +309,19 @@ i18n
             assign_roles_desc: "Chọn các vai trò cơ bản (Roles) cho người dùng.",
             assign_groups_desc: "Chọn các phòng ban hoặc nhóm chức năng (Groups).",
             success_update: "Cập nhật phân quyền thành công!"
+          },
+          customers: {
+            title: "Quản lý khách hàng",
+            subtitle: "Quản lý tài khoản khách hàng và lịch sử mua hàng",
+            table: {
+              customer: "Khách hàng",
+              status: "Trạng thái",
+              total_orders: "Đơn hàng",
+              total_spent: "Đã chi",
+              actions: "Hành động"
+            },
+            search_placeholder: "Tìm kiếm khách hàng...",
+            no_customers: "Không tìm thấy khách hàng nào."
           }
         }
       }

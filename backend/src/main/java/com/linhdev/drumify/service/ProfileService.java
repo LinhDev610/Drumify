@@ -2,6 +2,7 @@ package com.linhdev.drumify.service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -135,6 +136,20 @@ public class ProfileService {
             groupIds.stream()
                     .filter(id -> !currentGroupIds.contains(id))
                     .forEach(id -> identityClient.assignGroup(token, userId, id));
+        } catch (FeignException e) {
+            throw errorNormalizer.handleKeycloakException(e);
+        }
+    }
+
+    @PreAuthorize(
+            """
+				hasRole('ADMIN')
+				or hasRole('DIRECTOR')
+				or (hasRole('STAFF') and hasAuthority('GROUP_HR'))
+			""")
+    public void setAccountLocked(String userId, boolean locked) {
+        try {
+            identityClient.updateUser(getClientToken(), userId, Map.of("enabled", !locked));
         } catch (FeignException e) {
             throw errorNormalizer.handleKeycloakException(e);
         }
@@ -317,8 +332,39 @@ public class ProfileService {
 			""")
     public List<ProfileResponse> getAllProfiles() {
         var profiles = profileRepository.findAll();
-        String token = getClientToken();
+        return enrichProfiles(profiles);
+    }
 
+    @PreAuthorize(
+            """
+				hasRole('ADMIN')
+				or hasRole('DIRECTOR')
+				or (hasRole('STAFF') and hasAuthority('GROUP_HR'))
+			""")
+    public List<ProfileResponse> getStaffProfiles() {
+        var profiles = profileRepository.findAll();
+        List<String> staffRoles = List.of("ADMIN", "DIRECTOR", "STAFF");
+        return enrichProfiles(profiles).stream()
+                .filter(p -> p.getRoles().stream().anyMatch(staffRoles::contains))
+                .toList();
+    }
+
+    @PreAuthorize(
+            """
+				hasRole('ADMIN')
+				or hasRole('DIRECTOR')
+				or (hasRole('STAFF') and hasAuthority('GROUP_HR'))
+			""")
+    public List<ProfileResponse> getCustomerProfiles() {
+        var profiles = profileRepository.findAll();
+        return enrichProfiles(profiles).stream()
+                .filter(p -> p.getRoles().contains("CUSTOMER"))
+                .toList();
+    }
+
+    // Kết hợp thông tin từ Keycloak và ProfileRepository
+    private List<ProfileResponse> enrichProfiles(List<Profile> profiles) {
+        String token = getClientToken();
         List<String> allowedRoles = List.of("ADMIN", "CUSTOMER", "DIRECTOR", "STAFF");
 
         return profiles.stream()
@@ -335,8 +381,12 @@ public class ProfileService {
                             List<String> userGroups = identityClient.getUserGroups(token, profile.getUserId()).stream()
                                     .map(GroupRepresentation::getName)
                                     .toList();
+                            Boolean enabled = identityClient
+                                    .getUser(token, profile.getUserId())
+                                    .getEnabled();
                             response.setRoles(userRoles);
                             response.setGroups(userGroups);
+                            response.setAccountEnabled(Boolean.TRUE.equals(enabled));
                         } catch (Exception e) {
                             log.warn("Failed to fetch roles/groups for user {}", profile.getUserId(), e);
                         }

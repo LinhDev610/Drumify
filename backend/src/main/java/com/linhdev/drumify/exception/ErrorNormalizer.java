@@ -29,18 +29,45 @@ public class ErrorNormalizer {
     }
 
     public AppException handleKeycloakException(FeignException e) {
+        int status = e.status();
+        String body = null;
         try {
-            log.warn("Cannot complete request");
-            var response = objectMapper.readValue(e.contentUTF8(), KeycloakError.class);
+            body = e.contentUTF8();
+        } catch (Exception ignored) {
 
-            String errorMessage = response.getErrorMessage();
-            if (Objects.nonNull(errorMessage) && Objects.nonNull(errorCodeMap.get(errorMessage))) {
-                return new AppException(errorCodeMap.get(errorMessage));
-            }
-        } catch (JsonProcessingException ex) {
-            log.error("Cannot deserialize content", ex);
         }
 
-        return new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION);
+        try {
+            log.warn("Keycloak request failed. status={}, bodyLength={}", status, body == null ? null : body.length());
+
+            if (body != null && !body.isBlank()) {
+                var response = objectMapper.readValue(body, KeycloakError.class);
+
+                String errorMessage = response.getErrorMessage();
+                if (Objects.nonNull(errorMessage) && Objects.nonNull(errorCodeMap.get(errorMessage))) {
+                    return new AppException(errorCodeMap.get(errorMessage));
+                }
+            }
+        } catch (JsonProcessingException ex) {
+            log.warn("Cannot deserialize Keycloak error body. status={}, bodyPreview={}", status, preview(body), ex);
+        }
+
+        return new AppException(mapByStatus(status));
+    }
+
+    private ErrorCode mapByStatus(int status) {
+        return switch (status) {
+            case 401 -> ErrorCode.UNAUTHENTICATED;
+            case 403 -> ErrorCode.UNAUTHORIZED;
+            case 404 -> ErrorCode.RESOURCE_NOT_FOUND;
+            default -> ErrorCode.EXTERNAL_SERVICE_ERROR;
+        };
+    }
+
+    private String preview(String body) {
+        if (body == null) return null;
+        String trimmed = body.trim();
+        if (trimmed.length() <= 300) return trimmed;
+        return trimmed.substring(0, 300) + "...(truncated)";
     }
 }

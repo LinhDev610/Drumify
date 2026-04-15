@@ -73,7 +73,7 @@ export default function UserEditModal({ open, onClose, user, onSave, availableRo
     setLoading(true);
     try {
       const groupIds = selectedGroups.map(g => g.id);
-      await onSave(user.id, selectedRoles, groupIds);
+      await onSave(user.userId || user.id, selectedRoles, groupIds);
       onClose();
     } catch (error) {
       console.error("Failed to save permissions", error);
