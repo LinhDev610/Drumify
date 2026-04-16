@@ -3,6 +3,7 @@ package com.linhdev.drumify.dto.warehouse;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.linhdev.drumify.dto.response.ProductMediaResponse;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,4 +34,5 @@ public class ProductResponse {
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     List<ProductVariantResponse> variants;
+    List<ProductMediaResponse> media;
 }

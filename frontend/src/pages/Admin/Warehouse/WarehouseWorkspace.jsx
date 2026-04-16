@@ -12,7 +12,6 @@ import {
   DialogTitle,
   Divider,
   FormControl,
-  Grid,
   InputLabel,
   LinearProgress,
   MenuItem,
@@ -28,7 +27,8 @@ import {
   TableRow,
   Tabs,
   TextField,
-  Typography
+  Typography,
+  Grid
 } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -62,6 +62,11 @@ import {
 import { getErrorMessage } from "../../../hooks/utils/unwrapApiResponse";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import DeleteIcon from "@mui/icons-material/Delete";
+import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
+import { uploadToCloudinary } from "../../../services/imageService";
+import { IconButton } from "@mui/material";
 
 const WH_TAB_CONFIG = [
   { label: "Sản phẩm", path: "/admin/products" },
@@ -353,7 +358,8 @@ function ProductsTab() {
     length: "",
     width: "",
     height: "",
-    variants: [{ name: "Default", purchasePrice: "", unitPrice: "", price: "", isDefault: true }]
+    variants: [{ name: "Default", purchasePrice: "", unitPrice: "", price: "", isDefault: true }],
+    media: [] // { mediaUrl, mediaType, isDefault }
   });
 
   const load = useCallback(async () => {
@@ -393,10 +399,11 @@ function ProductsTab() {
       length: "",
       width: "",
       height: "",
-      variants: [{ name: "Default", purchasePrice: "", unitPrice: "", price: "", isDefault: true }]
+      variants: [{ name: "Default", purchasePrice: "", unitPrice: "", price: "", isDefault: true }],
+      media: []
     });
     setOpen(true);
-  };
+};
 
   const openEdit = (row) => {
     setEditing(row);
@@ -418,7 +425,14 @@ function ProductsTab() {
           price: v.price ?? "",
           isDefault: Boolean(v.isDefault)
         }))
-        : [{ name: "Default", purchasePrice: "", unitPrice: "", price: "", isDefault: true }]
+        : [{ name: "Default", purchasePrice: "", unitPrice: "", price: "", isDefault: true }],
+      media: (row.media && row.media.length > 0)
+        ? row.media.map(m => ({
+          mediaUrl: m.mediaUrl,
+          mediaType: m.mediaType,
+          isDefault: m.isDefault
+        }))
+        : []
     });
     setOpen(true);
   };
@@ -451,6 +465,11 @@ function ProductsTab() {
           unitPrice: Number(v.unitPrice),
           price: Number(v.price),
           isDefault: idx === 0 ? true : Boolean(v.isDefault)
+        })),
+        media: form.media.map(m => ({
+          mediaUrl: m.mediaUrl,
+          mediaType: m.mediaType,
+          isDefault: m.isDefault
         }))
       };
       if (editing) {
@@ -577,10 +596,10 @@ function ProductsTab() {
         <DialogTitle>{editing ? "Chỉnh sửa sản phẩm" : "Tạo sản phẩm mới"}</DialogTitle>
         <DialogContent dividers>
           <Grid container spacing={2} sx={{ mt: 0.2 }}>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField label="Tên sản phẩm" value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} fullWidth required />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <FormControl fullWidth size="small">
                 <InputLabel>Danh mục</InputLabel>
                 <Select label="Danh mục" value={form.categoryId} onChange={(e) => {
@@ -602,10 +621,10 @@ function ProductsTab() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField label="Mô tả ngắn" value={form.shortDescription} onChange={(e) => setForm((p) => ({ ...p, shortDescription: e.target.value }))} fullWidth />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Typography variant="body2" sx={{ mb: 1, fontWeight: 700 }}>Mô tả chi tiết</Typography>
               <Box sx={{ bgcolor: "white", color: "black", borderRadius: 1, overflow: "hidden" }}>
                 <ReactQuill
@@ -616,10 +635,94 @@ function ProductsTab() {
                 />
               </Box>
             </Grid>
-            <Grid item xs={12} md={3}><TextField type="number" label="Weight (Kg)" value={form.weight} onChange={(e) => setForm((p) => ({ ...p, weight: e.target.value }))} fullWidth /></Grid>
-            <Grid item xs={12} md={3}><TextField type="number" label="Length (cm)" value={form.length} onChange={(e) => setForm((p) => ({ ...p, length: e.target.value }))} fullWidth /></Grid>
-            <Grid item xs={12} md={3}><TextField type="number" label="Width (cm)" value={form.width} onChange={(e) => setForm((p) => ({ ...p, width: e.target.value }))} fullWidth /></Grid>
-            <Grid item xs={12} md={3}><TextField type="number" label="Height (cm)" value={form.height} onChange={(e) => setForm((p) => ({ ...p, height: e.target.value }))} fullWidth /></Grid>
+            <Grid size={{ xs: 12, md: 3 }}><TextField type="number" label="Weight (Kg)" value={form.weight} onChange={(e) => setForm((p) => ({ ...p, weight: e.target.value }))} fullWidth /></Grid>
+            <Grid size={{ xs: 12, md: 3 }}><TextField type="number" label="Length (cm)" value={form.length} onChange={(e) => setForm((p) => ({ ...p, length: e.target.value }))} fullWidth /></Grid>
+            <Grid size={{ xs: 12, md: 3 }}><TextField type="number" label="Width (cm)" value={form.width} onChange={(e) => setForm((p) => ({ ...p, width: e.target.value }))} fullWidth /></Grid>
+            <Grid size={{ xs: 12, md: 3 }}><TextField type="number" label="Height (cm)" value={form.height} onChange={(e) => setForm((p) => ({ ...p, height: e.target.value }))} fullWidth /></Grid>
+            
+            <Grid size={12}>
+              <Divider sx={{ my: 2 }} />
+              <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Hình ảnh & Video</Typography>
+                <Button variant="outlined" component="label" startIcon={<CloudUploadIcon />} size="small">
+                  Tải ảnh lên
+                  <input type="file" hidden multiple accept="image/*" onChange={async (e) => {
+                    const files = Array.from(e.target.files || []);
+                    for (const file of files) {
+                      try {
+                        const url = await uploadToCloudinary(file);
+                        if (url) {
+                          setForm(prev => ({
+                            ...prev,
+                            media: [...prev.media, { mediaUrl: url, mediaType: 'IMAGE', isDefault: prev.media.length === 0 }]
+                          }));
+                        }
+                      } catch (err) {
+                        setErr("Không thể tải ảnh: " + file.name);
+                      }
+                    }
+                  }} />
+                </Button>
+              </Stack>
+              
+              <Grid container spacing={2}>
+                 {form.media.filter(m => m.mediaType === 'IMAGE').map((m, idx) => (
+                   <Grid size={{ xs: 4, md: 2 }} key={idx}>
+                     <Box sx={{ position: 'relative', pt: '100%', border: '1px solid var(--color-border)', borderRadius: 2, overflow: 'hidden' }}>
+                       <img src={m.mediaUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                       <IconButton 
+                         size="small" 
+                         onClick={() => setForm(prev => ({ ...prev, media: prev.media.filter((_, i) => i !== prev.media.indexOf(m)) }))}
+                         sx={{ position: 'absolute', top: 2, right: 2, bgcolor: 'rgba(0,0,0,0.5)', color: 'white', '&:hover': { bgcolor: 'rgba(0,0,0,0.8)' } }}
+                       >
+                         <DeleteIcon fontSize="small" />
+                       </IconButton>
+                       {m.isDefault && (
+                         <Chip label="Main" size="small" sx={{ position: 'absolute', bottom: 2, left: 2, scale: '0.8', bgcolor: 'var(--color-accent-gold)', color: '#000', fontWeight: 900 }} />
+                       )}
+                     </Box>
+                   </Grid>
+                 ))}
+              </Grid>
+
+              <Stack direction="row" spacing={2} sx={{ mt: 3 }} alignItems="flex-end">
+                <TextField 
+                  fullWidth 
+                  size="small" 
+                  label="Video URL (YouTube/Cloudinary)" 
+                  placeholder="Dán link video tại đây..."
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      const val = e.target.value.trim();
+                      if (val) {
+                        setForm(prev => ({
+                          ...prev,
+                          media: [...prev.media, { mediaUrl: val, mediaType: 'VIDEO', isDefault: false }]
+                        }));
+                        e.target.value = '';
+                      }
+                    }
+                  }}
+                />
+                <Button variant="contained" onClick={(e) => {
+                  const input = e.currentTarget.previousSibling.querySelector('input');
+                  if (input.value) {
+                    setForm(prev => ({
+                      ...prev,
+                      media: [...prev.media, { mediaUrl: input.value, mediaType: 'VIDEO', isDefault: false }]
+                    }));
+                    input.value = '';
+                  }
+                }}>Thêm</Button>
+              </Stack>
+              {form.media.filter(m => m.mediaType === 'VIDEO').map((v, idx) => (
+                <Stack key={idx} direction="row" alignItems="center" spacing={2} sx={{ mt: 1, p: 1.5, bgcolor: 'rgba(255,255,255,0.03)', borderRadius: 2, border: '1px solid var(--color-border)' }}>
+                  <PlayCircleOutlineIcon sx={{ color: 'var(--color-accent-gold)' }} />
+                  <Typography variant="body2" sx={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }} noWrap>{v.mediaUrl}</Typography>
+                  <IconButton size="small" color="error" onClick={() => setForm(prev => ({ ...prev, media: prev.media.filter((_, i) => i !== prev.media.indexOf(v)) }))}><DeleteIcon fontSize="small" /></IconButton>
+                </Stack>
+              ))}
+            </Grid>
           </Grid>
 
           <Divider sx={{ my: 2 }} />
@@ -628,13 +731,13 @@ function ProductsTab() {
             {form.variants.map((v, idx) => (
               <Box key={idx} sx={{ p: 2, border: "1px solid var(--color-border)", borderRadius: 1, bgcolor: "rgba(255,255,255,0.01)" }}>
                 <Grid container spacing={1.5} alignItems="center">
-                  <Grid item xs={12} md={4}>
+                  <Grid size={{ xs: 12, md: 4 }}>
                     <TextField label="Tên biến thể" value={v.name} onChange={(e) => updateVariant(idx, "name", e.target.value)} fullWidth size="small" />
                   </Grid>
-                  <Grid item xs={12} md={3}>
+                  <Grid size={{ xs: 12, md: 3 }}>
                     <TextField type="number" label="Giá nhập" value={v.purchasePrice} onChange={(e) => updateVariant(idx, "purchasePrice", e.target.value)} fullWidth size="small" />
                   </Grid>
-                  <Grid item xs={12} md={3}>
+                  <Grid size={{ xs: 12, md: 3 }}>
                     <TextField
                       type="number"
                       label="Giá bán (trước thuế)"
@@ -653,7 +756,7 @@ function ProductsTab() {
                       size="small"
                     />
                   </Grid>
-                  <Grid item xs={6} md={1}>
+                  <Grid size={{ xs: 6, md: 1 }}>
                     <FormControl fullWidth size="small">
                       <InputLabel>Default</InputLabel>
                       <Select
@@ -666,13 +769,13 @@ function ProductsTab() {
                       </Select>
                     </FormControl>
                   </Grid>
-                  <Grid item xs={6} md={1} sx={{ textAlign: "right" }}>
+                  <Grid size={{ xs: 6, md: 1 }} sx={{ textAlign: "right" }}>
                     <Button color="error" disabled={form.variants.length <= 1} onClick={() => removeVariant(idx)}>
                       Xóa
                     </Button>
                   </Grid>
                   
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <TextField
                       label="Giá niêm yết (sau thuế) - Kết quả tính tự động"
                       value={v.unitPrice}
@@ -991,7 +1094,7 @@ function ImportTab() {
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12} md={7}>
+      <Grid size={{ xs: 12, md: 7 }}>
         <Paper sx={{ p: 2.5, bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
           <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
             Phiếu nhập kho
@@ -1101,7 +1204,7 @@ function ImportTab() {
           </Stack>
         </Paper>
       </Grid>
-      <Grid item xs={12} md={5}>
+      <Grid size={{ xs: 12, md: 5 }}>
         <Paper sx={{ p: 2, bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
           <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1.5 }}>
             <Typography variant="subtitle2" fontWeight={700}>

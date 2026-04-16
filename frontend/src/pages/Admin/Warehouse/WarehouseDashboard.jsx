@@ -4,9 +4,9 @@ import {
   Button,
   Card,
   CardContent,
-  Grid,
   LinearProgress,
-  Typography
+  Typography,
+  Grid
 } from "@mui/material";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
@@ -88,7 +88,7 @@ export default function WarehouseDashboard() {
       )}
 
       <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
             title={t("warehouse.stat_lines", "Dòng SKU trong kho")}
             value={loading ? "…" : String(total)}
@@ -97,7 +97,7 @@ export default function WarehouseDashboard() {
             color="#0288d1"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
             title={t("warehouse.stat_low", "Cảnh báo tồn thấp")}
             value={loading ? "…" : String(low)}
@@ -106,7 +106,7 @@ export default function WarehouseDashboard() {
             color="#ed6c02"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
             title={t("warehouse.stat_pack", "Đơn chờ đóng gói")}
             value={loading ? "…" : String(pending)}
@@ -115,7 +115,7 @@ export default function WarehouseDashboard() {
             color="#9c27b0"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <StatCard
             title={t("warehouse.stat_transit", "Lô đang vận chuyển")}
             value={loading ? "…" : String(transit)}

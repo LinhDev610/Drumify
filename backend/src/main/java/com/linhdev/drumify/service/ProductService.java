@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.linhdev.drumify.dto.request.ProductMediaRequest;
+import com.linhdev.drumify.dto.response.ProductMediaResponse;
 import com.linhdev.drumify.dto.warehouse.ProductRequest;
 import com.linhdev.drumify.dto.warehouse.ProductResponse;
 import com.linhdev.drumify.dto.warehouse.ProductVariantRequest;
@@ -17,6 +19,7 @@ import com.linhdev.drumify.dto.warehouse.ProductVariantResponse;
 import com.linhdev.drumify.entity.Brand;
 import com.linhdev.drumify.entity.Category;
 import com.linhdev.drumify.entity.Product;
+import com.linhdev.drumify.entity.ProductMedia;
 import com.linhdev.drumify.entity.ProductVariant;
 import com.linhdev.drumify.enums.ProductStatus;
 import com.linhdev.drumify.exception.AppException;
@@ -43,6 +46,13 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    public ProductResponse getProductBySlug(String slug) {
+        Product product = productRepository
+                .findBySlug(slug)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
+        return toProductResponse(product);
+    }
+
     @Transactional
     public ProductResponse createProduct(ProductRequest request) {
         Category category = categoryRepository
@@ -67,8 +77,10 @@ public class ProductService {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .variant(new ArrayList<>())
+                .productMedia(new ArrayList<>())
                 .build();
         applyVariants(product, request.getVariants());
+        applyMedia(product, request.getMedia());
         return toProductResponse(productRepository.save(product));
     }
 
@@ -97,6 +109,7 @@ public class ProductService {
         product.setBrand(brand);
         product.setUpdatedAt(LocalDateTime.now());
         applyVariants(product, request.getVariants());
+        applyMedia(product, request.getMedia());
         return toProductResponse(productRepository.save(product));
     }
 
@@ -135,6 +148,17 @@ public class ProductService {
                                 .status(v.getStatus())
                                 .build())
                         .collect(Collectors.toList());
+        List<ProductMediaResponse> media = p.getProductMedia() == null
+                ? List.of()
+                : p.getProductMedia().stream()
+                        .map(m -> ProductMediaResponse.builder()
+                                .id(m.getId())
+                                .mediaUrl(m.getMediaUrl())
+                                .mediaType(m.getMediaType())
+                                .isDefault(m.isDefault())
+                                .build())
+                        .collect(Collectors.toList());
+
         return ProductResponse.builder()
                 .id(p.getId())
                 .name(p.getName())
@@ -181,6 +205,25 @@ public class ProductService {
                     .build();
             product.getVariant().add(v);
             idx++;
+        }
+    }
+
+    private void applyMedia(Product product, List<ProductMediaRequest> requests) {
+        if (product.getProductMedia() == null) {
+            product.setProductMedia(new ArrayList<>());
+        } else {
+            product.getProductMedia().clear();
+        }
+        if (requests == null || requests.isEmpty()) return;
+
+        for (ProductMediaRequest mr : requests) {
+            ProductMedia m = ProductMedia.builder()
+                    .mediaUrl(mr.getMediaUrl().trim())
+                    .mediaType(mr.getMediaType())
+                    .isDefault(mr.isDefault())
+                    .product(product)
+                    .build();
+            product.getProductMedia().add(m);
         }
     }
 

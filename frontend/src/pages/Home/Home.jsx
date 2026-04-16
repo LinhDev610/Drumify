@@ -1,97 +1,39 @@
 import { useEffect, useMemo, useState, memo } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import classNames from "classnames/bind";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-import Chip from "@mui/material/Chip";
-import Container from "@mui/material/Container";
-import IconButton from "@mui/material/IconButton";
-import Stack from "@mui/material/Stack";
-import Tab from "@mui/material/Tab";
-import Tabs from "@mui/material/Tabs";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
-import ChevronLeft from "@mui/icons-material/ChevronLeft";
-import ChevronRight from "@mui/icons-material/ChevronRight";
-import LocalShipping from "@mui/icons-material/LocalShipping";
-import Security from "@mui/icons-material/Security";
-import SupportAgent from "@mui/icons-material/SupportAgent";
-import Autorenew from "@mui/icons-material/Autorenew";
-import Payment from "@mui/icons-material/Payment";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CardMedia,
+  Chip,
+  Container,
+  IconButton,
+  Stack,
+  Tab,
+  Tabs,
+  TextField,
+  Typography,
+  CircularProgress,
+  Grid
+} from "@mui/material";
+import {
+  ChevronLeft,
+  ChevronRight,
+  LocalShipping,
+  Security,
+  SupportAgent,
+  Autorenew,
+  Payment
+} from "@mui/icons-material";
 import { useThemeStatus } from "../../context/ThemeContext";
+import { fetchStoreBanners, fetchStoreProducts } from "../../services/storeService";
 import styles from "./Home.module.scss";
 
 const cx = classNames.bind(styles);
-
-/** Required placeholder product */
-export const MOCK_PRODUCT_PRIMARY = {
-  id: "snare-pearl-1",
-  name: "Snare Drum",
-  brand: "Pearl",
-  price: 500,
-  originalPrice: 599,
-  discountPercent: 16,
-  rating: 4.9,
-  sold: 842,
-};
-
-const MOCK_PRODUCTS = [
-  MOCK_PRODUCT_PRIMARY,
-  {
-    id: "2",
-    name: "Ride Cymbal",
-    brand: "Zildjian",
-    price: 320,
-    originalPrice: 380,
-    discountPercent: 15,
-    rating: 4.7,
-    sold: 520,
-  },
-  {
-    id: "3",
-    name: "Kick Pedal",
-    brand: "DW",
-    price: 189,
-    originalPrice: 189,
-    discountPercent: 0,
-    rating: 4.8,
-    sold: 310,
-  },
-  {
-    id: "4",
-    name: "Hi-Hat Pair",
-    brand: "Sabian",
-    price: 279,
-    originalPrice: 329,
-    discountPercent: 15,
-    rating: 4.6,
-    sold: 210,
-  },
-  {
-    id: "5",
-    name: "Tom Pack",
-    brand: "Tama",
-    price: 649,
-    originalPrice: 720,
-    discountPercent: 10,
-    rating: 4.85,
-    sold: 98,
-  },
-  {
-    id: "6",
-    name: "Practice Pad",
-    brand: "Evans",
-    price: 45,
-    originalPrice: 52,
-    discountPercent: 13,
-    rating: 4.4,
-    sold: 1200,
-  },
-];
 
 const MOCK_TIPS = [
   { id: "t1", title: "Tuning for stage volume", tag: "Drums", desc: "Seat the head, then tune in small quarter turns for even pitch." },
@@ -99,7 +41,7 @@ const MOCK_TIPS = [
   { id: "t3", title: "Pedal spring tension", tag: "Hardware", desc: "Match beater height to your ankle motion to avoid fatigue." },
 ];
 
-const HERO_SLIDES = [
+const DEFAULT_HERO_SLIDES = [
   {
     title: "Stage-ready acoustic kits",
     subtitle: "Shell packs, snares, and hardware curated for gigging drummers.",
@@ -116,6 +58,8 @@ const HERO_SLIDES = [
     gradient: "linear-gradient(135deg, #1a1a1a 0%, #2a1c3a 100%)"
   },
 ];
+
+  // HERO_SLIDES removed in favor of dynamic banners
 
 const SERVICE_ITEMS = [
   { icon: LocalShipping, title: "Fast shipping", desc: "Tracked delivery on kits" },
@@ -156,9 +100,25 @@ function formatPrice(value) {
 
 const ProductMiniCard = memo(({ product }) => {
   const { isDarkMode } = useThemeStatus();
-  const hasDiscount = product.discountPercent > 0 && product.originalPrice > product.price;
+  const navigate = useNavigate();
+  
+  // Extract default variant or first variant
+  const defaultVariant = product.variants?.find(v => v.isDefault) || product.variants?.[0];
+  const price = defaultVariant?.price || 0;
+  const originalPrice = defaultVariant?.unitPrice || price;
+  const discountPercent = originalPrice > price 
+    ? Math.round(((originalPrice - price) / originalPrice) * 100) 
+    : 0;
+
+  const hasDiscount = discountPercent > 0;
+
   return (
-    <motion.div whileHover={{ y: -10, scale: 1.02 }} transition={{ type: "spring", stiffness: 300 }}>
+    <motion.div 
+      whileHover={{ y: -10, scale: 1.02 }} 
+      transition={{ type: "spring", stiffness: 300 }}
+      onClick={() => navigate(`/product/${product.slug}`)}
+      style={{ cursor: "pointer" }}
+    >
       <Card 
         className={cx("premiumCard")} 
         sx={{ 
@@ -194,7 +154,7 @@ const ProductMiniCard = memo(({ product }) => {
         >
           {hasDiscount && (
             <Chip 
-              label={`-${product.discountPercent}%`} 
+              label={`-${discountPercent}%`} 
               size="small" 
               sx={{ 
                 position: 'absolute', 
@@ -209,7 +169,7 @@ const ProductMiniCard = memo(({ product }) => {
             />
           )}
           <Typography variant="caption" sx={{ opacity: isDarkMode ? 0.1 : 0.4, fontWeight: 900, fontSize: '1.2rem', color: 'var(--color-text-main)' }}>
-            {product.brand}
+            {product.brandName || "Drumify"}
           </Typography>
         </CardMedia>
         <CardContent sx={{ pt: 3, px: 3, pb: 2 }}>
@@ -218,17 +178,17 @@ const ProductMiniCard = memo(({ product }) => {
           </Typography>
           <Stack direction="row" alignItems="center" spacing={1.5} mb={2}>
             <Typography variant="h6" fontWeight={800} sx={{ color: 'var(--color-accent-gold)', fontSize: '1.25rem' }}>
-              {formatPrice(product.price)}
+              {formatPrice(price)}
             </Typography>
             {hasDiscount && (
               <Typography variant="caption" component="span" sx={{ textDecoration: 'line-through', color: 'var(--color-text-muted)' }}>
-                 {formatPrice(product.originalPrice)}
+                 {formatPrice(originalPrice)}
               </Typography>
             )}
           </Stack>
           <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Typography variant="caption" sx={{ fontWeight: 600, color: 'var(--color-text-dim)' }}>★ {product.rating}</Typography>
-            <Typography variant="caption" sx={{ fontWeight: 600, color: 'var(--color-text-muted)' }}>{product.sold} sold</Typography>
+            <Typography variant="caption" sx={{ fontWeight: 600, color: 'var(--color-text-dim)' }}>★ 5.0</Typography>
+            <Typography variant="caption" sx={{ fontWeight: 600, color: 'var(--color-text-muted)' }}>New Arrival</Typography>
           </Stack>
         </CardContent>
       </Card>
@@ -236,14 +196,33 @@ const ProductMiniCard = memo(({ product }) => {
   );
 });
 
-function HeroBanner() {
+function HeroBanner({ banners }) {
   const { t } = useTranslation();
   const [index, setIndex] = useState(0);
+
+  const slides = useMemo(() => {
+    if (banners && banners.length > 0) {
+      return banners.map((b, i) => ({
+        title: b.title,
+        subtitle: b.description,
+        gradient: i % 3 === 0 
+          ? "linear-gradient(135deg, #1a1a1a 0%, #3a1c1c 100%)" 
+          : i % 3 === 1 
+            ? "linear-gradient(135deg, #1a1a1a 0%, #1c2a3a 100%)"
+            : "linear-gradient(135deg, #1a1a1a 0%, #2a1c3a 100%)",
+        image: b.imageUrl
+      }));
+    }
+    return DEFAULT_HERO_SLIDES;
+  }, [banners]);
+
   useEffect(() => {
-    const t = setInterval(() => setIndex((i) => (i + 1) % HERO_SLIDES.length), 8000);
+    if (slides.length <= 1) return;
+    const t = setInterval(() => setIndex((i) => (i + 1) % slides.length), 8000);
     return () => clearInterval(t);
-  }, []);
-  const slide = HERO_SLIDES[index];
+  }, [slides.length]);
+
+  const slide = slides[index];
   return (
     <Box className={styles.heroContainer} sx={{ position: 'relative', overflow: 'hidden' }}>
       <AnimatePresence mode="wait">
@@ -305,10 +284,10 @@ function HeroBanner() {
              </Stack>
            </Container>
 
-           <Stack direction="row" spacing={2} sx={{ position: 'absolute', bottom: 60, right: 80 }}>
-              <IconButton onClick={() => setIndex((i) => (i - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)} sx={{ color: "var(--color-text-static-light)", bgcolor: 'rgba(255,255,255,0.05)', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }}><ChevronLeft /></IconButton>
-              <IconButton onClick={() => setIndex((i) => (i + 1) % HERO_SLIDES.length)} sx={{ color: "var(--color-text-static-light)", bgcolor: 'rgba(255,255,255,0.05)', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }}><ChevronRight /></IconButton>
-           </Stack>
+            <Stack direction="row" spacing={2} sx={{ position: 'absolute', bottom: 60, right: 80 }}>
+              <IconButton onClick={() => setIndex((i) => (i - 1 + slides.length) % slides.length)} sx={{ color: "var(--color-text-static-light)", bgcolor: 'rgba(255,255,255,0.05)', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }}><ChevronLeft /></IconButton>
+              <IconButton onClick={() => setIndex((i) => (i + 1) % slides.length)} sx={{ color: "var(--color-text-static-light)", bgcolor: 'rgba(255,255,255,0.05)', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }}><ChevronRight /></IconButton>
+            </Stack>
         </motion.div>
       </AnimatePresence>
     </Box>
@@ -328,9 +307,42 @@ function SectionHeader({ title, subtitle }) {
 export default function Home() {
   const { isDarkMode } = useThemeStatus();
   const { t } = useTranslation();
-  const products = MOCK_PRODUCTS;
+  
+  const [products, setProducts] = useState([]);
+  const [banners, setBanners] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState(0);
-  const onSale = useMemo(() => products.filter((p) => p.discountPercent > 0), [products]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [pData, bData] = await Promise.all([
+          fetchStoreProducts(),
+          fetchStoreBanners()
+        ]);
+        setProducts(pData || []);
+        setBanners(bData || []);
+      } catch (error) {
+        console.error("Failed to fetch home data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  const onSale = useMemo(() => products.filter((p) => {
+    const defaultVariant = p.variants?.find(v => v.isDefault) || p.variants?.[0];
+    return defaultVariant && defaultVariant.unitPrice > defaultVariant.price;
+  }), [products]);
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', bgcolor: 'var(--color-bg-deep)' }}>
+        <CircularProgress sx={{ color: 'var(--color-accent-gold)' }} />
+      </Box>
+    );
+  }
 
   return (
     <motion.div className={cx("homeWrapper")} initial="hidden" animate="visible" variants={containerVariants} style={{ background: 'var(--color-bg-deep)' }}>
@@ -338,7 +350,7 @@ export default function Home() {
       <Box sx={{ position: 'fixed', inset: 0, background: 'var(--gradient-mesh)', zIndex: 0, opacity: 0.5 }} />
       
       <Box component="main" className={cx("homeContent")} sx={{ position: 'relative', zIndex: 1 }}>
-        <Box component="section" className={cx("heroSection")}><HeroBanner /></Box>
+        <Box component="section" className={cx("heroSection")}><HeroBanner banners={banners} /></Box>
 
         <motion.section className={cx("section")} variants={sectionVariants}>
           <Container maxWidth="xl">
@@ -379,7 +391,7 @@ export default function Home() {
              <SectionHeader title={t("home.academy")} subtitle="Pro tips for your next session." />
              <Grid container spacing={4} sx={{ mt: 2 }}>
                 {MOCK_TIPS.map((tip) => (
-                  <Grid item xs={12} md={4} key={tip.id}>
+                  <Grid size={{ xs: 12, md: 4 }} key={tip.id}>
                     <motion.div whileHover={{ y: -10, scale: 1.01 }}>
                       <Card 
                         sx={{ 
@@ -464,17 +476,4 @@ export default function Home() {
   );
 }
 
-// Fixed missing Grid import by adding it to MUI block
-function Grid({ children, container, item, spacing, xs, md }) {
-  return (
-    <Box sx={{ 
-      display: container ? 'flex' : 'block', 
-      flexWrap: container ? 'wrap' : 'nowrap',
-      m: container ? -(spacing || 0) * 0.5 : 0,
-      width: item ? (md ? `${(md/12)*100}%` : (xs ? `${(xs/12)*100}%` : 'auto')) : 'auto',
-      p: (spacing || 0) * 0.5
-    }}>
-      {children}
-    </Box>
-  );
-}
+

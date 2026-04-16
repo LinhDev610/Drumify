@@ -86,7 +86,7 @@ export default function UserCreationModal({ open, onClose, onSave, groups }) {
 
       <DialogContent sx={{ mt: 2 }}>
         <Grid container spacing={3}>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               name="username"
               label="Username"
@@ -96,7 +96,7 @@ export default function UserCreationModal({ open, onClose, onSave, groups }) {
               variant="outlined"
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               name="email"
               label="Email"
@@ -106,7 +106,7 @@ export default function UserCreationModal({ open, onClose, onSave, groups }) {
               variant="outlined"
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               name="firstName"
               label="First Name"
@@ -116,7 +116,7 @@ export default function UserCreationModal({ open, onClose, onSave, groups }) {
               variant="outlined"
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               name="lastName"
               label="Last Name"
@@ -127,7 +127,7 @@ export default function UserCreationModal({ open, onClose, onSave, groups }) {
             />
           </Grid>
 
-          <Grid item xs={12}>
+          <Grid size={12}>
             <TextField
               select
               name="groupId"

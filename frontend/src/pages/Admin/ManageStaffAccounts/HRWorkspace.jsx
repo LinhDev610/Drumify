@@ -12,7 +12,6 @@ import {
   DialogTitle,
   Divider,
   FormControl,
-  Grid,
   InputLabel,
   LinearProgress,
   MenuItem,
@@ -28,7 +27,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography
+  Typography,
+  Grid
 } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -165,9 +165,9 @@ function RecruitmentTab() {
   return (
     <Box>
       <Grid container spacing={2} sx={{ mb: 2.5 }}>
-        <Grid item xs={12} md={4}><StatCard title="Tin tuyển dụng mở" value={String(jobs.length)} progress={72} /></Grid>
-        <Grid item xs={12} md={4}><StatCard title="Ứng viên trong pipeline" value={String(candidates.length)} progress={67} /></Grid>
-        <Grid item xs={12} md={4}><StatCard title="Lịch phỏng vấn hôm nay" value="11" progress={83} /></Grid>
+        <Grid size={{ xs: 12, md: 4 }}><StatCard title="Tin tuyển dụng mở" value={String(jobs.length)} progress={72} /></Grid>
+        <Grid size={{ xs: 12, md: 4 }}><StatCard title="Ứng viên trong pipeline" value={String(candidates.length)} progress={67} /></Grid>
+        <Grid size={{ xs: 12, md: 4 }}><StatCard title="Lịch phỏng vấn hôm nay" value="11" progress={83} /></Grid>
       </Grid>
 
       <Paper sx={{ p: 2, mb: 2.5, bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
@@ -206,9 +206,9 @@ function RecruitmentTab() {
       <Paper sx={{ p: 2.5, mt: 2.5, bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
         <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Tiếp nhận ứng viên từ kênh ngoài</Typography>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={4}><TextField fullWidth label="Ho va ten" value={candidateForm.fullName} onChange={(e) => setCandidateForm((p) => ({ ...p, fullName: e.target.value }))} /></Grid>
-          <Grid item xs={12} md={4}><TextField fullWidth label="Vi tri ung tuyen" value={candidateForm.position} onChange={(e) => setCandidateForm((p) => ({ ...p, position: e.target.value }))} /></Grid>
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}><TextField fullWidth label="Ho va ten" value={candidateForm.fullName} onChange={(e) => setCandidateForm((p) => ({ ...p, fullName: e.target.value }))} /></Grid>
+          <Grid size={{ xs: 12, md: 4 }}><TextField fullWidth label="Vi tri ung tuyen" value={candidateForm.position} onChange={(e) => setCandidateForm((p) => ({ ...p, position: e.target.value }))} /></Grid>
+          <Grid size={{ xs: 12, md: 4 }}>
             <FormControl fullWidth>
               <InputLabel>Nguon</InputLabel>
               <Select label="Nguon" value={candidateForm.source} onChange={(e) => setCandidateForm((p) => ({ ...p, source: e.target.value }))}>
@@ -219,10 +219,10 @@ function RecruitmentTab() {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} md={6}><TextField fullWidth label="Link CV / ho so" value={candidateForm.cvLink} onChange={(e) => setCandidateForm((p) => ({ ...p, cvLink: e.target.value }))} /></Grid>
-          <Grid item xs={12} md={3}><TextField fullWidth label="So dien thoai" value={candidateForm.phone} onChange={(e) => setCandidateForm((p) => ({ ...p, phone: e.target.value }))} /></Grid>
-          <Grid item xs={12} md={3}><TextField fullWidth label="Email" value={candidateForm.email} onChange={(e) => setCandidateForm((p) => ({ ...p, email: e.target.value }))} /></Grid>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12, md: 6 }}><TextField fullWidth label="Link CV / ho so" value={candidateForm.cvLink} onChange={(e) => setCandidateForm((p) => ({ ...p, cvLink: e.target.value }))} /></Grid>
+          <Grid size={{ xs: 12, md: 3 }}><TextField fullWidth label="So dien thoai" value={candidateForm.phone} onChange={(e) => setCandidateForm((p) => ({ ...p, phone: e.target.value }))} /></Grid>
+          <Grid size={{ xs: 12, md: 3 }}><TextField fullWidth label="Email" value={candidateForm.email} onChange={(e) => setCandidateForm((p) => ({ ...p, email: e.target.value }))} /></Grid>
+          <Grid size={12}>
             <TextField
               fullWidth
               size="small"
@@ -340,10 +340,10 @@ function AttendanceTab() {
         Don nghi phep do nhan vien gui tu cong cua ho (portal / ung dung noi bo). HR chi xem va duyet hoac tu choi, khong tao don thay nhan vien.
       </Alert>
       <Grid container spacing={2} sx={{ mb: 2.5 }}>
-        <Grid item xs={12} md={3}><StatCard title="Nhan su di lam hom nay" value="72/80" progress={90} /></Grid>
-        <Grid item xs={12} md={3}><StatCard title="Di tre" value="6" progress={28} /></Grid>
-        <Grid item xs={12} md={3}><StatCard title="Don nghi cho duyet" value={String(pendingCount)} progress={46} /></Grid>
-        <Grid item xs={12} md={3}><StatCard title="OT tuan nay" value="31 gio" progress={52} /></Grid>
+        <Grid size={{ xs: 12, md: 3 }}><StatCard title="Nhan su di lam hom nay" value="72/80" progress={90} /></Grid>
+        <Grid size={{ xs: 12, md: 3 }}><StatCard title="Di tre" value="6" progress={28} /></Grid>
+        <Grid size={{ xs: 12, md: 3 }}><StatCard title="Don nghi cho duyet" value={String(pendingCount)} progress={46} /></Grid>
+        <Grid size={{ xs: 12, md: 3 }}><StatCard title="OT tuan nay" value="31 gio" progress={52} /></Grid>
       </Grid>
       <Paper sx={{ p: 2, bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
         <Typography variant="h6" sx={{ mb: 1.5, fontWeight: 700 }}>Don xin nghi can xu ly</Typography>
@@ -687,7 +687,7 @@ function ContractsTab() {
 function PayrollTab() {
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12} md={8}>
+      <Grid size={{ xs: 12, md: 8 }}>
         <Paper sx={{ p: 2.5, bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)", minHeight: 280 }}>
           <Typography variant="h6" sx={{ fontWeight: 700 }}>Bảng lương tháng này</Typography>
           <Typography color="text.secondary" sx={{ mt: 1 }}>
@@ -698,7 +698,7 @@ function PayrollTab() {
           <Button variant="contained">Duyệt thanh toán</Button>
         </Paper>
       </Grid>
-      <Grid item xs={12} md={4}>
+      <Grid size={{ xs: 12, md: 4 }}>
         <StatCard title="Tổng nhân sự nhận lương" value="80" progress={100} />
         <Box sx={{ mt: 2 }}><StatCard title="Nhân sự đạt KPI thưởng" value="34" progress={42} /></Box>
       </Grid>
@@ -713,9 +713,9 @@ function ReportsTab() {
         Co che bao cao HR: he thong tong hop du lieu tu 3 nguon - danh sach nhan su, don nghi phep, pipeline tuyen dung.
       </Alert>
       <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid item xs={12} md={4}><StatCard title="Headcount hien tai" value="80" progress={80} /></Grid>
-        <Grid item xs={12} md={4}><StatCard title="Turnover (30 ngay)" value="4.2%" progress={42} /></Grid>
-        <Grid item xs={12} md={4}><StatCard title="Time-to-hire TB" value="18 ngay" progress={60} /></Grid>
+        <Grid size={{ xs: 12, md: 4 }}><StatCard title="Headcount hien tai" value="80" progress={80} /></Grid>
+        <Grid size={{ xs: 12, md: 4 }}><StatCard title="Turnover (30 ngay)" value="4.2%" progress={42} /></Grid>
+        <Grid size={{ xs: 12, md: 4 }}><StatCard title="Time-to-hire TB" value="18 ngay" progress={60} /></Grid>
       </Grid>
       <Paper sx={{ p: 2.5, bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
         <Typography variant="h6" sx={{ mb: 1.5, fontWeight: 700 }}>Cach tinh va flow</Typography>

@@ -37,6 +37,10 @@ public class Order {
     LocalDate expectedDeliveryDate;
     LocalDateTime orderAt;
 
+    Double subtotal;
+    Double shippingFee;
+    Double totalAmount;
+
     @OneToOne(mappedBy = "order")
     Shipment shipment;
 

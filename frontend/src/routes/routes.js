@@ -4,6 +4,8 @@ import Home from "../pages/Home";
 import Products from "../pages/Products/Products";
 import Cart from "../pages/Cart/Cart";
 import Checkout from "../pages/Checkout/Checkout";
+import ProductDetail from "../pages/ProductDetail/ProductDetail";
+import OrderSuccess from "../pages/OrderSuccess/OrderSuccess";
 import Profile from "../pages/Profile";
 import ProtectedRoute from "./ProtectedRoute";
 import RoleProtectedRoute from "./RoleProtectedRoute";
@@ -24,9 +26,11 @@ export default function AppRoutes() {
           <Route index element={<Home />} />
           <Route path="cart" element={<Cart />} />
           <Route path="products" element={<Products />} />
+          <Route path="product/:slug" element={<ProductDetail />} />
 
           <Route element={<ProtectedRoute />}>
             <Route path="checkout" element={<Checkout />} />
+            <Route path="order-success" element={<OrderSuccess />} />
             <Route path="profile" element={<Profile />} />
           </Route>
         </Route>

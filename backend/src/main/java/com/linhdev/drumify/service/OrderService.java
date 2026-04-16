@@ -1,15 +1,17 @@
 package com.linhdev.drumify.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.linhdev.drumify.entity.*;
+import com.linhdev.drumify.repository.AddressRepository;
+import com.linhdev.drumify.repository.OrderItemRepository;
+import com.linhdev.drumify.repository.ProfileRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.linhdev.drumify.dto.warehouse.OrderResponse;
-import com.linhdev.drumify.entity.Address;
-import com.linhdev.drumify.entity.Order;
-import com.linhdev.drumify.entity.Payment;
 import com.linhdev.drumify.enums.OrderStatus;
 import com.linhdev.drumify.enums.PaymentMethod;
 import com.linhdev.drumify.exception.AppException;
@@ -36,6 +38,75 @@ public class OrderService {
     OrderRepository orderRepository;
     OrderMapper orderMapper;
     ShipmentService shipmentService;
+    CartService cartService;
+    ProfileRepository profileRepository;
+    AddressRepository addressRepository;
+    OrderItemRepository orderItemRepository;
+
+    @Transactional
+    public OrderResponse createOrder(com.linhdev.drumify.dto.request.CreateOrderRequest request) {
+        Cart cart = cartService.getOrCreateCartForCurrentProfile();
+        if (cart.getCartItems() == null || cart.getCartItems().isEmpty()) {
+            throw new AppException(ErrorCode.BAD_REQUEST);
+        }
+
+        List<CartItem> selectedItems;
+        if (request.getCartItemIds() != null && !request.getCartItemIds().isEmpty()) {
+            selectedItems = cart.getCartItems().stream()
+                    .filter(ci -> request.getCartItemIds().contains(ci.getId()))
+                    .collect(Collectors.toList());
+        } else {
+            selectedItems = cart.getCartItems();
+        }
+
+        if (selectedItems.isEmpty()) {
+            throw new AppException(ErrorCode.BAD_REQUEST);
+        }
+
+        Address address = addressRepository.findById(request.getAddressId())
+                .orElseThrow(() -> new AppException(ErrorCode.ADDRESS_NOT_EXISTED));
+
+        Double subtotal = selectedItems.stream().mapToDouble(ci -> ci.getUnitPrice() * ci.getQuantity()).sum();
+        Double shippingFee = request.getShippingFee() != null ? request.getShippingFee() : 0;
+
+        Order order = Order.builder()
+                .code("ORD-" + System.currentTimeMillis())
+                .profile(cart.getProfile())
+                .address(address)
+                .note(request.getNote())
+                .status(OrderStatus.CREATED)
+                .orderAt(LocalDateTime.now())
+                .subtotal(subtotal)
+                .shippingFee(shippingFee)
+                .totalAmount(subtotal + shippingFee)
+                .build();
+
+        Order savedOrder = orderRepository.save(order);
+
+        List<OrderItem> orderItems = selectedItems.stream()
+                .map(ci -> OrderItem.builder()
+                        .order(savedOrder)
+                        .productVariant(ci.getProductVariant())
+                        .quantity(ci.getQuantity())
+                        .unitPrice(ci.getUnitPrice())
+                        .finalPrice(ci.getFinalPrice())
+                        .build())
+                .collect(Collectors.toList());
+
+        orderItemRepository.saveAll(orderItems);
+        savedOrder.setOrderItem(orderItems);
+
+        // Remove only selected items from cart
+        cart.getCartItems().removeAll(selectedItems);
+        
+        // Recalculate cart totals
+        Double newSubtotal = cart.getCartItems().stream().mapToDouble(ci -> ci.getUnitPrice() * ci.getQuantity()).sum();
+        cart.setSubtotal(newSubtotal);
+        cart.setTotalAmount(newSubtotal - (cart.getVoucherDiscount() != null ? cart.getVoucherDiscount() : 0));
+        if (cart.getTotalAmount() < 0) cart.setTotalAmount(0D);
+
+        return orderMapper.toOrderResponse(savedOrder);
+    }
 
     public List<OrderResponse> listOrdersForPacking() {
         return orderRepository.findByStatusInWithItems(List.of(OrderStatus.PAID, OrderStatus.CONFIRMED)).stream()

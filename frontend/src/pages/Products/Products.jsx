@@ -3,7 +3,6 @@ import {
   Typography, 
   Box, 
   Stack, 
-  Grid, 
   Card, 
   CardContent, 
   CardMedia,
@@ -15,7 +14,10 @@ import {
   FormControlLabel,
   Select,
   MenuItem,
-  Chip
+  Avatar,
+  Paper,
+  Chip,
+  Grid
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
@@ -180,7 +182,7 @@ export default function Products() {
           <Box>
             <Grid container spacing={3}>
               {MOCK_PRODUCTS.map(product => (
-                <Grid item xs={12} sm={6} md={4} key={product.id}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={product.id}>
                   <ProductCard product={product} />
                 </Grid>
               ))}

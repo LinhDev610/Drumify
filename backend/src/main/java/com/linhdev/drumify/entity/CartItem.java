@@ -19,6 +19,8 @@ public class CartItem {
     String id;
 
     Integer quantity;
+    Double unitPrice;
+    Double finalPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_variant_id")
