@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.linhdev.drumify.dto.ApiResponse;
+import com.linhdev.drumify.dto.response.BannerResponse;
 import com.linhdev.drumify.dto.warehouse.CategoryResponse;
 import com.linhdev.drumify.dto.warehouse.ProductResponse;
-import com.linhdev.drumify.entity.Banner;
-import com.linhdev.drumify.repository.BannerRepository;
+import com.linhdev.drumify.service.BannerService;
 import com.linhdev.drumify.service.CategoryService;
 import com.linhdev.drumify.service.ProductService;
 
@@ -26,7 +26,7 @@ import lombok.experimental.FieldDefaults;
 public class StoreController {
     ProductService productService;
     CategoryService categoryService;
-    BannerRepository bannerRepository;
+    BannerService bannerService;
 
     @GetMapping("/products")
     ApiResponse<List<ProductResponse>> getProducts() {
@@ -50,9 +50,9 @@ public class StoreController {
     }
 
     @GetMapping("/banners")
-    ApiResponse<List<Banner>> getBanners() {
-        return ApiResponse.<List<Banner>>builder()
-                .result(bannerRepository.findAll())
+    ApiResponse<List<BannerResponse>> getBanners() {
+        return ApiResponse.<List<BannerResponse>>builder()
+                .result(bannerService.listBanners())
                 .build();
     }
 }

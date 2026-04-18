@@ -12,14 +12,14 @@ import com.linhdev.drumify.dto.response.CartItemResponse;
 import com.linhdev.drumify.dto.response.CartResponse;
 import com.linhdev.drumify.entity.Cart;
 import com.linhdev.drumify.entity.CartItem;
-import com.linhdev.drumify.entity.Profile;
 import com.linhdev.drumify.entity.ProductVariant;
+import com.linhdev.drumify.entity.Profile;
 import com.linhdev.drumify.exception.AppException;
 import com.linhdev.drumify.exception.ErrorCode;
 import com.linhdev.drumify.repository.CartItemRepository;
 import com.linhdev.drumify.repository.CartRepository;
-import com.linhdev.drumify.repository.ProfileRepository;
 import com.linhdev.drumify.repository.ProductVariantRepository;
+import com.linhdev.drumify.repository.ProfileRepository;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -39,10 +39,11 @@ public class CartService {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
 
-        Profile profile = profileRepository.findByUserId(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        Profile profile =
+                profileRepository.findByUserId(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        return cartRepository.findByProfile_ProfileId(profile.getProfileId())
+        return cartRepository
+                .findByProfile_ProfileId(profile.getProfileId())
                 .orElseGet(() -> cartRepository.save(Cart.builder()
                         .profile(profile)
                         .subtotal(0D)
@@ -61,10 +62,12 @@ public class CartService {
         if (quantity <= 0) throw new AppException(ErrorCode.BAD_REQUEST);
 
         Cart cart = getOrCreateCartForCurrentProfile();
-        ProductVariant variant = productVariantRepository.findById(variantId)
+        ProductVariant variant = productVariantRepository
+                .findById(variantId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
 
-        CartItem cartItem = cartItemRepository.findByCart_IdAndProductVariant_Id(cart.getId(), variantId)
+        CartItem cartItem = cartItemRepository
+                .findByCart_IdAndProductVariant_Id(cart.getId(), variantId)
                 .orElse(CartItem.builder()
                         .cart(cart)
                         .productVariant(variant)
@@ -85,7 +88,8 @@ public class CartService {
         if (quantity <= 0) return removeItem(itemId);
 
         Cart cart = getOrCreateCartForCurrentProfile();
-        CartItem cartItem = cartItemRepository.findById(itemId)
+        CartItem cartItem = cartItemRepository
+                .findById(itemId)
                 .orElseThrow(() -> new AppException(ErrorCode.CART_ITEM_NOT_EXISTED));
 
         if (!cartItem.getCart().getId().equals(cart.getId())) {
@@ -103,7 +107,8 @@ public class CartService {
     @Transactional
     public CartResponse removeItem(String itemId) {
         Cart cart = getOrCreateCartForCurrentProfile();
-        CartItem cartItem = cartItemRepository.findById(itemId)
+        CartItem cartItem = cartItemRepository
+                .findById(itemId)
                 .orElseThrow(() -> new AppException(ErrorCode.CART_ITEM_NOT_EXISTED));
 
         if (!cartItem.getCart().getId().equals(cart.getId())) {
@@ -111,7 +116,7 @@ public class CartService {
         }
 
         cartItemRepository.delete(cartItem);
-        
+
         if (cart.getCartItems() != null) {
             cart.getCartItems().removeIf(item -> item.getId().equals(itemId));
         }
@@ -134,19 +139,23 @@ public class CartService {
     }
 
     private CartResponse toCartResponse(Cart cart) {
-        List<CartItemResponse> items = cart.getCartItems() == null ? new ArrayList<>() : cart.getCartItems().stream()
-                .map(item -> CartItemResponse.builder()
-                        .id(item.getId())
-                        .productId(item.getProductVariant().getProduct().getId())
-                        .productName(item.getProductVariant().getProduct().getName())
-                        .productSlug(item.getProductVariant().getProduct().getSlug())
-                        .variantId(item.getProductVariant().getId())
-                        .variantName(item.getProductVariant().getName())
-                        .unitPrice(item.getUnitPrice())
-                        .quantity(item.getQuantity())
-                        .finalPrice(item.getFinalPrice())
-                        .build())
-                .collect(Collectors.toList());
+        List<CartItemResponse> items = cart.getCartItems() == null
+                ? new ArrayList<>()
+                : cart.getCartItems().stream()
+                        .map(item -> CartItemResponse.builder()
+                                .id(item.getId())
+                                .productId(item.getProductVariant().getProduct().getId())
+                                .productName(
+                                        item.getProductVariant().getProduct().getName())
+                                .productSlug(
+                                        item.getProductVariant().getProduct().getSlug())
+                                .variantId(item.getProductVariant().getId())
+                                .variantName(item.getProductVariant().getName())
+                                .unitPrice(item.getUnitPrice())
+                                .quantity(item.getQuantity())
+                                .finalPrice(item.getFinalPrice())
+                                .build())
+                        .collect(Collectors.toList());
 
         return CartResponse.builder()
                 .id(cart.getId())

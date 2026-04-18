@@ -12,6 +12,7 @@ public enum ErrorCode {
     INVALID_KEY(1001, "Invalid message key", HttpStatus.BAD_REQUEST),
     BAD_REQUEST(1002, "Bad request", HttpStatus.BAD_REQUEST),
     EXTERNAL_SERVICE_ERROR(1003, "External service connection error", HttpStatus.BAD_GATEWAY),
+    EXTERNAL_SERVICE_VALIDATION_ERROR(1022, "External service validation error", HttpStatus.BAD_REQUEST),
     RESOURCE_NOT_FOUND(1004, "Resource not found", HttpStatus.NOT_FOUND),
     CLIENT_ABORTED(1005, "Client aborted connection", HttpStatus.BAD_REQUEST),
 

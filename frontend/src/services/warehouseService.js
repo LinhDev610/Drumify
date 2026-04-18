@@ -3,7 +3,23 @@ import { CONFIG } from "../configurations/configuration";
 import { unwrapList, unwrapResult } from "../hooks/utils/unwrapApiResponse";
 
 const BASE = `${CONFIG.API_GATEWAY}/warehouse`;
-const LOCATION_BASE = `${CONFIG.API_GATEWAY}/location`;
+const ORDER_BASE = `${CONFIG.API_GATEWAY}/orders/warehouse`;
+const GHN_BASE = `${CONFIG.API_GATEWAY}/orders/ghn`;
+
+export async function fetchProvinces() {
+  const { data } = await httpClient.get(`${GHN_BASE}/provinces`);
+  return unwrapList(data);
+}
+
+export async function fetchDistricts(provinceId) {
+  const { data } = await httpClient.get(`${GHN_BASE}/districts/${provinceId}`);
+  return unwrapList(data);
+}
+
+export async function fetchWards(districtId) {
+  const { data } = await httpClient.get(`${GHN_BASE}/wards/${districtId}`);
+  return unwrapList(data);
+}
 
 export async function fetchWarehouseDashboard() {
   const { data } = await httpClient.get(`${BASE}/dashboard`);
@@ -113,49 +129,49 @@ export async function fetchMovements(from, to) {
 }
 
 export async function fetchPackingOrders() {
-  const { data } = await httpClient.get(`${BASE}/orders/packing`);
+  const { data } = await httpClient.get(`${ORDER_BASE}/packing`);
   return unwrapList(data);
 }
 
 export async function fetchWorkflowOrders(status = "ALL") {
-  const { data } = await httpClient.get(`${BASE}/orders/workflow`, {
+  const { data } = await httpClient.get(`${ORDER_BASE}/workflow`, {
     params: { status }
   });
   return unwrapList(data);
 }
 
 export async function shipOrder(orderId) {
-  const { data } = await httpClient.post(`${BASE}/orders/${orderId}/ship`);
+  const { data } = await httpClient.post(`${ORDER_BASE}/${orderId}/ship`);
   return unwrapResult(data);
 }
 
 export async function confirmOrder(orderId) {
-  const { data } = await httpClient.post(`${BASE}/orders/${orderId}/confirm`);
+  const { data } = await httpClient.post(`${ORDER_BASE}/${orderId}/confirm`, {});
   return unwrapResult(data);
 }
 
 export async function createShipmentOrder(orderId) {
-  const { data } = await httpClient.post(`${LOCATION_BASE}/orders/${orderId}/shipments/create`);
+  const { data } = await httpClient.post(`${ORDER_BASE}/${orderId}/shipments/create`);
   return unwrapResult(data);
 }
 
 export async function fetchShipments() {
-  const { data } = await httpClient.get(`${LOCATION_BASE}/shipments`);
+  const { data } = await httpClient.get(`${ORDER_BASE}/shipments`);
   return unwrapList(data);
 }
 
 export async function updateShipment(shipmentId, payload) {
-  const { data } = await httpClient.patch(`${LOCATION_BASE}/shipments/${shipmentId}`, payload);
+  const { data } = await httpClient.patch(`${ORDER_BASE}/shipments/${shipmentId}`, payload);
   return unwrapResult(data);
 }
 
 export async function syncShipmentByOrder(orderId) {
-  const { data } = await httpClient.post(`${LOCATION_BASE}/shipments/sync/${orderId}`);
+  const { data } = await httpClient.post(`${ORDER_BASE}/shipments/sync/${orderId}`);
   return unwrapResult(data);
 }
 
 export async function cancelOrder(orderId) {
-  const { data } = await httpClient.post(`${BASE}/orders/${orderId}/cancel`);
+  const { data } = await httpClient.post(`${ORDER_BASE}/${orderId}/cancel`, {});
   return unwrapResult(data);
 }
 

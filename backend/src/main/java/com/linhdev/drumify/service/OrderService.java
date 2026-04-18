@@ -4,20 +4,22 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.linhdev.drumify.entity.*;
-import com.linhdev.drumify.repository.AddressRepository;
-import com.linhdev.drumify.repository.OrderItemRepository;
-import com.linhdev.drumify.repository.ProfileRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.linhdev.drumify.dto.warehouse.OrderResponse;
+import com.linhdev.drumify.entity.*;
 import com.linhdev.drumify.enums.OrderStatus;
 import com.linhdev.drumify.enums.PaymentMethod;
 import com.linhdev.drumify.exception.AppException;
 import com.linhdev.drumify.exception.ErrorCode;
 import com.linhdev.drumify.mapper.OrderMapper;
+import com.linhdev.drumify.repository.AddressRepository;
+import com.linhdev.drumify.repository.OrderItemRepository;
 import com.linhdev.drumify.repository.OrderRepository;
+import com.linhdev.drumify.repository.PaymentRepository;
+import com.linhdev.drumify.repository.ProfileRepository;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +44,7 @@ public class OrderService {
     ProfileRepository profileRepository;
     AddressRepository addressRepository;
     OrderItemRepository orderItemRepository;
+    PaymentRepository paymentRepository;
 
     @Transactional
     public OrderResponse createOrder(com.linhdev.drumify.dto.request.CreateOrderRequest request) {
@@ -63,10 +66,13 @@ public class OrderService {
             throw new AppException(ErrorCode.BAD_REQUEST);
         }
 
-        Address address = addressRepository.findById(request.getAddressId())
+        Address address = addressRepository
+                .findById(request.getAddressId())
                 .orElseThrow(() -> new AppException(ErrorCode.ADDRESS_NOT_EXISTED));
 
-        Double subtotal = selectedItems.stream().mapToDouble(ci -> ci.getUnitPrice() * ci.getQuantity()).sum();
+        Double subtotal = selectedItems.stream()
+                .mapToDouble(ci -> ci.getUnitPrice() * ci.getQuantity())
+                .sum();
         Double shippingFee = request.getShippingFee() != null ? request.getShippingFee() : 0;
 
         Order order = Order.builder()
@@ -98,14 +104,36 @@ public class OrderService {
 
         // Remove only selected items from cart
         cart.getCartItems().removeAll(selectedItems);
-        
+
         // Recalculate cart totals
-        Double newSubtotal = cart.getCartItems().stream().mapToDouble(ci -> ci.getUnitPrice() * ci.getQuantity()).sum();
+        Double newSubtotal = cart.getCartItems().stream()
+                .mapToDouble(ci -> ci.getUnitPrice() * ci.getQuantity())
+                .sum();
         cart.setSubtotal(newSubtotal);
         cart.setTotalAmount(newSubtotal - (cart.getVoucherDiscount() != null ? cart.getVoucherDiscount() : 0));
         if (cart.getTotalAmount() < 0) cart.setTotalAmount(0D);
 
+        // Create initial payment for the order
+        Payment payment = Payment.builder()
+                .order(savedOrder)
+                .paymentMethod(request.getPaymentMethod())
+                .totalAmount(savedOrder.getTotalAmount())
+                .build();
+        paymentRepository.save(payment);
+        savedOrder.setPayment(payment);
+
         return orderMapper.toOrderResponse(savedOrder);
+    }
+
+    public List<OrderResponse> getMyOrders() {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        Profile profile = profileRepository
+                .findByUserId(auth.getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        return orderRepository.findMyOrdersWithItems(profile.getProfileId()).stream()
+                .map(orderMapper::toOrderResponse)
+                .collect(Collectors.toList());
     }
 
     public List<OrderResponse> listOrdersForPacking() {

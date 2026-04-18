@@ -16,8 +16,8 @@ import {
 } from '../../services/userService';
 import { useProfile } from '../../context/ProfileContext';
 import { uploadToCloudinary } from '../../services/imageService';
-import SetAvatarDialog from '../../component/Profile/SetAvatarDialog';
-import CloudinaryImage from '../../component/Common/CloudinaryImage';
+import SetAvatarDialog from '../../components/Profile/SetAvatarDialog';
+import CloudinaryImage from '../../components/Common/CloudinaryImage';
 import { useSearchParams } from 'react-router-dom';
 import PersonIcon from '@mui/icons-material/Person';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';

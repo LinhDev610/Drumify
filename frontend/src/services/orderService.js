@@ -8,6 +8,6 @@ export async function placeOrder(orderData) {
 }
 
 export async function getMyOrders() {
-    const { data } = await httpClient.get(`${BASE}/my-orders`);
-    return data.result;
+    const { data } = await httpClient.get(`${BASE}/my`);
+    return data.result || data;
 }

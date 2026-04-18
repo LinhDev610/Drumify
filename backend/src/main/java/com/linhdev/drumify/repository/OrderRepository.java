@@ -40,6 +40,17 @@ public interface OrderRepository extends JpaRepository<Order, String> {
             + "ORDER BY o.orderAt DESC")
     List<Order> findAllForWarehouseWithItems();
 
+    // Lấy danh sách đơn hàng của khách hàng
+    @Query("SELECT DISTINCT o FROM Order o "
+            + "LEFT JOIN FETCH o.orderItem oi "
+            + "LEFT JOIN FETCH oi.productVariant pv "
+            + "LEFT JOIN FETCH pv.product "
+            + "LEFT JOIN FETCH o.address "
+            + "LEFT JOIN FETCH o.payment "
+            + "WHERE o.profile.profileId = :profileId "
+            + "ORDER BY o.orderAt DESC")
+    List<Order> findMyOrdersWithItems(@Param("profileId") String profileId);
+
     // Lấy đơn chi tiết để ship
     @Query("SELECT DISTINCT o FROM Order o "
             + "LEFT JOIN FETCH o.orderItem oi "

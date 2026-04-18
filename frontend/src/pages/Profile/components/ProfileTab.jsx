@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from '../Profile.module.scss';
-import CloudinaryImage from '../../../component/Common/CloudinaryImage';
+import CloudinaryImage from '../../../components/Common/CloudinaryImage';
 import defaultAvatar from '../../../assets/images/default-avatar.png';
 
 const ProfileTab = ({

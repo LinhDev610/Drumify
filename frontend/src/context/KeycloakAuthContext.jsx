@@ -4,10 +4,6 @@ import keycloak from "../keycloak";
 
 const KeycloakAuthContext = createContext(null);
 
-/**
- * Initializes keycloak-js once, exposes ready/authenticated, and keeps state in sync
- * with login, logout, and errors (works with SSO cookies / check-sso).
- */
 export function KeycloakAuthProvider({ children }) {
   const [ready, setReady] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
@@ -59,7 +55,7 @@ export function KeycloakAuthProvider({ children }) {
   const logout = useCallback(
     (options) =>
       keycloak.logout({
-        redirectUri: window.location.origin + "/", // Mặc định về trang chủ
+        redirectUri: window.location.origin + "/",
         ...options,
       }),
     [],

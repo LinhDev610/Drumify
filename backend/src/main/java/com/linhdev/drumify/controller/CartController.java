@@ -19,24 +19,18 @@ public class CartController {
 
     @GetMapping
     ApiResponse<CartResponse> getCart() {
-        return ApiResponse.<CartResponse>builder()
-                .result(cartService.getCart())
-                .build();
+        return ApiResponse.<CartResponse>builder().result(cartService.getCart()).build();
     }
 
     @PostMapping("/items")
-    ApiResponse<CartResponse> addItem(
-            @RequestParam String variantId, 
-            @RequestParam Integer quantity) {
+    ApiResponse<CartResponse> addItem(@RequestParam String variantId, @RequestParam Integer quantity) {
         return ApiResponse.<CartResponse>builder()
                 .result(cartService.addItem(variantId, quantity))
                 .build();
     }
 
     @PutMapping("/items/{itemId}")
-    ApiResponse<CartResponse> updateItemQuantity(
-            @PathVariable String itemId, 
-            @RequestParam Integer quantity) {
+    ApiResponse<CartResponse> updateItemQuantity(@PathVariable String itemId, @RequestParam Integer quantity) {
         return ApiResponse.<CartResponse>builder()
                 .result(cartService.updateItemQuantity(itemId, quantity))
                 .build();

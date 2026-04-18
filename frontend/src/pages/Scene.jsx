@@ -3,8 +3,8 @@ import Box from "@mui/material/Box";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Container from "@mui/material/Container";
-import Header from "../component/Header";
-import CategoryGrid from "../component/CategoryGrid/CategoryGrid";
+import Header from "../components/Common/Header";
+import CategoryGrid from "../components/Common/CategoryGrid/CategoryGrid";
 import { useLocation } from "react-router-dom";
 import { useThemeStatus } from "../context/ThemeContext";
 

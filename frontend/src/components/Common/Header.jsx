@@ -31,7 +31,7 @@ import { useThemeStatus } from "../context/ThemeContext";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LanguageIcon from "@mui/icons-material/Language";
-import CloudinaryImage from "../component/Common/CloudinaryImage";
+import CloudinaryImage from "./CloudinaryImage";
 import drumifyLogo from "../assets/images/drumify.png";
 
 const Search = styled("div")(({ theme }) => ({
@@ -248,10 +248,10 @@ export default function Header() {
           }}
         >
           <Box
-            sx={{ 
-              width: "42px", 
-              height: "42px", 
-              borderRadius: "12px", 
+            sx={{
+              width: "42px",
+              height: "42px",
+              borderRadius: "12px",
               mr: 1.5,
               display: 'flex',
               alignItems: 'center',
@@ -265,9 +265,9 @@ export default function Header() {
           >
             <Box
               component={"img"}
-              sx={{ 
-                width: "28px", 
-                height: "28px", 
+              sx={{
+                width: "28px",
+                height: "28px",
                 objectFit: 'contain'
               }}
               src={drumifyLogo}
@@ -304,20 +304,20 @@ export default function Header() {
                 fontSize: '0.9rem',
                 letterSpacing: '0.02em',
                 px: 2,
-                '&:hover': { 
-                    color: item.path.startsWith('#') ? 'var(--color-accent-gold)' : (isDarkMode ? '#fff' : '#000'),
-                    bgcolor: isDarkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'
+                '&:hover': {
+                  color: item.path.startsWith('#') ? 'var(--color-accent-gold)' : (isDarkMode ? '#fff' : '#000'),
+                  bgcolor: isDarkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'
                 },
                 position: 'relative',
                 '&::after': location.pathname === item.path ? {
-                    content: '""',
-                    position: 'absolute',
-                    bottom: 6,
-                    left: '20%',
-                    width: '60%',
-                    height: '2px',
-                    bgcolor: 'var(--color-accent-gold)',
-                    borderRadius: '2px'
+                  content: '""',
+                  position: 'absolute',
+                  bottom: 6,
+                  left: '20%',
+                  width: '60%',
+                  height: '2px',
+                  bgcolor: 'var(--color-accent-gold)',
+                  borderRadius: '2px'
                 } : {}
               }}
             >
@@ -329,7 +329,7 @@ export default function Header() {
 
       <Box sx={{ flexGrow: 1 }} />
 
-      <Search sx={{ 
+      <Search sx={{
         bgcolor: isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)',
         border: isDarkMode ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(0, 0, 0, 0.1)',
         color: isDarkMode ? '#fff' : '#000'
@@ -346,33 +346,33 @@ export default function Header() {
       <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: 'center', gap: 1 }}>
         {/* Preference Toggles (Desktop) */}
         <Stack direction="row" spacing={1} sx={{ mr: 2 }}>
-           <IconButton 
-             onClick={toggleTheme} 
-             size="small"
-             sx={{ 
-                color: isDarkMode ? 'var(--color-accent-gold)' : 'rgba(0,0,0,0.5)',
-                bgcolor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
-                '&:hover': { bgcolor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }
-             }}
-           >
-              {isDarkMode ? <LightModeIcon /> : <DarkModeIcon />}
-           </IconButton>
-           <Button 
-             onClick={toggleLanguage}
-             size="small"
-             startIcon={<LanguageIcon />}
-             sx={{ 
-                color: isDarkMode ? '#fff' : '#000',
-                fontWeight: 800,
-                fontSize: '0.75rem',
-                textTransform: 'uppercase',
-                border: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)',
-                borderRadius: '10px',
-                px: 1.5
-             }}
-           >
-              {i18n.language === 'en' ? 'EN' : 'VI'}
-           </Button>
+          <IconButton
+            onClick={toggleTheme}
+            size="small"
+            sx={{
+              color: isDarkMode ? 'var(--color-accent-gold)' : 'rgba(0,0,0,0.5)',
+              bgcolor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+              '&:hover': { bgcolor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }
+            }}
+          >
+            {isDarkMode ? <LightModeIcon /> : <DarkModeIcon />}
+          </IconButton>
+          <Button
+            onClick={toggleLanguage}
+            size="small"
+            startIcon={<LanguageIcon />}
+            sx={{
+              color: isDarkMode ? '#fff' : '#000',
+              fontWeight: 800,
+              fontSize: '0.75rem',
+              textTransform: 'uppercase',
+              border: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)',
+              borderRadius: '10px',
+              px: 1.5
+            }}
+          >
+            {i18n.language === 'en' ? 'EN' : 'VI'}
+          </Button>
         </Stack>
 
         <IconButton component={Link} to="/cart" size="large" aria-label="cart" color="inherit">
@@ -438,8 +438,8 @@ export default function Header() {
             onClick={() => login()}
             sx={{
               ml: 1,
-              background: isDarkMode 
-                ? 'linear-gradient(135deg, #d4af37 0%, #b8860b 100%)' 
+              background: isDarkMode
+                ? 'linear-gradient(135deg, #d4af37 0%, #b8860b 100%)'
                 : 'linear-gradient(135deg, #000 0%, #333 100%)',
               color: isDarkMode ? '#000' : '#fff',
               fontWeight: 900,
@@ -447,17 +447,17 @@ export default function Header() {
               borderRadius: '14px',
               py: 1.2,
               px: 3.5,
-              boxShadow: isDarkMode 
-                ? '0 4px 15px rgba(212, 175, 55, 0.3)' 
+              boxShadow: isDarkMode
+                ? '0 4px 15px rgba(212, 175, 55, 0.3)'
                 : '0 4px 15px rgba(0, 0, 0, 0.2)',
               '&:hover': {
-                background: isDarkMode 
-                  ? 'white' 
+                background: isDarkMode
+                  ? 'white'
                   : 'var(--color-accent-gold)',
                 color: '#000',
                 transform: 'translateY(-3px) scale(1.02)',
-                boxShadow: isDarkMode 
-                  ? '0 10px 25px rgba(212, 175, 55, 0.5)' 
+                boxShadow: isDarkMode
+                  ? '0 10px 25px rgba(212, 175, 55, 0.5)'
                   : '0 10px 25px rgba(0, 0, 0, 0.3)',
               },
               transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'

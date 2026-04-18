@@ -10,8 +10,10 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClientResponseException;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linhdev.drumify.client.ShipmentClient;
 import com.linhdev.drumify.dto.shipment.GhnCreateOrderDataResponse;
 import com.linhdev.drumify.dto.shipment.GhnCreateOrderRequest;
@@ -57,6 +59,7 @@ public class ShipmentService {
     OrderRepository orderRepository;
     ShipmentMapper shipmentMapper;
     InventoryService inventoryService;
+    ObjectMapper objectMapper;
 
     @Value("${ghn.token-api}")
     @NonFinal
@@ -260,7 +263,7 @@ public class ShipmentService {
 
     private GhnCreateOrderDataResponse createGhnOrderWithRetry(Order order) {
         String clientOrderCode = buildClientOrderCode(order);
-        RuntimeException latestEx = null;
+        Exception latestEx = null;
         for (int attempt = 1; attempt <= GHN_RETRY_MAX_ATTEMPTS; attempt++) {
             try {
                 GhnCreateOrderRequest request = buildGhnCreateOrderRequest(order, clientOrderCode);
@@ -270,9 +273,19 @@ public class ShipmentService {
                 }
                 latestEx = new RuntimeException(
                         response != null ? response.getMessage() : "GHN create order response null");
-            } catch (RuntimeException ex) {
+            } catch (RestClientResponseException ex) {
+                String errorBody = ex.getResponseBodyAsString();
+                log.error("GHN create order client error: {} - Body: {}", ex.getMessage(), errorBody);
+
+                if (ex.getStatusCode().is4xxClientError()) {
+                    String ghnMessage = extractGhnErrorMessage(errorBody);
+                    throw new AppException(ErrorCode.EXTERNAL_SERVICE_VALIDATION_ERROR, ghnMessage);
+                }
+                latestEx = ex;
+            } catch (Exception ex) {
                 latestEx = ex;
             }
+
             Optional<GhnCreateOrderDataResponse> existed = tryResolveExistedByClientOrderCode(clientOrderCode);
             if (existed.isPresent()) {
                 return existed.get();
@@ -281,6 +294,19 @@ public class ShipmentService {
         }
         if (latestEx != null) log.error("GHN create order failed after retries for order {}", order.getId(), latestEx);
         throw new AppException(ErrorCode.EXTERNAL_SERVICE_ERROR);
+    }
+
+    private String extractGhnErrorMessage(String errorBody) {
+        if (errorBody == null || errorBody.isBlank()) return "Unknown GHN error";
+        try {
+            JsonNode root = objectMapper.readTree(errorBody);
+            if (root.has("code_message_value"))
+                return root.get("code_message_value").asText();
+            if (root.has("message")) return root.get("message").asText();
+        } catch (Exception e) {
+            log.warn("Failed to parse GHN error body: {}", errorBody);
+        }
+        return "GHN Error: " + errorBody;
     }
 
     private Optional<GhnCreateOrderDataResponse> tryResolveExistedByClientOrderCode(String clientOrderCode) {
@@ -293,7 +319,13 @@ public class ShipmentService {
                         .totalFee(detail.getTotalFee())
                         .build());
             }
-        } catch (RuntimeException ex) {
+        } catch (RestClientResponseException ex) {
+            if (ex.getStatusCode().is4xxClientError()) {
+                log.debug("GHN order not found yet for client code: {}", clientOrderCode);
+            } else {
+                log.warn("GHN detail-by-client-code failed with status {}: {}", ex.getStatusCode(), ex.getMessage());
+            }
+        } catch (Exception ex) {
             log.warn("GHN detail-by-client-code failed for {}", clientOrderCode, ex);
         }
         return Optional.empty();

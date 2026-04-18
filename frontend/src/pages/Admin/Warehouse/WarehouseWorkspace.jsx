@@ -65,8 +65,9 @@ import "react-quill-new/dist/quill.snow.css";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
+import SearchIcon from "@mui/icons-material/Search";
 import { uploadToCloudinary } from "../../../services/imageService";
-import { IconButton } from "@mui/material";
+import { IconButton, InputAdornment } from "@mui/material";
 
 const WH_TAB_CONFIG = [
   { label: "Sản phẩm", path: "/admin/products" },
@@ -1259,7 +1260,8 @@ function OrdersTab() {
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(true);
   const [detail, setDetail] = useState(null);
-  const [statusFilter, setStatusFilter] = useState("ACTIVE");
+  const [statusFilter, setStatusFilter] = useState("ACTIVE"); // ACTIVE, ALL, NEW, CONFIRMED, SHIPPING, COMPLETED, CANCELLED
+  const [searchTerm, setSearchTerm] = useState("");
   const [edit, setEdit] = useState(null);
   const [form, setForm] = useState({
     ghnOrderCode: "",
@@ -1273,8 +1275,11 @@ function OrdersTab() {
     setLoading(true);
     setErr("");
     try {
+      // Fetch workflow orders. We fetch "ALL" or "ACTIVE" and then filter locally if needed, 
+      // but let's stick to fetchWorkflowOrders behavior.
+      // If statusFilter is "ACTIVE", it returns orders from CREATED to SHIPPED.
       const [orderList, shipmentList] = await Promise.all([
-        fetchWorkflowOrders(statusFilter),
+        fetchWorkflowOrders(statusFilter === "NEW" ? "CREATED" : statusFilter === "COMPLETED" ? "DELIVERED" : statusFilter === "SHIPPING" ? "SHIPPED" : statusFilter),
         fetchShipments()
       ]);
       setOrders(orderList);
@@ -1363,6 +1368,24 @@ function OrdersTab() {
     return map;
   }, [shipments]);
 
+  const filteredOrders = useMemo(() => {
+    return orders.filter(o => {
+      const matchSearch = (o.code?.toLowerCase().includes(searchTerm.toLowerCase())) || 
+                          (o.shippingSummary?.toLowerCase().includes(searchTerm.toLowerCase()));
+      return matchSearch;
+    });
+  }, [orders, searchTerm]);
+
+  const ORDER_TABS = [
+    { value: "ACTIVE", label: "Đang xử lý" },
+    { value: "NEW", label: "Đơn mới/Chờ duyệt" },
+    { value: "CONFIRMED", label: "Duyệt/Chờ lấy" },
+    { value: "SHIPPING", label: "Đang giao" },
+    { value: "COMPLETED", label: "Hoàn tất" },
+    { value: "CANCELLED", label: "Đã hủy" },
+    { value: "ALL", label: "Tất cả" },
+  ];
+
   return (
     <Box>
       {err && (
@@ -1370,31 +1393,47 @@ function OrdersTab() {
           {err}
         </Alert>
       )}
-      <Paper sx={{ p: 2, mb: 2, bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
-        <Stack direction={{ xs: "column", md: "row" }} spacing={1.5} alignItems={{ md: "center" }}>
-          <FormControl size="small" sx={{ minWidth: 260 }}>
-            <InputLabel>Lọc theo luồng xử lý</InputLabel>
-            <Select
-              label="Lọc theo luồng xử lý"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <MenuItem value="ACTIVE">Đang xử lý (mới đến đang vận chuyển)</MenuItem>
-              <MenuItem value="ALL">Tất cả đơn trong workflow kho</MenuItem>
-              <MenuItem value="CREATED">Chờ xác nhận (CREATED)</MenuItem>
-              <MenuItem value="PAID">Đã thanh toán (PAID)</MenuItem>
-              <MenuItem value="CONFIRMED">Đã xác nhận, chờ tạo vận đơn</MenuItem>
-              <MenuItem value="SHIPPED">Đang vận chuyển</MenuItem>
-              <MenuItem value="DELIVERED">Giao thành công</MenuItem>
-              <MenuItem value="CANCELLED">Đã hủy</MenuItem>
-            </Select>
-          </FormControl>
-          <Button variant="outlined" onClick={load} disabled={loading}>
-            Làm mới danh sách
+
+      {/* Header with Search and Refresh */}
+      <Paper sx={{ p: 2, mb: 0, bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)", borderBottom: "none", borderRadius: "8px 8px 0 0" }}>
+        <Stack direction={{ xs: "column", md: "row" }} spacing={2} justifyContent="space-between" alignItems="center">
+          <TextField
+             size="small"
+             placeholder="Tìm mã đơn, địa chỉ..."
+             value={searchTerm}
+             onChange={(e) => setSearchTerm(e.target.value)}
+             sx={{ width: { xs: "100%", md: 400 } }}
+             InputProps={{
+               startAdornment: (
+                 <InputAdornment position="start">
+                   <SearchIcon fontSize="small" />
+                 </InputAdornment>
+               )
+             }}
+          />
+          <Button variant="outlined" onClick={load} disabled={loading} startIcon={loading && <LinearProgress sx={{ width: 20 }} />}>
+            {loading ? "Đang tải..." : "Tải lại dữ liệu"}
           </Button>
         </Stack>
       </Paper>
-      <TableContainer component={Paper} sx={{ bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
+
+      {/* Status Tabs */}
+      <Box sx={{ borderBottom: 1, borderColor: "divider", bgcolor: "rgba(255,255,255,0.02)" }}>
+        <Tabs 
+          value={statusFilter} 
+          onChange={(e, val) => setStatusFilter(val)}
+          variant="scrollable"
+          scrollButtons="auto"
+          textColor="primary"
+          indicatorColor="primary"
+        >
+          {ORDER_TABS.map(t => (
+            <Tab key={t.value} label={t.label} value={t.value} sx={{ fontWeight: 600, textTransform: "none" }} />
+          ))}
+        </Tabs>
+      </Box>
+
+      <TableContainer component={Paper} sx={{ bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)", borderTop: "none", borderRadius: "0 0 8px 8px" }}>
         <Table size="small">
           <TableHead>
             <TableRow>
@@ -1402,24 +1441,33 @@ function OrdersTab() {
               <TableCell>Thanh toán</TableCell>
               <TableCell>Trạng thái</TableCell>
               <TableCell>Vận chuyển</TableCell>
-              <TableCell>Thời điểm</TableCell>
-              <TableCell>Địa chỉ giao</TableCell>
-              <TableCell align="right">Thao tác</TableCell>
+              <TableCell>Ngày đặt</TableCell>
+              <TableCell align="right">Hành động</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={7}>
-                  <LinearProgress />
+                <TableCell colSpan={6}>
+                  <LinearProgress sx={{ my: 2 }} />
+                </TableCell>
+              </TableRow>
+            ) : filteredOrders.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} align="center" sx={{ py: 6, opacity: 0.5 }}>
+                  <Typography>Không có đơn hàng nào.</Typography>
                 </TableCell>
               </TableRow>
             ) : (
-              orders.map((o) => (
+              filteredOrders.map((o) => (
                 <TableRow key={o.id} hover>
-                  <TableCell>{o.code}</TableCell>
                   <TableCell>
-                    <Chip size="small" label={o.paymentMethod || "—"} />
+                    <Typography variant="body2" sx={{ fontWeight: 700 }}>{o.code}</Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Stack direction="column">
+                      <Typography variant="caption" color="textSecondary">{o.paymentMethod || "COD"}</Typography>
+                    </Stack>
                   </TableCell>
                   <TableCell>
                     <Chip
@@ -1427,65 +1475,73 @@ function OrdersTab() {
                       label={
                         o.status && typeof o.status === "object" ? o.status.displayName ?? o.status.name : String(o.status ?? "")
                       }
+                      color={o.statusCode === "DELIVERED" ? "success" : o.statusCode === "CANCELLED" ? "error" : "default"}
                     />
                   </TableCell>
                   <TableCell>
-                    <Chip size="small" color={o.shipmentCreated ? "success" : "default"} label={o.shipmentCreated ? "Đã tạo vận đơn" : "Chưa tạo vận đơn"} />
+                    {o.shipmentCreated ? (
+                      <Chip size="small" variant="outlined" color="success" label="Đã có vận đơn" />
+                    ) : (
+                      <Typography variant="caption" color="textSecondary">Chờ xử lý</Typography>
+                    )}
                   </TableCell>
-                  <TableCell>{o.orderAt ? String(o.orderAt).replace("T", " ").slice(0, 19) : "—"}</TableCell>
-                  <TableCell sx={{ maxWidth: 280 }}>
-                    <Typography variant="body2" noWrap title={o.shippingSummary}>
-                      {o.shippingSummary || "—"}
-                    </Typography>
+                  <TableCell>
+                    <Typography variant="caption">{o.orderAt ? String(o.orderAt).replace("T", " ").slice(0, 16) : "—"}</Typography>
                   </TableCell>
                   <TableCell align="right">
-                    <Button size="small" sx={{ mr: 1 }} onClick={() => setDetail(o)}>
-                      Chi tiết
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      sx={{ mr: 1 }}
-                      disabled={o.statusCode !== "CREATED" && o.statusCode !== "PAID" && o.statusCode !== "CONFIRMED"}
-                      onClick={() => confirm(o.id)}
-                    >
-                      Xác nhận
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="contained"
-                      disabled={o.statusCode !== "CONFIRMED" || o.shipmentCreated}
-                      onClick={() => createWaybill(o.id)}
-                    >
-                      {o.shipmentCreated ? "Đã có vận đơn" : "Tạo vận đơn GHN"}
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      sx={{ ml: 1 }}
-                      disabled={!shipmentMap.get(o.id)}
-                      onClick={() => openEdit(shipmentMap.get(o.id))}
-                    >
-                      Tracking
-                    </Button>
-                    <Button
-                      size="small"
-                      sx={{ ml: 1 }}
-                      disabled={!shipmentMap.get(o.id)}
-                      onClick={() => syncByOrder(o.id)}
-                    >
-                      Đồng bộ GHN
-                    </Button>
-                    <Button
-                      size="small"
-                      color="error"
-                      sx={{ ml: 1 }}
-                      variant="text"
-                      disabled={["SHIPPED", "DELIVERED", "REFUNDED", "CANCELLED"].includes(o.statusCode)}
-                      onClick={() => cancel(o.id)}
-                    >
-                      Hủy
-                    </Button>
+                    <Stack direction="row" spacing={1} justifyContent="flex-end">
+                      <Button size="small" variant="text" onClick={() => setDetail(o)}>Chi tiết</Button>
+                      
+                      {/* Contextual Buttons */}
+                      {(o.statusCode === "CREATED" || o.statusCode === "PAID") && (
+                        <Button
+                          size="small"
+                          variant="contained"
+                          color="primary"
+                          onClick={() => confirm(o.id)}
+                        >
+                          Xác nhận & Duyệt
+                        </Button>
+                      )}
+
+                      {o.statusCode === "CONFIRMED" && !o.shipmentCreated && (
+                        <Button
+                          size="small"
+                          variant="contained"
+                          color="secondary"
+                          onClick={() => createWaybill(o.id)}
+                        >
+                          Tạo vận đơn
+                        </Button>
+                      )}
+
+                      {(o.statusCode === "SHIPPED" || o.shipmentCreated) && (
+                        <>
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            disabled={!shipmentMap.get(o.id)}
+                            onClick={() => openEdit(shipmentMap.get(o.id))}
+                          >
+                            Tracking
+                          </Button>
+                          <IconButton size="small" color="primary" disabled={!shipmentMap.get(o.id)} onClick={() => syncByOrder(o.id)} title="Đồng bộ GHN">
+                            <PlayCircleOutlineIcon fontSize="small" />
+                          </IconButton>
+                        </>
+                      )}
+
+                      {!["SHIPPED", "DELIVERED", "CANCELLED"].includes(o.statusCode) && (
+                        <Button
+                          size="small"
+                          color="error"
+                          variant="text"
+                          onClick={() => cancel(o.id)}
+                        >
+                          Hủy
+                        </Button>
+                      )}
+                    </Stack>
                   </TableCell>
                 </TableRow>
               ))

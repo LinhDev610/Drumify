@@ -3,14 +3,9 @@ package com.linhdev.drumify.controller;
 import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.linhdev.drumify.dto.ApiResponse;
 import com.linhdev.drumify.dto.shipment.GhnDistrictResponse;
 import com.linhdev.drumify.dto.shipment.GhnProvinceResponse;
@@ -24,34 +19,34 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @RestController
-@RequestMapping("/location")
+@RequestMapping("/orders")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ShipmentController {
     ShipmentService shipmentService;
 
-    @GetMapping("/provinces")
+    @GetMapping("/ghn/provinces")
     ApiResponse<List<GhnProvinceResponse>> getProvinces() {
         return ApiResponse.<List<GhnProvinceResponse>>builder()
                 .result(shipmentService.getProvinces())
                 .build();
     }
 
-    @GetMapping("/districts/{provinceId}")
+    @GetMapping("/ghn/districts/{provinceId}")
     ApiResponse<List<GhnDistrictResponse>> getDistricts(@PathVariable int provinceId) {
         return ApiResponse.<List<GhnDistrictResponse>>builder()
                 .result(shipmentService.getDistricts(provinceId))
                 .build();
     }
 
-    @GetMapping("/wards/{districtId}")
+    @GetMapping("/ghn/wards/{districtId}")
     ApiResponse<List<GhnWardResponse>> getWards(@PathVariable int districtId) {
         return ApiResponse.<List<GhnWardResponse>>builder()
                 .result(shipmentService.getWards(districtId))
                 .build();
     }
 
-    @PostMapping("/orders/{id}/shipments/create")
+    @PostMapping("/warehouse/{id}/shipments/create")
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
     ApiResponse<ShipmentResponse> createGhnShipment(@PathVariable String id) {
         return ApiResponse.<ShipmentResponse>builder()
@@ -59,7 +54,7 @@ public class ShipmentController {
                 .build();
     }
 
-    @GetMapping("/shipments")
+    @GetMapping("/warehouse/shipments")
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
     ApiResponse<List<ShipmentResponse>> showShipments() {
         return ApiResponse.<List<ShipmentResponse>>builder()
@@ -67,7 +62,7 @@ public class ShipmentController {
                 .build();
     }
 
-    @GetMapping("/shipments/order/{orderId}")
+    @GetMapping("/warehouse/shipments/order/{orderId}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
     ApiResponse<ShipmentResponse> getShipmentByOrderId(@PathVariable String orderId) {
         return ApiResponse.<ShipmentResponse>builder()
@@ -75,7 +70,7 @@ public class ShipmentController {
                 .build();
     }
 
-    @PostMapping("/shipments/sync/{orderId}")
+    @PostMapping("/warehouse/shipments/sync/{orderId}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
     ApiResponse<ShipmentResponse> syncShipmentStatus(@PathVariable String orderId) {
         return ApiResponse.<ShipmentResponse>builder()
@@ -83,11 +78,18 @@ public class ShipmentController {
                 .build();
     }
 
-    @PatchMapping("/shipments/{id}")
+    @PatchMapping("/warehouse/shipments/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
     ApiResponse<ShipmentResponse> updateShipment(@PathVariable String id, @RequestBody ShipmentUpdateRequest request) {
         return ApiResponse.<ShipmentResponse>builder()
                 .result(shipmentService.updateShipment(id, request))
                 .build();
+    }
+
+    @PostMapping("/ghn/webhook")
+    ApiResponse<String> ghnWebhook(
+            @RequestHeader(value = "X-Webhook-Secret", required = false) String secret, @RequestBody JsonNode payload) {
+        shipmentService.handleGhnWebhook(secret, payload);
+        return ApiResponse.<String>builder().result("ok").build();
     }
 }

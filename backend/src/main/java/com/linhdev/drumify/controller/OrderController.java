@@ -3,14 +3,10 @@ package com.linhdev.drumify.controller;
 import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.linhdev.drumify.dto.ApiResponse;
+import com.linhdev.drumify.dto.request.CreateOrderRequest;
 import com.linhdev.drumify.dto.warehouse.OrderResponse;
 import com.linhdev.drumify.service.OrderService;
 
@@ -19,42 +15,60 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @RestController
-@RequestMapping("/warehouse")
+@RequestMapping("/orders")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
 public class OrderController {
     OrderService orderService;
 
-    @GetMapping("/orders/packing")
+    @PostMapping("/checkout")
+    ApiResponse<OrderResponse> createOrder(@RequestBody CreateOrderRequest request) {
+        return ApiResponse.<OrderResponse>builder()
+                .result(orderService.createOrder(request))
+                .build();
+    }
+
+    @GetMapping("/my")
+    ApiResponse<List<OrderResponse>> getMyOrders() {
+        return ApiResponse.<List<OrderResponse>>builder()
+                .result(orderService.getMyOrders())
+                .build();
+    }
+
+    @GetMapping("/warehouse/packing")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
     ApiResponse<List<OrderResponse>> packingOrders() {
         return ApiResponse.<List<OrderResponse>>builder()
                 .result(orderService.listOrdersForPacking())
                 .build();
     }
 
-    @GetMapping("/orders/workflow")
+    @GetMapping("/warehouse/workflow")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
     ApiResponse<List<OrderResponse>> workflowOrders(@RequestParam(value = "status", required = false) String status) {
         return ApiResponse.<List<OrderResponse>>builder()
                 .result(orderService.listOrdersForWorkflow(status))
                 .build();
     }
 
-    @PostMapping("/orders/{id}/ship")
+    @PostMapping("/warehouse/{id}/ship")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
     ApiResponse<OrderResponse> createShip(@PathVariable String id) {
         return ApiResponse.<OrderResponse>builder()
                 .result(orderService.shipOrder(id))
                 .build();
     }
 
-    @PostMapping("/orders/{id}/confirm")
+    @PostMapping("/warehouse/{id}/confirm")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
     ApiResponse<OrderResponse> confirmOrder(@PathVariable String id) {
         return ApiResponse.<OrderResponse>builder()
                 .result(orderService.confirmOrder(id))
                 .build();
     }
 
-    @PostMapping("/orders/{id}/cancel")
+    @PostMapping("/warehouse/{id}/cancel")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
     ApiResponse<OrderResponse> cancelOrder(@PathVariable String id) {
         return ApiResponse.<OrderResponse>builder()
                 .result(orderService.cancelOrder(id))

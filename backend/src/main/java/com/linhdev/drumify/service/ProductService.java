@@ -47,9 +47,8 @@ public class ProductService {
     }
 
     public ProductResponse getProductBySlug(String slug) {
-        Product product = productRepository
-                .findBySlug(slug)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
+        Product product =
+                productRepository.findBySlug(slug).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
         return toProductResponse(product);
     }
 
