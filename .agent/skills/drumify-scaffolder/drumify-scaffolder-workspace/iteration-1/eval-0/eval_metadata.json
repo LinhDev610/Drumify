@@ -1,0 +1,23 @@
+{
+  "eval_id": 0,
+  "eval_name": "brand-crud-generation",
+  "prompt": "Tạo trọn bộ tính năng CRUD (Full-stack) cho thực thể 'Brand' (Nhãn hiệu). Các trường dữ liệu gồm: name, description, countryOfOrigin, website, active (boolean). Backend đặt trong package com.linhdev.drumify, Frontend cập nhật vào warehouseService.js và thêm Tab mới vào WarehouseWorkspace.jsx.",
+  "assertions": [
+    {
+      "name": "Backend Layering",
+      "text": "Code has separate Entity, Service, Controller, and DTO layers."
+    },
+    {
+      "name": "Security Annotation",
+      "text": "Controller has @PreAuthorize annotation with correct roles."
+    },
+    {
+      "name": "Frontend Integration",
+      "text": "Updated warehouseService.js and created a valid React component."
+    },
+    {
+      "name": "Premium Aesthetics",
+      "text": "Frontend component uses Drumify styling (sx props, border colors)."
+    }
+  ]
+}

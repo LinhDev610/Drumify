@@ -18,9 +18,17 @@ import com.linhdev.drumify.client.ShipmentClient;
 import com.linhdev.drumify.dto.shipment.GhnCreateOrderDataResponse;
 import com.linhdev.drumify.dto.shipment.GhnCreateOrderRequest;
 import com.linhdev.drumify.dto.shipment.GhnDistrictResponse;
+import com.linhdev.drumify.dto.shipment.GhnFeeRequest;
+import com.linhdev.drumify.dto.shipment.GhnFeeResponse;
+import com.linhdev.drumify.dto.shipment.GhnLeadtimeRequest;
+import com.linhdev.drumify.dto.shipment.GhnLeadtimeResponse;
 import com.linhdev.drumify.dto.shipment.GhnOrderDetailResponse;
 import com.linhdev.drumify.dto.shipment.GhnOrderItemRequest;
 import com.linhdev.drumify.dto.shipment.GhnProvinceResponse;
+import com.linhdev.drumify.dto.shipment.GhnServiceResponse;
+import com.linhdev.drumify.dto.shipment.GhnShiftResponse;
+import com.linhdev.drumify.dto.shipment.GhnStationRequest;
+import com.linhdev.drumify.dto.shipment.GhnStationResponse;
 import com.linhdev.drumify.dto.shipment.GhnWardResponse;
 import com.linhdev.drumify.dto.warehouse.ShipmentResponse;
 import com.linhdev.drumify.dto.warehouse.ShipmentUpdateRequest;
@@ -59,7 +67,8 @@ public class ShipmentService {
     OrderRepository orderRepository;
     ShipmentMapper shipmentMapper;
     InventoryService inventoryService;
-    ObjectMapper objectMapper;
+    @NonFinal
+    ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${ghn.token-api}")
     @NonFinal
@@ -116,6 +125,51 @@ public class ShipmentService {
         if (response.getCode() != 200) {
             log.error("GHN Error: {}", response.getMessage());
             throw new RuntimeException("Cannot fetch wards from GHN for district: " + districtId);
+        }
+        return response.getData();
+    }
+
+    public List<GhnShiftResponse> getShifts() {
+        var response = shipmentClient.getShifts(token);
+        if (response.getCode() != 200) {
+            log.error("GHN Error: {}", response.getMessage());
+            throw new RuntimeException("Cannot fetch shifts from GHN");
+        }
+        return response.getData();
+    }
+
+    public List<GhnServiceResponse> getAvailableServices(int fromDistrict, int toDistrict) {
+        var response = shipmentClient.getAvailableServices(token, (int) shopId, fromDistrict, toDistrict);
+        if (response.getCode() != 200) {
+            log.error("GHN Error: {}", response.getMessage());
+            throw new RuntimeException("Cannot fetch available services from GHN");
+        }
+        return response.getData();
+    }
+
+    public GhnFeeResponse calculateFee(GhnFeeRequest request) {
+        var response = shipmentClient.calculateFee(token, (int) shopId, request);
+        if (response.getCode() != 200) {
+            log.error("GHN Error: {}", response.getMessage());
+            throw new RuntimeException("Cannot calculate fee from GHN");
+        }
+        return response.getData();
+    }
+
+    public List<GhnStationResponse> getStations(GhnStationRequest request) {
+        var response = shipmentClient.getStations(token, request);
+        if (response.getCode() != 200) {
+            log.error("GHN Error: {}", response.getMessage());
+            throw new RuntimeException("Cannot fetch stations from GHN");
+        }
+        return response.getData();
+    }
+
+    public GhnLeadtimeResponse calculateLeadtime(GhnLeadtimeRequest request) {
+        var response = shipmentClient.calculateLeadtime(token, (int) shopId, request);
+        if (response.getCode() != 200) {
+            log.error("GHN Error: {}", response.getMessage());
+            throw new RuntimeException("Cannot calculate leadtime from GHN");
         }
         return response.getData();
     }

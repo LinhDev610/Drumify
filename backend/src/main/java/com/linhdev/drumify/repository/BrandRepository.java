@@ -9,5 +9,7 @@ import com.linhdev.drumify.entity.Brand;
 
 @Repository
 public interface BrandRepository extends JpaRepository<Brand, String> {
-    Optional<Brand> findBySlug(String slug);
+    boolean existsByName(String name);
+
+    Optional<Brand> findByName(String name);
 }

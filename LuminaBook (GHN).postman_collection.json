@@ -1,0 +1,609 @@
+{
+	"info": {
+		"_postman_id": "147b2dc7-1e1d-4004-a049-4457688af4b6",
+		"name": "LuminaBook (GHN)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38914148",
+		"_collection_link": "https://ghn222.postman.co/workspace/GHN-Workspace~23ce00c7-aa1c-4c55-861e-6c89a729b992/collection/38914148-147b2dc7-1e1d-4004-a049-4457688af4b6?action=share&source=collection_link&creator=38914148"
+	},
+	"item": [
+		{
+			"name": "Quận - Huyện",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "token",
+						"value": "ad4c178c-8fc0-11f0-bdaf-ae7fa045a771",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"ProvinceID\": 202\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/district",
+					"protocol": "https",
+					"host": [
+						"dev-online-gateway",
+						"ghn",
+						"vn"
+					],
+					"path": [
+						"shiip",
+						"public-api",
+						"master-data",
+						"district"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Tỉnh - Thành",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "token",
+						"value": "ad4c178c-8fc0-11f0-bdaf-ae7fa045a771",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/province",
+					"protocol": "https",
+					"host": [
+						"dev-online-gateway",
+						"ghn",
+						"vn"
+					],
+					"path": [
+						"shiip",
+						"public-api",
+						"master-data",
+						"province"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Phường - Xã",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "token",
+						"value": "{{GHN_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"district_id\": 1485\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/ward",
+					"protocol": "https",
+					"host": [
+						"dev-online-gateway",
+						"ghn",
+						"vn"
+					],
+					"path": [
+						"shiip",
+						"public-api",
+						"master-data",
+						"ward"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Xem thông tin trả về của đơn hàng trước khi tạo",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "token",
+						"value": "{{GHN_token}}",
+						"type": "text"
+					},
+					{
+						"key": "shop_id",
+						"value": "{{shop_id}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"payment_type_id\": 2,\r\n    \"note\": \"Tintest 123\",\r\n    \"required_note\": \"CHOTHUHANG\",\r\n    \"return_phone\": \"0332190158\",\r\n    \"client_order_code\": \"\",\r\n\r\n    \"from_name\": \"TinTest124\",\r\n    \"from_phone\": \"0987654321\",\r\n    \"from_address\": \"72 Thành Thái, Phường 14, Quận 10, Hồ Chí Minh, Vietnam\",\r\n    \"from_ward_code\": \"21014\",\r\n    \"from_district_id\": 1452,\r\n    \"from_province_id\": 202,\r\n\r\n    \"to_name\": \"LuminaShop\",\r\n    \"to_phone\": \"0846120004\",\r\n    \"to_address\": \"136 Xuân Thủy, Dịch Vọng Hậu, Cầu Giấy, Hà Nội, Vietnam\",\r\n    \"to_ward_code\": \"1A0602\",\r\n    \"to_district_id\": 1485,\r\n    \"to_province_id\": 201,\r\n\r\n    // \"from_name\": \"LuminaShop\",\r\n    // \"from_phone\": \"0846120004\",\r\n    // \"from_address\": \"136 Xuân Thủy, Dịch Vọng Hậu, Cầu Giấy, Hà Nội, Vietnam\",\r\n    // \"from_ward_code\": \"1A0602\",\r\n    // \"from_district_id\": 1485,\r\n    // \"from_province_id\": 201,\r\n\r\n    // \"to_name\": \"TinTest124\",\r\n    // \"to_phone\": \"0987654321\",\r\n    // \"to_address\": \"72 Thành Thái, Phường 14, Quận 10, Hồ Chí Minh, Vietnam\",\r\n    // \"to_ward_code\": \"21014\",\r\n    // \"to_district_id\": 1452,\r\n    // \"to_province_id\": 202,\r\n\r\n    \"cod_amount\": 200000,\r\n    \"content\": \"Theo New York Times\",\r\n    \"length\": 12,\r\n    \"width\": 12,\r\n    \"height\": 12,\r\n    \"weight\": 1200,\r\n    \"cod_failed_amount\": 2000,                  \r\n    \"pick_station_id\": null,\r\n    \"deliver_station_id\": null,\r\n    \"insurance_value\": 200000,\r\n    \"service_type_id\": 2,\r\n    \"coupon\": null,\r\n    \"pickup_time\": 1692840132,\r\n    \"pick_shift\": [2],\r\n    \"items\": [\r\n    {\r\n        \"name\": \"Áo Polo\",\r\n        \"code\": \"Polo123\",\r\n        \"quantity\": 1,\r\n        \"price\": 200000,\r\n        \"length\": 12,\r\n        \"width\": 12,\r\n        \"height\": 12,\r\n        \"weight\": 1200,\r\n        \"category\": \r\n        {\r\n            \"level1\": \"Áo\"\r\n        }\r\n    }]\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/preview",
+					"protocol": "https",
+					"host": [
+						"dev-online-gateway",
+						"ghn",
+						"vn"
+					],
+					"path": [
+						"shiip",
+						"public-api",
+						"v2",
+						"shipping-order",
+						"preview"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Tạo đơn",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "token",
+						"value": "{{GHN_token}}",
+						"type": "text"
+					},
+					{
+						"key": "shop_id",
+						"value": "{{shop_id}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"payment_type_id\": 2,\r\n    \"note\": \"Tintest 123\",\r\n    \"required_note\": \"CHOTHUHANG\",\r\n    \"return_phone\": \"0332190158\",\r\n    \"client_order_code\": \"\",\r\n    \"from_name\": \"LuminaShop\",\r\n    \"from_phone\": \"0846120004\",\r\n    \"from_address\": \"136 Xuân Thủy, Dịch Vọng Hậu, Cầu Giấy, Hà Nội, Vietnam\",\r\n    \"from_ward_code\": \"1A0602\",\r\n    \"from_district_id\": 1485,\r\n    \"from_province_id\": 201,\r\n    \"to_name\": \"TinTest124\",\r\n    \"to_phone\": \"0987654321\",\r\n    \"to_address\": \"72 Thành Thái, Phường 14, Quận 10, Hồ Chí Minh, Vietnam\",\r\n    \"to_ward_code\": \"21014\",\r\n    \"to_district_id\": 1452,\r\n    \"to_province_id\": 202,\r\n    \"cod_amount\": 200000,\r\n    \"content\": \"Theo New York Times\",\r\n    \"length\": 12,\r\n    \"width\": 12,\r\n    \"height\": 12,\r\n    \"weight\": 1200,\r\n    \"cod_failed_amount\": 2000,                  \r\n    \"pick_station_id\": null,\r\n    \"deliver_station_id\": null,\r\n    \"insurance_value\": 200000,\r\n    \"service_type_id\": 2,\r\n    \"coupon\": null,\r\n    \"pickup_time\": 1692840132,\r\n    \"pick_shift\": [2],\r\n    \"items\": [\r\n    {\r\n        \"name\": \"Áo Polo\",\r\n        \"code\": \"Polo123\",\r\n        \"quantity\": 1,\r\n        \"price\": 200000,\r\n        \"length\": 12,\r\n        \"width\": 12,\r\n        \"height\": 12,\r\n        \"weight\": 1200,\r\n        \"category\": \r\n        {\r\n            \"level1\": \"Áo\"\r\n        }\r\n    }]\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/create",
+					"protocol": "https",
+					"host": [
+						"dev-online-gateway",
+						"ghn",
+						"vn"
+					],
+					"path": [
+						"shiip",
+						"public-api",
+						"v2",
+						"shipping-order",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Xem chi tiết đơn hàng",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "token",
+						"value": "{{GHN_token}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": " application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"order_code\": \"LK9GU8\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail",
+					"protocol": "https",
+					"host": [
+						"dev-online-gateway",
+						"ghn",
+						"vn"
+					],
+					"path": [
+						"shiip",
+						"public-api",
+						"v2",
+						"shipping-order",
+						"detail"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Lấy ca lấy đơn",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "token",
+						"value": "{{GHN_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shift/date",
+					"protocol": "https",
+					"host": [
+						"dev-online-gateway",
+						"ghn",
+						"vn"
+					],
+					"path": [
+						"shiip",
+						"public-api",
+						"v2",
+						"shift",
+						"date"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Lấy phương thức giao hàng",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "token",
+						"value": "{{GHN_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"shop_id\": {{shop_id}},\r\n    \"from_district\": 2048 , // Huyện Na Hang, Lào Cai\r\n    \"to_district\": 1982 // Huyện Vị Thuỷ, Hưng Yên\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/available-services",
+					"protocol": "https",
+					"host": [
+						"dev-online-gateway",
+						"ghn",
+						"vn"
+					],
+					"path": [
+						"shiip",
+						"public-api",
+						"v2",
+						"shipping-order",
+						"available-services"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Tính phí dịch vụ - hàng nhẹ",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "token",
+						"value": "{{GHN_token}}",
+						"type": "text"
+					},
+					{
+						"key": "shop_id",
+						"value": "{{shop_id}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"service_type_id\": 2,\r\n    \"insurance_value\":100000,\r\n    \"coupon\": null,\r\n    \"from_district_id\":1982,\r\n    \"to_district_id\":2048,\r\n    \"to_ward_code\":\"640210\",\r\n    \"height\":15,\r\n    \"length\":15,\r\n    \"weight\":1000,\r\n    \"width\":15\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
+					"protocol": "https",
+					"host": [
+						"dev-online-gateway",
+						"ghn",
+						"vn"
+					],
+					"path": [
+						"shiip",
+						"public-api",
+						"v2",
+						"shipping-order",
+						"fee"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Tính phí dịch vụ - hàng nặng",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "token",
+						"value": "{{GHN_token}}",
+						"type": "text"
+					},
+					{
+						"key": "shop_id",
+						"value": "{{shop_id}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"service_type_id\":5,\r\n    \"insurance_value\":100000,\r\n    \"coupon\": null,\r\n    \"from_district_id\":1982, \r\n    \"from_ward_code\": \"90312\", // Xã Yên Hoa\r\n    \"to_district_id\":2048,\r\n    \"to_ward_code\":\"640210\",\r\n    \"length\":null,\r\n    \"width\":null,\r\n    \"height\":null,\r\n    \"weight\":1000,\r\n    \"items\": [\r\n    {\r\n        \"name\": \"TEST1\",\r\n        \"quantity\": 1,\r\n        \"length\": 200,\r\n        \"width\": 200,\r\n        \"height\": 200,\r\n        \"weight\": 500\r\n    },\r\n    {\r\n        \"name\": \"TEST2\",\r\n        \"quantity\": 1,\r\n        \"length\": 200,\r\n        \"width\": 200,\r\n        \"height\": 200,\r\n        \"weight\": 500\r\n    }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee",
+					"protocol": "https",
+					"host": [
+						"dev-online-gateway",
+						"ghn",
+						"vn"
+					],
+					"path": [
+						"shiip",
+						"public-api",
+						"v2",
+						"shipping-order",
+						"fee"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Lấy danh sách bưu cục",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "token",
+						"value": "{{GHN_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"district_id\":1488,\r\n    \"ward_code\":\"1A0315\",\r\n    \"offset\":0,\r\n    \"limit\":1000\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/station/get",
+					"protocol": "https",
+					"host": [
+						"dev-online-gateway",
+						"ghn",
+						"vn"
+					],
+					"path": [
+						"shiip",
+						"public-api",
+						"v2",
+						"station",
+						"get"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Tính thời gian dự kiến giao",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "token",
+						"value": "{{GHN_token}}",
+						"type": "text"
+					},
+					{
+						"key": "shop_id",
+						"value": "{{shop_id}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"from_district_id\": 1485,\r\n    \"from_ward_code\": \"1A0602\",\r\n    \"to_district_id\": 1452,\r\n    \"to_ward_code\": \"21014\",\r\n    \"service_type_id\": 2\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/leadtime",
+					"protocol": "https",
+					"host": [
+						"dev-online-gateway",
+						"ghn",
+						"vn"
+					],
+					"path": [
+						"shiip",
+						"public-api",
+						"v2",
+						"shipping-order",
+						"leadtime"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Trả hàng",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "token",
+						"value": "{{GHN_token}}",
+						"type": "text"
+					},
+					{
+						"key": "shop_id",
+						"value": "{{shop_id}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"order_codes\": [\"LK96LW\"]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/switch-status/return",
+					"protocol": "https",
+					"host": [
+						"dev-online-gateway",
+						"ghn",
+						"vn"
+					],
+					"path": [
+						"shiip",
+						"public-api",
+						"v2",
+						"switch-status",
+						"return"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Lấy trạng thái đơn",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "token",
+						"value": "{{GHN_token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"order_code\": \"9C03B5\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://dev-online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/detail",
+					"protocol": "https",
+					"host": [
+						"dev-online-gateway",
+						"ghn",
+						"vn"
+					],
+					"path": [
+						"shiip",
+						"public-api",
+						"v2",
+						"shipping-order",
+						"detail"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

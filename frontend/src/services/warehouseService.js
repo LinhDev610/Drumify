@@ -181,3 +181,23 @@ export async function fetchWarehouseReport(from, to) {
   });
   return unwrapResult(data);
 }
+
+export async function fetchBrands() {
+  const { data } = await httpClient.get(`${BASE}/brands`);
+  return unwrapList(data);
+}
+
+export async function createBrand(payload) {
+  const { data } = await httpClient.post(`${BASE}/brands`, payload);
+  return unwrapResult(data);
+}
+
+export async function updateBrand(id, payload) {
+  const { data } = await httpClient.put(`${BASE}/brands/${id}`, payload);
+  return unwrapResult(data);
+}
+
+export async function deleteBrand(id) {
+  const { data } = await httpClient.delete(`${BASE}/brands/${id}`);
+  return unwrapResult(data);
+}

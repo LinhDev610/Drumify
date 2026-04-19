@@ -57,7 +57,11 @@ import {
   fetchWarehouseReport,
   deleteWarehouseProduct,
   updateWarehouseProductStatus,
-  updateCategoryStatus
+  updateCategoryStatus,
+  fetchBrands,
+  createBrand,
+  updateBrand,
+  deleteBrand
 } from "../../../services/warehouseService";
 import { getErrorMessage } from "../../../hooks/utils/unwrapApiResponse";
 import ReactQuill from "react-quill-new";
@@ -76,6 +80,7 @@ const WH_TAB_CONFIG = [
   { label: "Nhập hàng", path: "/admin/inventory/import" },
   { label: "Xử lý đơn hàng", path: "/admin/orders" },
   { label: "Nhà cung cấp", path: "/admin/inventory/suppliers" },
+  { label: "Nhãn hiệu", path: "/admin/brands" },
   { label: "Báo cáo kho", path: "/admin/inventory/reports" }
 ];
 
@@ -829,6 +834,8 @@ export default function WarehouseWorkspace() {
         return <OrdersTab />;
       case "/admin/inventory/suppliers":
         return <SuppliersTab />;
+      case "/admin/brands":
+        return <BrandsTab />;
       case "/admin/inventory/reports":
         return <ReportsTab />;
       case "/admin/inventory":
@@ -1631,6 +1638,160 @@ function OrdersTab() {
           <Button variant="contained" onClick={saveShipment}>
             Lưu
           </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+}
+
+function BrandsTab() {
+  const [rows, setRows] = useState([]);
+  const [err, setErr] = useState("");
+  const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState({
+    name: "",
+    description: "",
+    countryOfOrigin: "",
+    website: "",
+    active: true
+  });
+
+  const load = useCallback(async () => {
+    setErr("");
+    try {
+      setRows(await fetchBrands());
+    } catch (e) {
+      setErr(getErrorMessage(e, "Không tải được nhãn hiệu."));
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const filteredRows = useMemo(() => {
+    if (!search.trim()) return rows;
+    const s = search.toLowerCase();
+    return rows.filter(
+      (r) =>
+        r.name.toLowerCase().includes(s) ||
+        (r.countryOfOrigin && r.countryOfOrigin.toLowerCase().includes(s))
+    );
+  }, [rows, search]);
+
+  const openNew = () => {
+    setEditing(null);
+    setForm({ name: "", description: "", countryOfOrigin: "", website: "", active: true });
+    setOpen(true);
+  };
+
+  const openEdit = (row) => {
+    setEditing(row);
+    setForm({
+      name: row.name || "",
+      description: row.description || "",
+      countryOfOrigin: row.countryOfOrigin || "",
+      website: row.website || "",
+      active: row.active !== false
+    });
+    setOpen(true);
+  };
+
+  const save = async () => {
+    if (!form.name.trim()) return;
+    try {
+      const payload = { ...form, name: form.name.trim() };
+      if (editing) {
+        await updateBrand(editing.id, payload);
+      } else {
+        await createBrand(payload);
+      }
+      setOpen(false);
+      await load();
+    } catch (e) {
+      setErr(getErrorMessage(e, "Không lưu được nhãn hiệu."));
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Xác nhận xóa nhãn hiệu này?")) return;
+    try {
+      await deleteBrand(id);
+      await load();
+    } catch (e) {
+      setErr(getErrorMessage(e, "Không xóa được nhãn hiệu."));
+    }
+  };
+
+  return (
+    <Box>
+      {err && <Alert severity="error" sx={{ mb: 2 }}>{err}</Alert>}
+      <Paper sx={{ p: 2, mb: 2, bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Button variant="contained" onClick={openNew}>Tạo nhãn hiệu</Button>
+          <TextField
+              size="small"
+              placeholder="Tìm kiếm..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              sx={{ width: 300 }}
+          />
+        </Stack>
+      </Paper>
+      <TableContainer component={Paper} sx={{ bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>Tên nhãn hiệu</TableCell>
+              <TableCell>Xuất xứ</TableCell>
+              <TableCell>Website</TableCell>
+              <TableCell>Trạng thái</TableCell>
+              <TableCell align="right">Hành động</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {filteredRows.map((r) => (
+              <TableRow key={r.id} hover>
+                <TableCell><Typography variant="body2" sx={{ fontWeight: 600 }}>{r.name}</Typography></TableCell>
+                <TableCell>{r.countryOfOrigin || "—"}</TableCell>
+                <TableCell>{r.website || "—"}</TableCell>
+                <TableCell>
+                  <Chip size="small" color={r.active ? "success" : "warning"} label={r.active ? "Active" : "Inactive"} />
+                </TableCell>
+                <TableCell align="right">
+                  <Stack direction="row" spacing={1} justifyContent="flex-end">
+                    <Button size="small" variant="outlined" onClick={() => openEdit(r)}>Sửa</Button>
+                    <Button size="small" color="error" onClick={() => handleDelete(r.id)}>Xóa</Button>
+                  </Stack>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>{editing ? "Chỉnh sửa nhãn hiệu" : "Tạo nhãn hiệu mới"}</DialogTitle>
+        <DialogContent dividers>
+          <Stack spacing={2} sx={{ mt: 0.5 }}>
+            <TextField label="Tên nhãn hiệu" value={form.name} onChange={(e) => setForm(p => ({ ...p, name: e.target.value }))} fullWidth required />
+            <TextField label="Xuất xứ" value={form.countryOfOrigin} onChange={(e) => setForm(p => ({ ...p, countryOfOrigin: e.target.value }))} fullWidth />
+            <TextField label="Website" value={form.website} onChange={(e) => setForm(p => ({ ...p, website: e.target.value }))} fullWidth />
+            <TextField label="Mô tả" value={form.description} onChange={(e) => setForm(p => ({ ...p, description: e.target.value }))} fullWidth multiline minRows={2} />
+            <FormControl fullWidth size="small">
+              <InputLabel>Trạng thái</InputLabel>
+              <Select label="Trạng thái" value={String(form.active)} onChange={(e) => setForm(p => ({ ...p, active: e.target.value === "true" }))}>
+                <MenuItem value="true">Active</MenuItem>
+                <MenuItem value="false">Inactive</MenuItem>
+              </Select>
+            </FormControl>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpen(false)}>Hủy</Button>
+          <Button variant="contained" onClick={save}>Lưu</Button>
         </DialogActions>
       </Dialog>
     </Box>

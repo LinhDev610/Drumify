@@ -1,7 +1,6 @@
 package com.linhdev.drumify.entity;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import jakarta.persistence.*;
 
@@ -24,21 +23,23 @@ public class Brand {
     @Column(nullable = false, unique = true)
     String name;
 
-    @Column(unique = true)
-    String slug;
-
-    String logoUrl;
-    String coverImageUrl;
-    Boolean isActive;
-
     @Column(columnDefinition = "TEXT")
     String description;
 
+    String countryOfOrigin;
+    String website;
+
     @Column(nullable = false)
+    @Builder.Default
+    boolean active = true;
+
+    @Column(name = "created_at", nullable = false)
     LocalDateTime createdAt;
 
-    LocalDateTime updatedAt;
-
-    @OneToMany(mappedBy = "brand", fetch = FetchType.LAZY)
-    List<Product> products;
+    @PrePersist
+    void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
 }
