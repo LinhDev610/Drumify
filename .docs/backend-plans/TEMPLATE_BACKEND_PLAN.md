@@ -33,3 +33,4 @@ Mô tả ngắn gọn về mục tiêu của tính năng này.
 ## 🛡️ Security
 - Required Role: `ADMIN` / `STAFF`
 - Required Group: `WAREHOUSE` / `HR`
+- **Note**: Chú thích `@PreAuthorize` PHẢI đặt tại `Service`, KHÔNG đặt tại `Controller`.

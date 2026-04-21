@@ -19,25 +19,28 @@ Drumify áp dụng mô hình phân quyền kết hợp **Role-Based Access Contr
 | **HR** | Human Resources | Quản lý nhân sự, chấm công, hợp đồng, tuyển dụng |
 | **WAREHOUSE** | Kho hàng | Tồn kho, nhập/xuất, đóng gói, vận chuyển |
 | **MARKETING** | Marketing | Voucher, nội dung, banner, email campaign |
+| **CASHIER** | Thu ngân / Tài chính | Thanh toán, hóa đơn, quản lý dòng tiền, báo cáo doanh thu |
+
 
 ---
 
 ## Ma Trận Quyền Hạn Sidebar
 
-| Module | ADMIN | DIRECTOR | STAFF+CS | STAFF+HR | STAFF+WH | STAFF+MKT |
-|:-------|:-----:|:--------:|:--------:|:--------:|:--------:|:---------:|
-| Dashboard | ✅ Full | ✅ KPI | ✅ CS | ✅ HR | ✅ Kho | ✅ Mkt |
-| Quản lý Khách hàng | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Quản lý Nhân sự | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ |
-| Sản phẩm / Danh mục | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ |
-| Đơn hàng | ✅ | ❌ | ✅ (hỗ trợ) | ❌ | ✅ (đóng gói) | ❌ |
-| Kho hàng | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ |
-| Marketing / Voucher | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Nội dung / Blog | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Hỗ trợ KH / Ticket | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
-| Báo cáo / Phân tích | ✅ | ✅ | ❌ | ✅ (HR) | ✅ (Kho) | ✅ (Mkt) |
-| Tài chính | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Cấu hình hệ thống | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Module | ADMIN | DIRECTOR | STAFF+CS | STAFF+HR | STAFF+WH | STAFF+MKT | STAFF+CASHIER |
+|:-------|:-----:|:--------:|:--------:|:--------:|:--------:|:---------:|:-------------:|
+| Dashboard | ✅ Full | ✅ KPI | ✅ CS | ✅ HR | ✅ Kho | ✅ Mkt | ✅ Cashier |
+| Quản lý Khách hàng | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Quản lý Nhân sự | ✅ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Sản phẩm / Danh mục | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ (Xem/Giá) |
+| Đơn hàng | ✅ | ❌ | ✅ (hỗ trợ) | ❌ | ✅ (đóng gói) | ❌ | ✅ (Thanh toán) |
+| Kho hàng | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Marketing / Voucher | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ (Áp dụng) |
+| Nội dung / Blog | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| Hỗ trợ KH / Ticket | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Báo cáo / Phân tích | ✅ | ✅ | ❌ | ✅ (HR) | ✅ (Kho) | ✅ (Mkt) | ✅ (Ca làm) |
+| Tài chính | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ (Giao dịch) |
+| Cấu hình hệ thống | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+
 
 ---
 
@@ -139,6 +142,22 @@ Drumify áp dụng mô hình phân quyền kết hợp **Role-Based Access Contr
 
 ---
 
+## 💰 STAFF + CASHIER (Thu ngân) — Sidebar
+
+| # | Tab | Path | Mô tả |
+|---|-----|------|-------|
+| 1 | 🏠 Dashboard Thu Ngân | `/admin` | Doanh số ca, số đơn đã thanh toán, tiền mặt hiện tại |
+| 2 | 🛒 Điểm bán hàng (POS) | `/admin/pos` | Giao diện bán hàng nhanh, quét mã vạch |
+| 3 | 🧾 Quản lý Đơn hàng | `/admin/orders` | Danh sách đơn, xác nhận thanh toán, in hóa đơn |
+| 4 | 💸 Giao dịch & Thu chi | `/admin/finance/transactions` | Nhật ký thu chi, nộp tiền về quỹ |
+| 5 | 🎟️ Áp dụng Voucher | `/admin/marketing/vouchers` | Kiểm tra và áp dụng mã giảm giá cho khách |
+| 6 | 📦 Kiểm tra giá/tồn | `/admin/products/lookup` | Tra cứu nhanh giá và tồn kho sản phẩm |
+| 7 | 📊 Báo cáo ca làm | `/admin/finance/reports/shift` | Tổng kết doanh thu theo ca, chênh lệch tiền mặt |
+| 8 | 👤 Hồ sơ của tôi | `/admin/profile` | Thông tin cá nhân |
+
+
+---
+
 ## 🛍️ CUSTOMER — Menu tài khoản cá nhân
 
 > Customer không truy cập `/admin`. Portal riêng trong trang người dùng.
@@ -168,7 +187,8 @@ Dashboard tại `/admin` tự động hiển thị nội dung khác nhau dựa t
 ├── STAFF + CS → CSDashboard (ticket mở, SLA, chat queue)
 ├── STAFF + HR → HRDashboard (headcount, nghỉ phép, việc cần duyệt)
 ├── STAFF + WH → WarehouseDashboard (tồn kho, hàng sắp hết, đơn cần xử lý)
-└── STAFF + MKT→ MarketingDashboard (voucher đang chạy, CTR, conversion)
+├── STAFF + MKT→ MarketingDashboard (voucher đang chạy, CTR, conversion)
+└── STAFF + CASHIER → CashierDashboard (doanh số ca, tiền mặt, đơn POS)
 ```
 
 ---

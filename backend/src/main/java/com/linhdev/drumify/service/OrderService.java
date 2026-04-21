@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.linhdev.drumify.dto.request.CreateOrderRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,8 +48,9 @@ public class OrderService {
     OrderItemRepository orderItemRepository;
     PaymentRepository paymentRepository;
 
+    @PreAuthorize("isAuthenticated()")
     @Transactional
-    public OrderResponse createOrder(com.linhdev.drumify.dto.request.CreateOrderRequest request) {
+    public OrderResponse createOrder(CreateOrderRequest request) {
         Cart cart = cartService.getOrCreateCartForCurrentProfile();
         if (cart.getCartItems() == null || cart.getCartItems().isEmpty()) {
             throw new AppException(ErrorCode.BAD_REQUEST);
@@ -125,6 +128,7 @@ public class OrderService {
         return orderMapper.toOrderResponse(savedOrder);
     }
 
+    @PreAuthorize("isAuthenticated()")
     public List<OrderResponse> getMyOrders() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         Profile profile = profileRepository
@@ -136,6 +140,7 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE') or hasAuthority('GROUP_CASHIER')")
     public List<OrderResponse> listOrdersForPacking() {
         return orderRepository.findByStatusInWithItems(List.of(OrderStatus.PAID, OrderStatus.CONFIRMED)).stream()
                 .map(orderMapper::toOrderResponse)
@@ -143,11 +148,13 @@ public class OrderService {
     }
 
     // Lấy danh sách đơn hàng theo trạng thái
-    public List<OrderResponse> listOrdersForWorkflow(String statusCode) {
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE') or hasAuthority('GROUP_CASHIER')")
+    public List<OrderResponse> listOrdersByStatus(String statusCode) {
         List<Order> orders = resolveOrdersByStatus(statusCode);
         return orders.stream().map(orderMapper::toOrderResponse).collect(Collectors.toList());
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE') or hasAuthority('GROUP_CASHIER')")
     @Transactional
     public OrderResponse confirmOrder(String orderId) {
         Order order = orderRepository
@@ -163,6 +170,7 @@ public class OrderService {
     }
 
     // Xác nhận đơn hàng và tạo đơn vị vận chuyển
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE') or hasAuthority('GROUP_CASHIER')")
     @Transactional
     public OrderResponse shipOrder(String orderId) {
         confirmOrder(orderId);
@@ -173,6 +181,7 @@ public class OrderService {
         return orderMapper.toOrderResponse(refreshed);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE') or hasAuthority('GROUP_CASHIER')")
     @Transactional
     public OrderResponse cancelOrder(String orderId) {
         Order order = orderRepository

@@ -4,7 +4,7 @@ description: >-
   Backend API development (DTOs, Mappers, Services, Controllers, Error Handling) for Drumify.
   Use this skill to implement business logic, create REST endpoints, define I/O boundaries,
   and handle application-wide errors.
-  Trigger on: "viết service", "tạo controller", "viết api", "tạo dto", "mapstruct", "xử lý lỗi".
+  Trigger on: "viết service", "tạo controller", "viết api", "tạo dto", "mapstruct", "xử lý lỗi", "backend order", "internal api", "management endpoint", "cashier logic".
 ---
 
 # 🚀 Code API
@@ -31,7 +31,11 @@ Kỹ năng chuyên biệt cho việc phát triển tầng nghiệp vụ và giao
 ### 4. Controller (Transport Layer)
 -   Sử dụng `@RestController`, `@RequestMapping`.
 -   Mọi API response PHẢI bọc trong `ApiResponse<T>`.
--   **BẮT BUỘC**: Sử dụng `@PreAuthorize` để kiểm soát quyền truy cập.
+-   **QUY TẮC QUAN TRỌNG**: KHÔNG sử dụng `@PreAuthorize` tại Controller.
+
+### 5. Security (Service Layer)
+-   **BẮT BUỘC**: Sử dụng `@PreAuthorize` tại tầng Service để đảm bảo an ninh từ bên trong.
+-   **Quy tắc**: Sử dụng `hasRole('NAME')` cho các Role (ví dụ: `hasRole('ADMIN')`) và `hasAuthority('GROUP_NAME')` cho các Group (ví dụ: `hasAuthority('GROUP_WAREHOUSE')`).
 
 **Example Response Wrapper:**
 ```java
@@ -43,9 +47,14 @@ ApiResponse<ProductResponse> get(@PathVariable String id) {
 }
 ```
 
-### 5. Error Handling
+### 6. Error Handling
 -   Định nghĩa code mới trong `ErrorCode.java`.
 -   Sử dụng ranges: 10xx (Auth), 60xx (Product), 70xx (Order/Shipment), v.v.
+
+### 7. Clean Code Standards
+-   Sử dụng **Import** cho tất cả các class. TUYỆT ĐỐI không viết đầy đủ đường dẫn (Fully Qualified Name - FQN) trong thân code (ví dụ: `com.package.ClassName`).
+-   Giữ class ngắn gọn, tách biệt logic nếu cần.
+-   Sử dụng Lombok để giảm boiler plate code.
 
 ## ⚠️ SRP Summary
 -   **DTO**: Hình dạng dữ liệu.

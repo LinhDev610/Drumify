@@ -16,6 +16,7 @@ import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import { useTranslation } from "react-i18next";
 import { useKeycloakAuth } from "../../../context/KeycloakAuthContext";
 import WarehouseDashboard from "../Warehouse/WarehouseDashboard";
+import CashierDashboard from "../Cashier/CashierDashboard";
 
 function DefaultAdminDashboard() {
   const { t } = useTranslation();
@@ -178,6 +179,9 @@ export default function AdminDashboard() {
   }
   if (groups.includes("WAREHOUSE")) {
     return <WarehouseDashboard />;
+  }
+  if (groups.includes("CASHIER")) {
+    return <CashierDashboard />;
   }
   return <DefaultAdminDashboard />;
 }

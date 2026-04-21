@@ -133,8 +133,8 @@ export async function fetchPackingOrders() {
   return unwrapList(data);
 }
 
-export async function fetchWorkflowOrders(status = "ALL") {
-  const { data } = await httpClient.get(`${ORDER_BASE}/workflow`, {
+export async function fetchOrdersByStatus(status = "ALL") {
+  const { data } = await httpClient.get(`${CONFIG.API_GATEWAY}/orders/internal/list`, {
     params: { status }
   });
   return unwrapList(data);

@@ -32,5 +32,5 @@ Frontend được chia theo module và các thành phần dùng chung.
 ## 🛡️ Security Flow
 1. **Authentication**: Keycloak quản lý login và cấp JWT.
 2. **Authorization**: 
-   - Backend sử dụng `@PreAuthorize` dựa trên Roles/Groups từ JWT.
-   - Frontend sử dụng `RoleProtectedRoute` để bảo vệ các tuyến đường.
+   - Backend sử dụng `@PreAuthorize` **tại tầng Service** để kiểm soát quyền dựa trên Roles/Groups từ JWT.
+   - Frontend sử dụng `RoleProtectedRoute` để bảo vệ các tuyến đường (Routes).

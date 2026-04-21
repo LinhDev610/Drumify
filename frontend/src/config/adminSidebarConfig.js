@@ -150,6 +150,30 @@ export const adminSidebarConfig = [
     roles: ["ADMIN", "DIRECTOR"],
   },
   {
+    title: "sidebar.pos",
+    path: "/admin/pos",
+    icon: StorefrontIcon,
+    groups: ["CASHIER"],
+  },
+  {
+    title: "sidebar.transactions",
+    path: "/admin/finance/transactions",
+    icon: PaymentsIcon,
+    groups: ["CASHIER"],
+  },
+  {
+    title: "sidebar.price_lookup",
+    path: "/admin/products/lookup",
+    icon: InventoryIcon,
+    groups: ["CASHIER"],
+  },
+  {
+    title: "sidebar.shift_reports",
+    path: "/admin/finance/reports/shift",
+    icon: AssessmentIcon,
+    groups: ["CASHIER"],
+  },
+  {
     title: "sidebar.my_account",
     path: "/admin/profile",
     icon: AccountCircleIcon,

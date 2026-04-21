@@ -13,26 +13,24 @@ Tài liệu này cung cấp các bước chi tiết để thiết lập Keycloak
 ### Bước 1: Tải Keycloak Docker image
 Sử dụng phiên bản Keycloak **26.5.6** (ổn định nhất cho dự án):
 ```bash
-docker pull quay.io/keycloak/keycloak:26.5.6
+docker pull quay.io/keycloak/keycloak
 ```
 
 ### Bước 2: Chạy Keycloak Container
 Chạy lệnh sau trong Terminal để khởi tạo Keycloak với các cấu hình mặc định ở chế độ phát triển:
 
 ```bash
-docker run -d \
-  --name drumify_keycloak-26.5.6 \
-  -p 8280:8080 \
-  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
-  -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
-  -e KC_HOSTNAME_STRICT=false \
-  -e KC_HTTP_ENABLED=true \
-  -e DRUMIFY_BACKEND_URL=http://host.docker.internal:8080/drumify \
-  -e DRUMIFY_SYNC_SECRET=DrumifySyncSecret2026 \
-  -v drumify_keycloak_data:/opt/keycloak/data \
-  -v $(pwd)/custom_event_listener_provider/target/registration-event-listener.jar:/opt/keycloak/providers/registration-event-listener.jar \
-  quay.io/keycloak/keycloak:26.5.6 \
-  start-dev
+docker run -d ^
+    --name drumify_keycloak-26.5.6 ^
+    -p 8280:8080 ^
+    -e KC_BOOTSTRAP_ADMIN_USERNAME=admin ^
+    -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin ^
+    -e KC_HOSTNAME_STRICT=false ^
+    -e KC_HTTP_ENABLED=true ^
+    -e DRUMIFY_BACKEND_URL=http://host.docker.internal:8080/drumify ^
+    -e DRUMIFY_SYNC_SECRET=DrumifySyncSecret2026 ^
+    quay.io/keycloak/keycloak:latest ^
+    start-dev
 ```
 
 ### Giải thích các tham số:

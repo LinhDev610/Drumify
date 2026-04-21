@@ -47,7 +47,7 @@ import {
   deleteSupplier,
   importStock,
   fetchMovements,
-  fetchWorkflowOrders,
+  fetchOrdersByStatus,
   confirmOrder,
   cancelOrder,
   createShipmentOrder,
@@ -409,7 +409,7 @@ function ProductsTab() {
       media: []
     });
     setOpen(true);
-};
+  };
 
   const openEdit = (row) => {
     setEditing(row);
@@ -448,7 +448,7 @@ function ProductsTab() {
       if (!form.name.trim()) throw new Error("Vui lòng nhập tên sản phẩm.");
       if (!form.categoryId) throw new Error("Vui lòng chọn danh mục.");
       if (form.variants.length === 0) throw new Error("Sản phẩm phải có ít nhất một biến thể.");
-      
+
       form.variants.forEach((v, idx) => {
         if (!v.name.trim()) throw new Error(`Tên biến thể hàng ${idx + 1} không được để trống.`);
         if (v.purchasePrice === "" || Number(v.purchasePrice) < 0) throw new Error(`Giá nhập hàng ${idx + 1} phải >= 0.`);
@@ -581,13 +581,13 @@ function ProductsTab() {
                   <TableCell align="right">
                     <Stack direction="row" spacing={0.5} justifyContent="flex-end">
                       <Button size="small" variant="outlined" onClick={() => openEdit(r)}>Sửa</Button>
-                      
+
                       {isHidden ? (
                         <Button size="small" color="success" onClick={() => handleStatusChange(r.id, true)}>Hiện</Button>
                       ) : (
                         <Button size="small" color="warning" onClick={() => handleStatusChange(r.id, false)}>Ẩn</Button>
                       )}
-                      
+
                       <Button size="small" color="error" onClick={() => handleDelete(r.id)}>Xóa</Button>
                     </Stack>
                   </TableCell>
@@ -645,7 +645,7 @@ function ProductsTab() {
             <Grid size={{ xs: 12, md: 3 }}><TextField type="number" label="Length (cm)" value={form.length} onChange={(e) => setForm((p) => ({ ...p, length: e.target.value }))} fullWidth /></Grid>
             <Grid size={{ xs: 12, md: 3 }}><TextField type="number" label="Width (cm)" value={form.width} onChange={(e) => setForm((p) => ({ ...p, width: e.target.value }))} fullWidth /></Grid>
             <Grid size={{ xs: 12, md: 3 }}><TextField type="number" label="Height (cm)" value={form.height} onChange={(e) => setForm((p) => ({ ...p, height: e.target.value }))} fullWidth /></Grid>
-            
+
             <Grid size={12}>
               <Divider sx={{ my: 2 }} />
               <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
@@ -670,32 +670,32 @@ function ProductsTab() {
                   }} />
                 </Button>
               </Stack>
-              
+
               <Grid container spacing={2}>
-                 {form.media.filter(m => m.mediaType === 'IMAGE').map((m, idx) => (
-                   <Grid size={{ xs: 4, md: 2 }} key={idx}>
-                     <Box sx={{ position: 'relative', pt: '100%', border: '1px solid var(--color-border)', borderRadius: 2, overflow: 'hidden' }}>
-                       <img src={m.mediaUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-                       <IconButton 
-                         size="small" 
-                         onClick={() => setForm(prev => ({ ...prev, media: prev.media.filter((_, i) => i !== prev.media.indexOf(m)) }))}
-                         sx={{ position: 'absolute', top: 2, right: 2, bgcolor: 'rgba(0,0,0,0.5)', color: 'white', '&:hover': { bgcolor: 'rgba(0,0,0,0.8)' } }}
-                       >
-                         <DeleteIcon fontSize="small" />
-                       </IconButton>
-                       {m.isDefault && (
-                         <Chip label="Main" size="small" sx={{ position: 'absolute', bottom: 2, left: 2, scale: '0.8', bgcolor: 'var(--color-accent-gold)', color: '#000', fontWeight: 900 }} />
-                       )}
-                     </Box>
-                   </Grid>
-                 ))}
+                {form.media.filter(m => m.mediaType === 'IMAGE').map((m, idx) => (
+                  <Grid size={{ xs: 4, md: 2 }} key={idx}>
+                    <Box sx={{ position: 'relative', pt: '100%', border: '1px solid var(--color-border)', borderRadius: 2, overflow: 'hidden' }}>
+                      <img src={m.mediaUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <IconButton
+                        size="small"
+                        onClick={() => setForm(prev => ({ ...prev, media: prev.media.filter((_, i) => i !== prev.media.indexOf(m)) }))}
+                        sx={{ position: 'absolute', top: 2, right: 2, bgcolor: 'rgba(0,0,0,0.5)', color: 'white', '&:hover': { bgcolor: 'rgba(0,0,0,0.8)' } }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                      {m.isDefault && (
+                        <Chip label="Main" size="small" sx={{ position: 'absolute', bottom: 2, left: 2, scale: '0.8', bgcolor: 'var(--color-accent-gold)', color: '#000', fontWeight: 900 }} />
+                      )}
+                    </Box>
+                  </Grid>
+                ))}
               </Grid>
 
               <Stack direction="row" spacing={2} sx={{ mt: 3 }} alignItems="flex-end">
-                <TextField 
-                  fullWidth 
-                  size="small" 
-                  label="Video URL (YouTube/Cloudinary)" 
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Video URL (YouTube/Cloudinary)"
                   placeholder="Dán link video tại đây..."
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
@@ -780,7 +780,7 @@ function ProductsTab() {
                       Xóa
                     </Button>
                   </Grid>
-                  
+
                   <Grid size={12}>
                     <TextField
                       label="Giá niêm yết (sau thuế) - Kết quả tính tự động"
@@ -1282,11 +1282,8 @@ function OrdersTab() {
     setLoading(true);
     setErr("");
     try {
-      // Fetch workflow orders. We fetch "ALL" or "ACTIVE" and then filter locally if needed, 
-      // but let's stick to fetchWorkflowOrders behavior.
-      // If statusFilter is "ACTIVE", it returns orders from CREATED to SHIPPED.
       const [orderList, shipmentList] = await Promise.all([
-        fetchWorkflowOrders(statusFilter === "NEW" ? "CREATED" : statusFilter === "COMPLETED" ? "DELIVERED" : statusFilter === "SHIPPING" ? "SHIPPED" : statusFilter),
+        fetchOrdersByStatus(statusFilter === "NEW" ? "CREATED" : statusFilter === "COMPLETED" ? "DELIVERED" : statusFilter === "SHIPPING" ? "SHIPPED" : statusFilter),
         fetchShipments()
       ]);
       setOrders(orderList);
@@ -1377,8 +1374,8 @@ function OrdersTab() {
 
   const filteredOrders = useMemo(() => {
     return orders.filter(o => {
-      const matchSearch = (o.code?.toLowerCase().includes(searchTerm.toLowerCase())) || 
-                          (o.shippingSummary?.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchSearch = (o.code?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (o.shippingSummary?.toLowerCase().includes(searchTerm.toLowerCase()));
       return matchSearch;
     });
   }, [orders, searchTerm]);
@@ -1405,18 +1402,18 @@ function OrdersTab() {
       <Paper sx={{ p: 2, mb: 0, bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)", borderBottom: "none", borderRadius: "8px 8px 0 0" }}>
         <Stack direction={{ xs: "column", md: "row" }} spacing={2} justifyContent="space-between" alignItems="center">
           <TextField
-             size="small"
-             placeholder="Tìm mã đơn, địa chỉ..."
-             value={searchTerm}
-             onChange={(e) => setSearchTerm(e.target.value)}
-             sx={{ width: { xs: "100%", md: 400 } }}
-             InputProps={{
-               startAdornment: (
-                 <InputAdornment position="start">
-                   <SearchIcon fontSize="small" />
-                 </InputAdornment>
-               )
-             }}
+            size="small"
+            placeholder="Tìm mã đơn, địa chỉ..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            sx={{ width: { xs: "100%", md: 400 } }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" />
+                </InputAdornment>
+              )
+            }}
           />
           <Button variant="outlined" onClick={load} disabled={loading} startIcon={loading && <LinearProgress sx={{ width: 20 }} />}>
             {loading ? "Đang tải..." : "Tải lại dữ liệu"}
@@ -1426,8 +1423,8 @@ function OrdersTab() {
 
       {/* Status Tabs */}
       <Box sx={{ borderBottom: 1, borderColor: "divider", bgcolor: "rgba(255,255,255,0.02)" }}>
-        <Tabs 
-          value={statusFilter} 
+        <Tabs
+          value={statusFilter}
           onChange={(e, val) => setStatusFilter(val)}
           variant="scrollable"
           scrollButtons="auto"
@@ -1498,7 +1495,7 @@ function OrdersTab() {
                   <TableCell align="right">
                     <Stack direction="row" spacing={1} justifyContent="flex-end">
                       <Button size="small" variant="text" onClick={() => setDetail(o)}>Chi tiết</Button>
-                      
+
                       {/* Contextual Buttons */}
                       {(o.statusCode === "CREATED" || o.statusCode === "PAID") && (
                         <Button
@@ -1732,11 +1729,11 @@ function BrandsTab() {
         <Stack direction="row" spacing={2} alignItems="center">
           <Button variant="contained" onClick={openNew}>Tạo nhãn hiệu</Button>
           <TextField
-              size="small"
-              placeholder="Tìm kiếm..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              sx={{ width: 300 }}
+            size="small"
+            placeholder="Tìm kiếm..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            sx={{ width: 300 }}
           />
         </Stack>
       </Paper>

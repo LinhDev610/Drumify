@@ -16,13 +16,13 @@ export default function AuthRedirectHandler() {
 
     if (isOnHomePage && (isAdminRole || isFunctionalGroup)) {
       let target = "/admin";
-      
-      // Intelligent redirection based on primary group
+
       if (hasGroup("HR")) target = "/admin/hr";
       else if (hasGroup("WAREHOUSE")) target = "/admin/inventory";
-      else if (hasGroup("CASHIER")) target = "/admin/orders";
+      else if (hasGroup("CASHIER")) target = "/admin/pos";
       else if (hasGroup("CS")) target = "/admin/support";
-      
+      else if (hasGroup("MARKETING")) target = "/admin/marketing";
+
       const timer = setTimeout(() => {
         navigate(target, { replace: true });
       }, 500);

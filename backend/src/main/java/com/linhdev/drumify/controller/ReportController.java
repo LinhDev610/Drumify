@@ -21,7 +21,6 @@ import lombok.experimental.FieldDefaults;
 @RequestMapping("/warehouse")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
 public class ReportController {
     ReportService reportService;
 

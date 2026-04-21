@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +47,7 @@ public class InventoryService {
     SupplierRepository supplierRepository;
     InventoryMapper inventoryMapper;
 
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE') or hasAuthority('GROUP_CASHIER')")
     public List<InventoryRowResponse> listInventory() {
         return inventoryRepository.findAllWithVariantAndProduct().stream()
                 .sorted(Comparator.comparing(
@@ -54,6 +56,7 @@ public class InventoryService {
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
     @Transactional
     public InventoryRowResponse updateThreshold(String inventoryId, InventoryThresholdRequest request) {
         Inventory inv = inventoryRepository
@@ -64,6 +67,7 @@ public class InventoryService {
         return inventoryMapper.toInventoryRowResponse(inv, DEFAULT_LOW_STOCK);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
     @Transactional
     public StockMovementResponse importStock(StockImportRequest request) {
         ProductVariant pv = productVariantRepository
@@ -94,6 +98,7 @@ public class InventoryService {
         return inventoryMapper.toStockMovementResponse(m);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
     @Transactional
     public StockMovementResponse exportManual(StockExportRequest request) {
         ProductVariant pv = productVariantRepository
@@ -122,6 +127,7 @@ public class InventoryService {
         return inventoryMapper.toStockMovementResponse(m);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
     @Transactional
     public StockMovementResponse adjustStock(StockAdjustmentRequest request) {
         if (request.getDelta() == 0) {
@@ -150,6 +156,7 @@ public class InventoryService {
         return inventoryMapper.toStockMovementResponse(m);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
     public List<StockMovementResponse> listMovements(LocalDate from, LocalDate to) {
         LocalDateTime start = from.atStartOfDay();
         LocalDateTime end = to.plusDays(1).atStartOfDay();

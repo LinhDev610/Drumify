@@ -77,6 +77,7 @@ public class ProfileService {
         return "Bearer " + tokenInfo.getAccessToken();
     }
 
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('STAFF') and hasAuthority('GROUP_HR'))")
     public List<RoleRepresentation> getRoles() {
         try {
             List<String> allowedRoles = List.of("ADMIN", "CUSTOMER", "DIRECTOR", "STAFF");
@@ -88,6 +89,7 @@ public class ProfileService {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('STAFF') and hasAuthority('GROUP_HR'))")
     public List<GroupRepresentation> getGroups() {
         try {
             return identityClient.getGroups(getClientToken());
@@ -96,6 +98,7 @@ public class ProfileService {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('STAFF') and hasAuthority('GROUP_HR'))")
     public void assignRoles(String userId, List<RoleRepresentation> roles) {
         try {
             String token = getClientToken();
@@ -122,6 +125,7 @@ public class ProfileService {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('STAFF') and hasAuthority('GROUP_HR'))")
     public void assignGroups(String userId, List<String> groupIds) {
         try {
             String token = getClientToken();
@@ -242,6 +246,7 @@ public class ProfileService {
         }
     }
 
+    @PreAuthorize("isAuthenticated()")
     public ProfileResponse getMyProfile() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         String userID = authentication.getName();
@@ -252,6 +257,7 @@ public class ProfileService {
         return profileMapper.toProfileResponse(profile);
     }
 
+    @PreAuthorize("isAuthenticated()")
     public ProfileResponse updateMyProfile(ProfileUpdateRequest request) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         String userID = authentication.getName();
@@ -279,6 +285,7 @@ public class ProfileService {
         return profileMapper.toProfileResponse(profile);
     }
 
+    @PreAuthorize("isAuthenticated()")
     public void changePassword(PasswordChangeRequest request) {
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
             throw new AppException(ErrorCode.INVALID_PASSWORD);
@@ -410,6 +417,7 @@ public class ProfileService {
         return profileMapper.toProfileResponse(profile);
     }
 
+    @PreAuthorize("isAuthenticated()")
     public AddressResponse addAddress(AddressRequest request) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         String userID = authentication.getName();
@@ -434,6 +442,7 @@ public class ProfileService {
         return addressMapper.toAddressResponse(address);
     }
 
+    @PreAuthorize("isAuthenticated()")
     public AddressResponse updateAddress(String addressId, AddressRequest request) {
         var address = addressRepository
                 .findById(addressId)
@@ -454,6 +463,7 @@ public class ProfileService {
         return addressMapper.toAddressResponse(address);
     }
 
+    @PreAuthorize("isAuthenticated()")
     public void deleteAddress(String addressId) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         String userID = authentication.getName();
@@ -468,6 +478,7 @@ public class ProfileService {
         addressRepository.delete(address);
     }
 
+    @PreAuthorize("isAuthenticated()")
     public AddressResponse setDefaultAddress(String addressId) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         String userID = authentication.getName();

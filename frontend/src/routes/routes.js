@@ -15,6 +15,7 @@ import HRWorkspace from "../pages/Admin/ManageStaffAccounts/HRWorkspace";
 import CustomerManagement from "../pages/Admin/ManageCustomerAccounts/CustomerManagement";
 import AuthRedirectHandler from "../components/Auth/AuthRedirectHandler";
 import WarehouseWorkspace from "../pages/Admin/Warehouse/WarehouseWorkspace";
+import CashierWorkspace from "../pages/Admin/Cashier/CashierWorkspace";
 
 export default function AppRoutes() {
   return (
@@ -64,6 +65,10 @@ export default function AppRoutes() {
             <Route path="inventory/reports" element={<WarehouseWorkspace />} />
             <Route path="orders" element={<WarehouseWorkspace />} />
             <Route path="shipping" element={<WarehouseWorkspace />} />
+            <Route path="pos" element={<CashierWorkspace />} />
+            <Route path="finance/transactions" element={<CashierWorkspace />} />
+            <Route path="products/lookup" element={<CashierWorkspace />} />
+            <Route path="finance/reports/shift" element={<CashierWorkspace />} />
             <Route path="profile" element={<Profile />} />
             <Route path="*" element={<AdminDashboard />} />
           </Route>

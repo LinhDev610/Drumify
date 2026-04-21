@@ -3,7 +3,7 @@ name: system-planner
 description: >-
   Architectural planning, feature decomposition, and project conventions for Drumify.
   Use this skill to design new features, break down tasks, and ensure compliance with naming and folder standards.
-  Trigger on: "lên kế hoạch", "thiết kế feature", "plan feature", "kiến trúc", "breakdown task", "conventions", "naming", "folder structure".
+  Trigger on: "lên kế hoạch", "thiết kế feature", "plan feature", "kiến trúc", "breakdown task", "conventions", "naming", "folder structure", "quy hoạch dự án", "technical debt", "roadmap".
 ---
 
 # 🧠 System Planner & Architect
@@ -44,7 +44,9 @@ Khi thực hiện bất kỳ thay đổi nào (thêm feature, sửa logic, refac
     - Ghi lại các quyết định quan trọng vào `archive-memory`.
 4.  **Kiểm tra**: Đảm bảo app chạy đúng và không vi phạm Forbidden Actions.
 
-## 🚫 Forbidden Actions
+## 🚫 Forbidden Actions (AI MUST NOT DO)
+
+- Sử dụng `@PreAuthorize` tại Controller (Phải dùng ở Service).
 - Đưa logic nghiệp vụ vào Controller.
 - Expose Entity JPA trực tiếp ra API.
 - Bỏ qua `ApiResponse<T>` wrapper.

@@ -40,5 +40,5 @@ Trước khi viết code, bạn **PHẢI** phỏng vấn user để thu thập:
 5.  Viết Service wrapper để gọi Client và xử lý nghiệp vụ nội bộ.
 
 ## ⚠️ Bảo mật
--   Mọi endpoint trigger API bên thứ ba phải có `@PreAuthorize`.
+-   Mọi phương thức Service trigger API bên thứ ba phải có `@PreAuthorize`.
 -   Sử dụng biến môi trường cho các thông tin nhạy cảm.

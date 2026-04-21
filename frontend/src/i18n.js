@@ -140,7 +140,22 @@ i18n
             marketing: "Marketing & Ads",
             customer_support: "Support Center",
             reports: "Business Analytics",
-            finance: "Financial Statements"
+            finance: "Financial Statements",
+            pos: "Point of Sale (POS)",
+            transactions: "Transactions Log",
+            price_lookup: "Price & Stock Lookup",
+            shift_reports: "Shift Reports"
+          },
+          cashier: {
+            dashboard_title: "Cashier Dashboard",
+            dashboard_sub: "Manage payments, invoices and shift revenue.",
+            stat_revenue: "Shift Revenue",
+            stat_orders: "Paid Orders",
+            stat_pending: "Awaiting Payment",
+            stat_cash: "Cash in Hand",
+            goto_pos: "Open Point of Sale",
+            goto_orders: "Manage Orders",
+            goto_transactions: "Transaction History"
           },
           dashboard: {
             welcome: "Welcome back"
@@ -313,7 +328,22 @@ i18n
             marketing: "Tiếp thị & Quảng cáo",
             customer_support: "Trung tâm hỗ trợ",
             reports: "Phân tích kinh doanh",
-            finance: "Báo cáo tài chính"
+            finance: "Báo cáo tài chính",
+            pos: "Điểm bán hàng (POS)",
+            transactions: "Nhật ký giao dịch",
+            price_lookup: "Tra cứu giá & tồn",
+            shift_reports: "Báo cáo ca làm"
+          },
+          cashier: {
+            dashboard_title: "Dashboard Thu Ngân",
+            dashboard_sub: "Quản lý thanh toán, hóa đơn và doanh thu ca.",
+            stat_revenue: "Doanh thu ca",
+            stat_orders: "Đơn đã thanh toán",
+            stat_pending: "Chờ thanh toán",
+            stat_cash: "Tiền mặt hiện tại",
+            goto_pos: "Mở Bán Hàng (POS)",
+            goto_orders: "Quản lý Đơn hàng",
+            goto_transactions: "Nhật ký Thu chi"
           },
           dashboard: {
             welcome: "Chào mừng trở lại"

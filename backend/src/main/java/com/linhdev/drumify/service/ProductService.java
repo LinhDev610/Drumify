@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,18 +41,21 @@ public class ProductService {
     CategoryRepository categoryRepository;
     BrandRepository brandRepository;
 
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE') or hasAuthority('GROUP_CASHIER')")
     public List<ProductResponse> listProducts() {
         return productRepository.findAllForWarehouse().stream()
                 .map(this::toProductResponse)
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE') or hasAuthority('GROUP_CASHIER')")
     public ProductResponse getProductBySlug(String slug) {
         Product product =
                 productRepository.findBySlug(slug).orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
         return toProductResponse(product);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE') or hasAuthority('GROUP_CASHIER')")
     @Transactional
     public ProductResponse createProduct(ProductRequest request) {
         Category category = categoryRepository
@@ -83,6 +87,7 @@ public class ProductService {
         return toProductResponse(productRepository.save(product));
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE') or hasAuthority('GROUP_CASHIER')")
     @Transactional
     public ProductResponse updateProduct(String productId, ProductRequest request) {
         Product product = productRepository
@@ -112,6 +117,7 @@ public class ProductService {
         return toProductResponse(productRepository.save(product));
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE') or hasAuthority('GROUP_CASHIER')")
     @Transactional
     public void deleteProduct(String productId) {
         Product product = productRepository
@@ -120,6 +126,7 @@ public class ProductService {
         productRepository.delete(product);
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE') or hasAuthority('GROUP_CASHIER')")
     @Transactional
     public ProductResponse updateProductStatus(String productId, boolean status) {
         ProductStatus targetStatus = status ? ProductStatus.APPROVED : ProductStatus.HIDDEN;

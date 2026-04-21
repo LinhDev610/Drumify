@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,12 +25,14 @@ import lombok.experimental.FieldDefaults;
 public class CategoryService {
     CategoryRepository categoryRepository;
 
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE') or hasAuthority('GROUP_CASHIER')")
     public List<CategoryResponse> listCategories() {
         return categoryRepository.findAllWithParent().stream()
                 .map(this::toCategoryResponse)
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE') or hasAuthority('GROUP_CASHIER')")
     @Transactional
     public CategoryResponse createCategory(CategoryRequest request) {
         if (categoryRepository.existsByName(request.getName().trim())) {
@@ -54,6 +57,7 @@ public class CategoryService {
         return toCategoryResponse(categoryRepository.save(c));
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE') or hasAuthority('GROUP_CASHIER')")
     @Transactional
     public CategoryResponse updateCategory(String categoryId, CategoryRequest request) {
         Category c = categoryRepository
@@ -84,6 +88,7 @@ public class CategoryService {
         return toCategoryResponse(categoryRepository.save(c));
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE') or hasAuthority('GROUP_CASHIER')")
     @Transactional
     public CategoryResponse updateCategoryStatus(String categoryId, Boolean status) {
         Category c = categoryRepository

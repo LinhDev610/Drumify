@@ -4,7 +4,7 @@ description: >-
   Frontend development (React, MUI, Hooks, Services) for Drumify.
   Use this skill to build UI components, manage frontend state, call backend APIs,
   and implement responsive designs using MUI and Glassmorphism tokens.
-  Trigger on: "viết frontend", "tạo component", "giao diện react", "mui styling", "viết hook", "gọi api frontend".
+  Trigger on: "viết frontend", "tạo component", "giao diện react", "mui styling", "viết hook", "gọi api frontend", "admin dashboard", "cashier ui", "pos interface", "sidebar config".
 ---
 
 # 🎨 Code UI

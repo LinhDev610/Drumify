@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.linhdev.drumify.dto.warehouse.DashboardResponse;
@@ -30,6 +31,7 @@ public class ReportService {
     StockMovementRepository stockMovementRepository;
     InventoryService inventoryService;
 
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE') or hasAuthority('GROUP_CASHIER')")
     public DashboardResponse getDashboard() {
         var rows = inventoryRepository.findAllWithVariantAndProduct();
         long low = rows.stream().filter(inventoryService::isLowStock).count();
@@ -49,6 +51,7 @@ public class ReportService {
                 .build();
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE') or hasAuthority('GROUP_CASHIER')")
     public ReportResponse report(LocalDate from, LocalDate to) {
         LocalDateTime start = from.atStartOfDay();
         LocalDateTime end = to.plusDays(1).atStartOfDay();

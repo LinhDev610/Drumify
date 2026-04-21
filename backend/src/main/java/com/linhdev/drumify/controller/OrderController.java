@@ -36,23 +36,20 @@ public class OrderController {
     }
 
     @GetMapping("/warehouse/packing")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
     ApiResponse<List<OrderResponse>> packingOrders() {
         return ApiResponse.<List<OrderResponse>>builder()
                 .result(orderService.listOrdersForPacking())
                 .build();
     }
 
-    @GetMapping("/warehouse/workflow")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
-    ApiResponse<List<OrderResponse>> workflowOrders(@RequestParam(value = "status", required = false) String status) {
+    @GetMapping("/internal/list")
+    ApiResponse<List<OrderResponse>> getOrdersByStatus(@RequestParam(value = "status", required = false) String status) {
         return ApiResponse.<List<OrderResponse>>builder()
-                .result(orderService.listOrdersForWorkflow(status))
+                .result(orderService.listOrdersByStatus(status))
                 .build();
     }
 
     @PostMapping("/warehouse/{id}/ship")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
     ApiResponse<OrderResponse> createShip(@PathVariable String id) {
         return ApiResponse.<OrderResponse>builder()
                 .result(orderService.shipOrder(id))
@@ -60,7 +57,6 @@ public class OrderController {
     }
 
     @PostMapping("/warehouse/{id}/confirm")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
     ApiResponse<OrderResponse> confirmOrder(@PathVariable String id) {
         return ApiResponse.<OrderResponse>builder()
                 .result(orderService.confirmOrder(id))
@@ -68,7 +64,6 @@ public class OrderController {
     }
 
     @PostMapping("/warehouse/{id}/cancel")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN') or hasAuthority('GROUP_WAREHOUSE')")
     ApiResponse<OrderResponse> cancelOrder(@PathVariable String id) {
         return ApiResponse.<OrderResponse>builder()
                 .result(orderService.cancelOrder(id))
