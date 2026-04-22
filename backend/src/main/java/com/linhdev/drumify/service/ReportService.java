@@ -3,6 +3,7 @@ package com.linhdev.drumify.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -33,16 +34,23 @@ public class ReportService {
 
     @PreAuthorize("hasRole('ADMIN') or hasAuthority('GROUP_WAREHOUSE') or hasAuthority('GROUP_CASHIER')")
     public DashboardResponse getDashboard() {
-        var rows = inventoryRepository.findAllWithVariantAndProduct();
+        var inventoryFuture = CompletableFuture.supplyAsync(inventoryRepository::findAllWithVariantAndProduct);
+        var pendingOrdersFuture = CompletableFuture.supplyAsync(() -> orderRepository
+                .findByStatusInWithItems(List.of(OrderStatus.PAID, OrderStatus.CONFIRMED)));
+        var shipmentsFuture = CompletableFuture.supplyAsync(shipmentRepository::findAll);
+
+        CompletableFuture.allOf(inventoryFuture, pendingOrdersFuture, shipmentsFuture)
+                .join();
+
+        var rows = inventoryFuture.join();
         long low = rows.stream().filter(inventoryService::isLowStock).count();
-        long pending = orderRepository
-                .findByStatusInWithItems(List.of(OrderStatus.PAID, OrderStatus.CONFIRMED))
-                .size();
-        long inTransit = shipmentRepository.findAll().stream()
+        long pending = pendingOrdersFuture.join().size();
+        long inTransit = shipmentsFuture.join().stream()
                 .filter(s -> s.getStatus() == ShipmentStatus.IN_TRANSIT
                         || s.getStatus() == ShipmentStatus.PICKED_UP
                         || s.getStatus() == ShipmentStatus.CREATED)
                 .count();
+
         return DashboardResponse.builder()
                 .totalSkuLines(rows.size())
                 .lowStockAlerts(low)

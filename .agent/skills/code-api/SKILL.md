@@ -52,9 +52,25 @@ ApiResponse<ProductResponse> get(@PathVariable String id) {
 -   Sử dụng ranges: 10xx (Auth), 60xx (Product), 70xx (Order/Shipment), v.v.
 
 ### 7. Clean Code Standards
--   Sử dụng **Import** cho tất cả các class. TUYỆT ĐỐI không viết đầy đủ đường dẫn (Fully Qualified Name - FQN) trong thân code (ví dụ: `com.package.ClassName`).
+-   **Import Management**: BẮT BUỘC sử dụng `import` cho tất cả các class, interface và annotation.
+-   **TUYỆT ĐỐI KHÔNG sử dụng FQN**: Không viết đầy đủ đường dẫn (Fully Qualified Name) trong thân code (ví dụ: TRÁNH dùng `@org.springframework...`). Vi phạm điều này được coi là lỗi Clean Code nghiêm trọng.
 -   Giữ class ngắn gọn, tách biệt logic nếu cần.
 -   Sử dụng Lombok để giảm boiler plate code.
+
+### 8. Concurrency & Virtual Threads
+-   **Virtual Threads**: Hệ thống đã được cấu hình sử dụng Virtual Threads (`spring.threads.virtual.enabled: true`).
+-   **CompletableFuture**: Sử dụng `CompletableFuture.supplyAsync()` cho các tác vụ I/O bound (gọi API ngoài, DB).
+-   **Shared State**: Tuyệt đối tránh sử dụng biến global/instance trong Singleton Beans có thể bị thay đổi bởi nhiều luồng (Race Condition).
+-   **Transactions**: `@Transactional` không tự động truyền vào luồng mới. Phải xử lý logic nghiệp vụ hoặc DB riêng biệt nếu chạy async.
+-   **Hibernate Session**: Luôn convert Entity sang DTO ở luồng chính (Main Thread) trước khi đẩy vào luồng song song để tránh lỗi `LazyInitializationException`.
+-   **Monitoring**: Sử dụng Spring Boot Actuator để giám sát thread health.
+
+**Example Pattern:**
+```java
+var future1 = CompletableFuture.supplyAsync(() -> client.getData1());
+var future2 = CompletableFuture.supplyAsync(() -> client.getData2());
+CompletableFuture.allOf(future1, future2).join();
+```
 
 ## ⚠️ SRP Summary
 -   **DTO**: Hình dạng dữ liệu.

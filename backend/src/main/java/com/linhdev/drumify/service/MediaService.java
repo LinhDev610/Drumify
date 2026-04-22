@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,6 +28,7 @@ public class MediaService {
         return uploadToCloudinary(file, CloudinaryFolderConstants.PROFILE_MEDIA_FOLDER);
     }
 
+    @Async("taskExecutor")
     public void deleteProfileMedia(String url) {
         deleteFromCloudinary(url);
     }

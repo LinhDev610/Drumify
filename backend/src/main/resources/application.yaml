@@ -6,6 +6,9 @@ server:
 spring:
   application:
     name: Drumify
+  threads:
+    virtual:
+      enabled: true
   datasource:
     url: jdbc:mysql://localhost:3307/drumify_db
     username: root

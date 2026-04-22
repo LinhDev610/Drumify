@@ -3,6 +3,8 @@ package com.linhdev.drumify.service;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -378,33 +380,49 @@ public class ProfileService {
         String token = getClientToken();
         List<String> allowedRoles = List.of("ADMIN", "CUSTOMER", "DIRECTOR", "STAFF");
 
-        return profiles.stream()
+        List<CompletableFuture<ProfileResponse>> futures = profiles.stream()
                 .map(profile -> {
                     ProfileResponse response = profileMapper.toProfileResponse(profile);
-                    if (profile.getUserId() != null) {
-                        try {
-                            List<String> userRoles =
-                                    identityClient.getUserEffectiveRoles(token, profile.getUserId()).stream()
-                                            .map(RoleRepresentation::getName)
-                                            .filter(allowedRoles::contains)
-                                            .toList();
 
-                            List<String> userGroups = identityClient.getUserGroups(token, profile.getUserId()).stream()
-                                    .map(GroupRepresentation::getName)
-                                    .toList();
-                            Boolean enabled = identityClient
-                                    .getUser(token, profile.getUserId())
-                                    .getEnabled();
-                            response.setRoles(userRoles);
-                            response.setGroups(userGroups);
-                            response.setAccountEnabled(Boolean.TRUE.equals(enabled));
-                        } catch (Exception e) {
-                            log.warn("Failed to fetch roles/groups for user {}", profile.getUserId(), e);
+                    return CompletableFuture.supplyAsync(() -> {
+                        if (profile.getUserId() != null) {
+                            try {
+                                var rolesFuture = CompletableFuture.supplyAsync(
+                                        () -> identityClient.getUserEffectiveRoles(token, profile.getUserId()));
+                                var groupsFuture = CompletableFuture.supplyAsync(
+                                        () -> identityClient.getUserGroups(token, profile.getUserId()));
+                                var userFuture = CompletableFuture.supplyAsync(
+                                        () -> identityClient.getUser(token, profile.getUserId()));
+
+                                CompletableFuture.allOf(rolesFuture, groupsFuture, userFuture)
+                                        .join();
+
+                                List<String> userRoles = rolesFuture.join().stream()
+                                        .map(RoleRepresentation::getName)
+                                        .filter(allowedRoles::contains)
+                                        .toList();
+
+                                List<String> userGroups = groupsFuture.join().stream()
+                                        .map(GroupRepresentation::getName)
+                                        .toList();
+
+                                Boolean enabled = userFuture.join().getEnabled();
+
+                                response.setRoles(userRoles);
+                                response.setGroups(userGroups);
+                                response.setAccountEnabled(Boolean.TRUE.equals(enabled));
+                            } catch (Exception e) {
+                                log.warn("Failed to fetch roles/groups for user {}", profile.getUserId(), e);
+                            }
                         }
-                    }
-                    return response;
+                        return response;
+                    });
                 })
                 .toList();
+
+        return futures.stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList());
     }
 
     public ProfileResponse syncProfile(RegistrationRequest request, String userId) {
