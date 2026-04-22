@@ -24,15 +24,15 @@ import LockResetIcon from "@mui/icons-material/LockReset";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from "@mui/icons-material/Login";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useKeycloakAuth } from "../context/KeycloakAuthContext";
-import { useProfile } from "../context/ProfileContext";
+import { useKeycloakAuth } from "../../context/KeycloakAuthContext";
+import { useProfile } from "../../context/ProfileContext";
 import { useTranslation } from "react-i18next";
-import { useThemeStatus } from "../context/ThemeContext";
+import { useThemeStatus } from "../../context/ThemeContext";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LanguageIcon from "@mui/icons-material/Language";
 import CloudinaryImage from "./CloudinaryImage";
-import drumifyLogo from "../assets/images/drumify.png";
+import drumifyLogo from "../../assets/images/drumify.png";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",

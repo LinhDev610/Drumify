@@ -24,7 +24,7 @@ spring:
 idp:
   url: http://localhost:8280
   client-id: linhdev_drumify_app_BE
-  client-secret: GV9cQ7M9H861v1SDWhOr46xQmgQj5Clo
+  client-secret: kXs66xSRYQqArLiJWHIR7jRHMqXpp5pn
 
 app:
   sync-secret: DrumifySyncSecret2026

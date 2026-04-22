@@ -337,13 +337,13 @@ function AttendanceTab() {
   return (
     <Box>
       <Alert severity="info" sx={{ mb: 2 }}>
-        Don nghi phep do nhan vien gui tu cong cua ho (portal / ung dung noi bo). HR chi xem va duyet hoac tu choi, khong tao don thay nhan vien.
+        Đơn nghỉ phép do nhân viên gửi từ cổng của họ (portal / ứng dụng nội bộ). HR chỉ xem và duyệt hoặc từ chối, không tạo đơn thay nhân viên.
       </Alert>
       <Grid container spacing={2} sx={{ mb: 2.5 }}>
-        <Grid size={{ xs: 12, md: 3 }}><StatCard title="Nhan su di lam hom nay" value="72/80" progress={90} /></Grid>
-        <Grid size={{ xs: 12, md: 3 }}><StatCard title="Di tre" value="6" progress={28} /></Grid>
-        <Grid size={{ xs: 12, md: 3 }}><StatCard title="Don nghi cho duyet" value={String(pendingCount)} progress={46} /></Grid>
-        <Grid size={{ xs: 12, md: 3 }}><StatCard title="OT tuan nay" value="31 gio" progress={52} /></Grid>
+        <Grid size={{ xs: 12, md: 3 }}><StatCard title="Nhân sự đi làm hôm nay" value="72/80" progress={90} /></Grid>
+        <Grid size={{ xs: 12, md: 3 }}><StatCard title="Đi trễ" value="6" progress={28} /></Grid>
+        <Grid size={{ xs: 12, md: 3 }}><StatCard title="Đơn nghỉ chờ duyệt" value={String(pendingCount)} progress={46} /></Grid>
+        <Grid size={{ xs: 12, md: 3 }}><StatCard title="OT tuần này" value="31 gio" progress={52} /></Grid>
       </Grid>
       <Paper sx={{ p: 2, bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
         <Typography variant="h6" sx={{ mb: 1.5, fontWeight: 700 }}>Don xin nghi can xu ly</Typography>
@@ -788,7 +788,7 @@ export default function HRWorkspace() {
       <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>
         {t("hr.title")}
       </Typography>
-      <br/>
+      <br />
 
       <Paper sx={{ mb: 2.5, bgcolor: "rgba(255,255,255,0.03)", border: "1px solid var(--color-border)" }}>
         <Tabs

@@ -68,13 +68,17 @@ public class ProfileService {
     String clientSecret;
 
     private String getClientToken() {
-        var tokenInfo = identityClient.exchangeToken(TokenExchangeParam.builder()
-                .grant_type("client_credentials")
-                .client_id(clientId)
-                .client_secret(clientSecret)
-                .scope("openid")
-                .build());
-        return "Bearer " + tokenInfo.getAccessToken();
+        try {
+            var tokenInfo = identityClient.exchangeToken(TokenExchangeParam.builder()
+                    .grant_type("client_credentials")
+                    .client_id(clientId)
+                    .client_secret(clientSecret)
+                    .scope("openid")
+                    .build());
+            return "Bearer " + tokenInfo.getAccessToken();
+        } catch (FeignException e) {
+            throw errorNormalizer.handleKeycloakException(e);
+        }
     }
 
     @PreAuthorize("hasRole('ADMIN') or (hasRole('STAFF') and hasAuthority('GROUP_HR'))")

@@ -31,6 +31,7 @@ Hệ thống cần mở rộng để hỗ trợ các máy bán hàng tại quầ
 ### 💡 Quyết định
 - Nâng cấp lên `typescript@latest` (6.x).
 - Gỡ bỏ `react-quill` (conflicting) và thay bằng `react-quill-new` để hỗ trợ React 19.
+- **Rollback (2026-04-21)**: Do xung đột `ERESOLVE` với `react-scripts@5`, hạ cấp xuống `typescript@4.9.5` và `i18next@23.x` để đảm bảo ổn định build.
 
 ---
 
